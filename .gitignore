@@ -1,0 +1,2 @@
+*.csv
+!sample-songs.csv

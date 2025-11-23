@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Band Song Manager</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d84315' stroke-width='2'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6b7280;
+            --primary-light: #9ca3af;
+            --primary-lighter: #d1d5db;
+            --primary-dark: #374151;
+            --primary-darker: #4b5563;
+            --primary-glow: rgba(107, 114, 128, 0.3);
+            --primary-border: rgba(107, 114, 128, 0.3);
+            --primary-bg: rgba(107, 114, 128, 0.15);
+        }
+
+        [data-theme="red"] {
+            --primary-color: #d84315;
+            --primary-light: #ff6b3d;
+            --primary-lighter: #ffa580;
+            --primary-dark: #5c1d0a;
+            --primary-darker: #7a2710;
+            --primary-glow: rgba(216, 67, 21, 0.3);
+            --primary-border: rgba(216, 67, 21, 0.3);
+            --primary-bg: rgba(216, 67, 21, 0.15);
+        }
+
+        [data-theme="blue"] {
+            --primary-color: #1976d2;
+            --primary-light: #42a5f5;
+            --primary-lighter: #90caf9;
+            --primary-dark: #0d3d6b;
+            --primary-darker: #1565c0;
+            --primary-glow: rgba(25, 118, 210, 0.3);
+            --primary-border: rgba(25, 118, 210, 0.3);
+            --primary-bg: rgba(25, 118, 210, 0.15);
+        }
+
+        [data-theme="green"] {
+            --primary-color: #388e3c;
+            --primary-light: #66bb6a;
+            --primary-lighter: #a5d6a7;
+            --primary-dark: #1b4d1e;
+            --primary-darker: #2e7d32;
+            --primary-glow: rgba(56, 142, 60, 0.3);
+            --primary-border: rgba(56, 142, 60, 0.3);
+            --primary-bg: rgba(56, 142, 60, 0.15);
+        }
+
+        [data-theme="purple"] {
+            --primary-color: #7b1fa2;
+            --primary-light: #ab47bc;
+            --primary-lighter: #ce93d8;
+            --primary-dark: #3d0f51;
+            --primary-darker: #6a1b9a;
+            --primary-glow: rgba(123, 31, 162, 0.3);
+            --primary-border: rgba(123, 31, 162, 0.3);
+            --primary-bg: rgba(123, 31, 162, 0.15);
+        }
+
+        [data-theme="cyan"] {
+            --primary-color: #00838f;
+            --primary-light: #00acc1;
+            --primary-lighter: #4dd0e1;
+            --primary-dark: #004247;
+            --primary-darker: #00697c;
+            --primary-glow: rgba(0, 131, 143, 0.3);
+            --primary-border: rgba(0, 131, 143, 0.3);
+            --primary-bg: rgba(0, 131, 143, 0.15);
+        }
+
+        [data-theme="amber"] {
+            --primary-color: #f57c00;
+            --primary-light: #ff9800;
+            --primary-lighter: #ffb74d;
+            --primary-dark: #7a3e00;
+            --primary-darker: #ef6c00;
+            --primary-glow: rgba(245, 124, 0, 0.3);
+            --primary-border: rgba(245, 124, 0, 0.3);
+            --primary-bg: rgba(245, 124, 0, 0.15);
+        }
+
+        [data-theme="pink"] {
+            --primary-color: #c2185b;
+            --primary-light: #e91e63;
+            --primary-lighter: #f06292;
+            --primary-dark: #610c2d;
+            --primary-darker: #ad1457;
+            --primary-glow: rgba(194, 24, 91, 0.3);
+            --primary-border: rgba(194, 24, 91, 0.3);
+            --primary-bg: rgba(194, 24, 91, 0.15);
+        }
+
+        [data-theme="teal"] {
+            --primary-color: #00897b;
+            --primary-light: #26a69a;
+            --primary-lighter: #80cbc4;
+            --primary-dark: #00443d;
+            --primary-darker: #00695c;
+            --primary-glow: rgba(0, 137, 123, 0.3);
+            --primary-border: rgba(0, 137, 123, 0.3);
+            --primary-bg: rgba(0, 137, 123, 0.15);
+        }
+
+        [data-theme="copper"] {
+            --primary-color: #b87333;
+            --primary-light: #d4944e;
+            --primary-lighter: #e8b67a;
+            --primary-dark: #7a4d22;
+            --primary-darker: #8b5a2b;
+            --primary-glow: rgba(184, 115, 51, 0.3);
+            --primary-border: rgba(184, 115, 51, 0.3);
+            --primary-bg: rgba(184, 115, 51, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background watermark - Guitar */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0%;
+            right: -20%;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1' opacity='0.15'%3E%3Ccircle cx='12' cy='17' r='4.5'/%3E%3Cline x1='12' y1='12.5' x2='12' y2='2'/%3E%3Cline x1='9' y1='5' x2='15' y2='5'/%3E%3Cline x1='9' y1='8' x2='15' y2='8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            pointer-events: none;
+            z-index: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Background watermark - Drum (hidden by default) */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0%;
+            right: -20%;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24' fill='none' stroke='%23ffffff' stroke-width='1.5' opacity='0.15'%3E%3Ccircle cx='23' cy='17' r='4.5'/%3E%3Cline x1='16' y1='21.5' x2='16' y2='2'/%3E%3Cline x1='11' y1='5' x2='21' y2='5'/%3E%3Cline x1='18' y1='8' x2='28' y2='8'/%3E%3Cline x1='21' y1='10' x2='26' y2='10'/%3E%3Cline x1='7' y1='12.5' x2='18' y2='12.5'/%3E%3Cline x1='30' y1='12.5' x2='30' y2='2'/%3E%3Cline x1='25' y1='5' x2='35' y2='5'/%3E%3Cline x1='27' y1='8' x2='33' y2='8'/%3E%3Cline x1='26' y1='14' x2='31' y2='14'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Show drum watermark when active */
+        body.drum-watermark::before {
+            opacity: 0;
+        }
+
+        body.drum-watermark::after {
+            opacity: 1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px var(--primary-glow);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-links a {
+            color: var(--primary-light);
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid var(--primary-border);
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            background: var(--primary-bg);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .controls {
+            background: rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px var(--primary-glow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--primary-dark);
+            color: var(--primary-light);
+            border: 2px solid var(--primary-light);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-darker);
+            color: var(--primary-lighter);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--primary-dark);
+            color: var(--primary-light);
+            border: 2px solid var(--primary-light);
+        }
+
+        .btn-success:hover {
+            background: var(--primary-darker);
+            color: var(--primary-lighter);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #5c1d0a;
+            color: #ff6b3d;
+            border: 2px solid #ff6b3d;
+        }
+
+        .btn-danger:hover {
+            background: #7a2710;
+            color: #ffa580;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #2a2d33;
+            color: #c1c7d0;
+            border: 2px solid #c1c7d0;
+        }
+
+        .btn-secondary:hover {
+            background: #3a3e47;
+            color: #e5e9f0;
+            transform: translateY(-2px);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            background: #000000;
+            border: 2px solid var(--primary-border);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .table-container {
+            background: 
+                radial-gradient(circle at top left, var(--primary-bg) 0%, transparent 40%),
+                radial-gradient(circle at top right, var(--primary-bg) 0%, transparent 40%),
+                radial-gradient(circle at bottom left, var(--primary-bg) 0%, transparent 40%),
+                radial-gradient(circle at bottom right, var(--primary-bg) 0%, transparent 40%),
+                rgba(42, 42, 42, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px var(--primary-glow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: transparent;
+        }
+
+        thead {
+            background: var(--primary-bg);
+            border-bottom: 2px solid var(--primary-border);
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        tbody {
+            background: transparent;
+        }
+
+        tbody tr {
+            background: rgba(40, 40, 40, 0.5);
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(60, 60, 60, 0.3);
+        }
+
+        tr:hover {
+            background: var(--primary-bg) !important;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 16px;
+            min-width: 32px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #000000;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px var(--primary-glow);
+            border: 1px solid var(--primary-border);
+        }
+
+        .modal-content.large {
+            max-width: 95%;
+            width: 95%;
+            max-height: 95vh;
+            resize: both;
+            overflow: auto;
+            min-width: 800px;
+            min-height: 500px;
+            position: relative;
+        }
+
+        .modal-content.large::after {
+            content: '⇲';
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: 20px;
+            color: var(--primary-glow);
+            pointer-events: none;
+            text-shadow: 0 0 5px var(--primary-glow);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-border);
+        }
+
+        .modal-header h2 {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0a0a0a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 10px var(--primary-glow));
+        }
+
+        .close {
+            cursor: pointer;
+            font-size: 28px;
+            color: #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--primary-color);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 10px 15px;
+            background: #000000;
+            border: 2px solid var(--primary-border);
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .import-preview {
+            max-height: 60vh;
+            overflow: auto;
+            margin-top: 20px;
+        }
+
+        .import-preview table {
+            min-width: 100%;
+            white-space: nowrap;
+        }
+
+        .import-preview td, .import-preview th {
+            white-space: normal;
+        }
+
+        .import-item {
+            background: #000000;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .import-item.update {
+            border-left-color: #f59e0b;
+        }
+
+        .import-item.new {
+            border-left-color: #10b981;
+        }
+
+        .import-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .import-changes {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .change-line {
+            padding: 5px;
+            margin: 2px 0;
+        }
+
+        .change-old {
+            color: #ef4444;
+            text-decoration: line-through;
+        }
+
+        .change-new {
+            color: #10b981;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* Custom styled checkboxes for column visibility */
+        #columnVisibilityPanel input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--primary-color);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        #columnVisibilityPanel input[type="checkbox"]:hover {
+            background: var(--primary-bg);
+        }
+
+        #columnVisibilityPanel input[type="checkbox"]:checked {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        #columnVisibilityPanel input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #000;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        #columnVisibilityPanel label {
+            color: #e0e0e0;
+            transition: color 0.2s;
+        }
+
+        #columnVisibilityPanel label:hover {
+            color: var(--primary-light);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+            font-size: 18px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: #000000;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-border);
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .stat-card h3 {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #4a4a4a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .stat-card p {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a1a1a 100%);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #2a2a2a 100%);
+        }
+
+        .link-icon {
+            color: var(--primary-light) !important;
+            text-decoration: none;
+            font-size: 18px;
+            text-shadow: 
+                0 0 5px var(--primary-glow),
+                0 0 10px var(--primary-glow),
+                0 0 15px var(--primary-glow);
+            transition: all 0.3s ease;
+        }
+
+        .link-icon:hover {
+            color: var(--primary-lighter) !important;
+            text-shadow: 
+                0 0 8px var(--primary-glow),
+                0 0 15px var(--primary-glow),
+                0 0 20px var(--primary-glow);
+            transform: scale(1.1);
+        }
+
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 25px !important;
+        }
+
+        .sortable:hover {
+            color: var(--primary-light);
+        }
+
+        .sortable::after {
+            content: '⇅';
+            position: absolute;
+            right: 8px;
+            opacity: 0.3;
+        }
+
+        .sortable.asc::after {
+            content: '↑';
+            opacity: 1;
+        }
+
+        .sortable.desc::after {
+            content: '↓';
+            opacity: 1;
+        }
+
+        .filter-container {
+            margin-top: 10px;
+            padding: 12px;
+            background: #000000;
+            border-radius: 8px;
+            border: 1px solid var(--primary-border);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            background: #000000;
+            border: 2px solid var(--primary-border);
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .filter-input {
+            padding: 8px 12px;
+            background: #000000;
+            border: 2px solid var(--primary-border);
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 14px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn-filter {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .active-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .filter-tag {
+            background: var(--primary-bg);
+            border: 1px solid var(--primary-border);
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .filter-tag-remove {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .filter-tag-remove:hover {
+            color: var(--primary-light);
+            text-shadow: 0 0 5px var(--primary-glow);
+        }
+
+        /* Column visibility classes */
+        .hidden-col { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <svg id="guitarIcon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 10px; filter: drop-shadow(0 0 8px var(--primary-glow)); cursor: pointer;" onclick="switchWatermark('guitar')" title="Show Guitar Watermark">
+                <!-- Guitar body (hollow circle) -->
+                <circle cx="12" cy="17" r="4.5" stroke="var(--primary-color)" fill="none"/>
+                <!-- Guitar neck (vertical line from top of circle) -->
+                <line x1="12" y1="12.5" x2="12" y2="2" stroke="var(--primary-color)"/>
+                <!-- Fret/String lines (horizontal lines through neck) -->
+                <line x1="9" y1="5" x2="15" y2="5" stroke="var(--primary-color)"/>
+                <line x1="9" y1="8" x2="15" y2="8" stroke="var(--primary-color)"/>
+            </svg>
+            Song Manager
+            <svg id="drumIcon" width="60" height="60" viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 10px; filter: drop-shadow(0 0 8px var(--primary-glow)); cursor: pointer;" onclick="switchWatermark('drum')" title="Show Drum Watermark">
+                <!-- Center drum (bass/floor tom) - shifted right -->
+                <circle cx="23" cy="17" r="4.5" fill="none" stroke="var(--primary-color)"/>
+                <!-- Left vertical line extended down to bottom of ring -->
+                <line x1="16" y1="21.5" x2="16" y2="2" stroke="var(--primary-color)"/>
+                <!-- Top line - extended (cymbal) -->
+                <line x1="11" y1="5" x2="21" y2="5" stroke="var(--primary-color)"/>
+                <line x1="18" y1="8" x2="28" y2="8" stroke="var(--primary-color)"/>
+                <!-- Mid tom line reaching right -->
+                <line x1="21" y1="10" x2="26" y2="10" stroke="var(--primary-color)"/>
+                <!-- Low tom line moved up to top of ring -->
+                <line x1="7" y1="12.5" x2="18" y2="12.5" stroke="var(--primary-color)"/>
+                
+                <!-- Right cymbal stand (no drum) -->
+                <line x1="30" y1="12.5" x2="30" y2="2" stroke="var(--primary-color)"/>
+                <!-- Right top line - extended (cymbal) -->
+                <line x1="25" y1="5" x2="35" y2="5" stroke="var(--primary-color)"/>
+                <line x1="27" y1="8" x2="33" y2="8" stroke="var(--primary-color)"/>
+                <!-- Snare rim line reaching left -->
+                <line x1="26" y1="14" x2="31" y2="14" stroke="var(--primary-color)"/>
+            </svg>
+        </h1>
+
+        <div class="nav-links">
+            <a href="setlist-manager.html">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                    <path d="M9 18V5l12-2v13" fill="currentColor" opacity="0.3"/>
+                    <path d="M9 18V5l12-2v13"/>
+                    <circle cx="6" cy="18" r="3" fill="currentColor" opacity="0.5"/>
+                    <circle cx="18" cy="16" r="3" fill="currentColor" opacity="0.5"/>
+                </svg>
+                Setlist Manager
+            </a>
+        </div>
+
+        <div class="controls">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Total Songs</h3>
+                    <p id="totalSongs">0</p>
+                    <p id="searchResults" style="font-size: 14px; margin-top: 5px; color: var(--primary-light); display: none;"></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Artists</h3>
+                    <p id="totalArtists">0</p>
+                    <p id="artistResults" style="font-size: 14px; margin-top: 5px; color: var(--primary-light); display: none;"></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Bands</h3>
+                    <p id="totalBands">0</p>
+                    <p id="bandResults" style="font-size: 14px; margin-top: 5px; color: var(--primary-light); display: none;"></p>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-success" onclick="openAddModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add Song
+                </button>
+                <button class="btn-success" onclick="document.getElementById('csvFile').click()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Import CSV
+                </button>
+                <button class="btn-secondary" onclick="exportCSV()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Export CSV
+                </button>
+                <button class="btn-secondary" onclick="toggleColumnVisibilityPanel()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    Columns
+                </button>
+                <button class="btn-danger" onclick="clearAllData()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        <line x1="10" y1="11" x2="10" y2="17"/>
+                        <line x1="14" y1="11" x2="14" y2="17"/>
+                    </svg>
+                    Clear All Data
+                </button>
+                <input type="file" id="csvFile" accept=".csv" onchange="handleCSVImport(event)">
+                <div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
+                    <label style="margin: 0; color: var(--primary-light); font-weight: 500;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v6M5.6 5.6l4.2 4.2m4.2 4.2l4.2 4.2M1 12h6m6 0h6M5.6 18.4l4.2-4.2m4.2-4.2l4.2-4.2"/>
+                        </svg>
+                        Theme:
+                    </label>
+                    <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 8px 12px; background: #000; border: 2px solid var(--primary-border); border-radius: 6px; color: #e0e0e0; cursor: pointer;">
+                        <option value="grey">Grey (Default)</option>
+                        <option value="red">Red/Orange</option>
+                        <option value="blue">Blue</option>
+                        <option value="green">Green</option>
+                        <option value="purple">Purple</option>
+                        <option value="cyan">Cyan</option>
+                        <option value="teal">Teal</option>
+                        <option value="copper">Copper</option>
+                        <option value="amber">Amber</option>
+                        <option value="pink">Pink</option>
+                    </select>
+                </div>
+            </div>
+
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search by artist, song, album, band... (use spaces for multiple words)" oninput="applyFilters()">
+            
+            <div id="columnVisibilityPanel" style="display: none; margin-top: 10px; padding: 12px; background: #000000; border-radius: 8px; border: 1px solid var(--primary-border);">
+                <h4 style="margin: 0 0 10px 0; color: var(--primary-color);">Show/Hide Columns</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-artist" checked onchange="toggleColumn('artist')">
+                        <span>Artist</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-song" checked onchange="toggleColumn('song')">
+                        <span>Song</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-album" checked onchange="toggleColumn('album')">
+                        <span>Album</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-link" checked onchange="toggleColumn('link')">
+                        <span>Link</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-tuning" checked onchange="toggleColumn('tuning')">
+                        <span>Tuning</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-bands" checked onchange="toggleColumn('bands')">
+                        <span>Bands</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-key" checked onchange="toggleColumn('key')">
+                        <span>Key</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-firstNote" checked onchange="toggleColumn('firstNote')">
+                        <span>First Note</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-lastNote" checked onchange="toggleColumn('lastNote')">
+                        <span>Last Note</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-actions" checked onchange="toggleColumn('actions')">
+                        <span>Actions</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-container">
+                <div class="filter-row">
+                    <select id="filterColumn" class="filter-select" onchange="updateFilterSuggestions()">
+                        <option value="">Select Column</option>
+                        <option value="artist">Artist</option>
+                        <option value="song">Song</option>
+                        <option value="album">Album</option>
+                        <option value="tuning">Tuning</option>
+                        <option value="bands">Bands</option>
+                        <option value="key">Key</option>
+                        <option value="firstNote">First Note</option>
+                        <option value="lastNote">Last Note</option>
+                    </select>
+                    <input type="text" id="filterValue" class="filter-input" placeholder="Filter value..." list="filterSuggestions" onkeypress="if(event.key==='Enter') addFilter()">
+                    <datalist id="filterSuggestions"></datalist>
+                    <button class="btn-success btn-filter" onclick="addFilter()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add Filter
+                    </button>
+                    <button class="btn-secondary btn-filter" onclick="clearAllFilters()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                        Clear All
+                    </button>
+                </div>
+                <div id="activeFilters" class="active-filters"></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-actions">Actions</th>
+                        <th class="col-link">Link</th>
+                        <th class="sortable col-artist" onclick="sortTable('artist')">Artist</th>
+                        <th class="sortable col-song" onclick="sortTable('song')">Song</th>
+                        <th class="sortable col-album" onclick="sortTable('album')">Album</th>
+                        <th class="sortable col-tuning" onclick="sortTable('tuning')">Tuning</th>
+                        <th class="sortable col-bands" onclick="sortTable('bands')">Bands</th>
+                        <th class="sortable col-key" onclick="sortTable('key')">Key</th>
+                        <th class="sortable col-firstNote" onclick="sortTable('firstNote')">First Note</th>
+                        <th class="sortable col-lastNote" onclick="sortTable('lastNote')">Last Note</th>
+                    </tr>
+                </thead>
+                <tbody id="songTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="songModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Song</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="songForm">
+                <div class="form-group">
+                    <label>Artist *</label>
+                    <input type="text" id="artist" required>
+                </div>
+                <div class="form-group">
+                    <label>Song *</label>
+                    <input type="text" id="song" required>
+                </div>
+                <div class="form-group">
+                    <label>Album</label>
+                    <input type="text" id="album">
+                </div>
+                <div class="form-group">
+                    <label>Link</label>
+                    <input type="url" id="link">
+                </div>
+                <div class="form-group">
+                    <label>Tuning</label>
+                    <input type="text" id="tuning" placeholder="e.g., Standard, Drop D">
+                </div>
+                <div class="form-group">
+                    <label>Bands</label>
+                    <input type="text" id="bands" placeholder="Comma-separated band names">
+                </div>
+                <div class="form-group">
+                    <label>Key</label>
+                    <input type="text" id="key" placeholder="e.g., Am, G">
+                </div>
+                <div class="form-group">
+                    <label>First Note</label>
+                    <input type="text" id="firstNote">
+                </div>
+                <div class="form-group">
+                    <label>Last Note</label>
+                    <input type="text" id="lastNote">
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Save</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Import Preview Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2>Import Preview <span style="font-size: 14px; color: #6b7280; font-weight: normal;">(Drag corner to resize)</span></h2>
+                <span class="close" onclick="closeImportModal()">&times;</span>
+            </div>
+            <div id="importPreview" class="import-preview"></div>
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="btn-success" onclick="confirmImport()">✓ Confirm Import</button>
+                <button class="btn-secondary" onclick="closeImportModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let songs = [];
+        let editIndex = -1;
+        let importData = [];
+        let currentSort = { column: null, direction: 'asc' };
+        let activeFilters = [];
+        let hiddenColumns = new Set(); // Track hidden columns
+
+        // Theme Management
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'grey';
+            applyTheme(savedTheme);
+            const themeSelector = document.getElementById('themeSelector');
+            if (themeSelector) {
+                themeSelector.value = savedTheme;
+            }
+        }
+
+        function applyTheme(theme) {
+            // Remove all theme data attributes
+            document.body.removeAttribute('data-theme');
+            
+            // Apply new theme (only if not default grey)
+            if (theme !== 'grey') {
+                document.body.setAttribute('data-theme', theme);
+            }
+        }
+
+        function changeTheme(theme) {
+            localStorage.setItem('bandOrganizerTheme', theme);
+            applyTheme(theme);
+        }
+
+        // Column Visibility Management
+        function toggleColumnVisibilityPanel() {
+            const panel = document.getElementById('columnVisibilityPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleColumn(columnName) {
+            const checkbox = document.getElementById(`col-${columnName}`);
+            if (checkbox.checked) {
+                hiddenColumns.delete(columnName);
+            } else {
+                hiddenColumns.add(columnName);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('hiddenColumns', JSON.stringify([...hiddenColumns]));
+            
+            // Re-render the table
+            applyFilters();
+        }
+
+        function loadColumnVisibility() {
+            const saved = localStorage.getItem('hiddenColumns');
+            if (saved) {
+                hiddenColumns = new Set(JSON.parse(saved));
+                // Update checkboxes
+                hiddenColumns.forEach(col => {
+                    const checkbox = document.getElementById(`col-${col}`);
+                    if (checkbox) checkbox.checked = false;
+                });
+            }
+        }
+
+        // Load data on page load
+        window.onload = function() {
+            loadTheme(); // Load theme first
+            loadWatermark(); // Load watermark preference
+            loadColumnVisibility(); // Load column visibility preferences
+            loadSongs();
+            applyFilters();
+            updateStats();
+        };
+
+        // Load and apply watermark preference
+        function loadWatermark() {
+            const watermark = localStorage.getItem('watermark') || 'guitar';
+            if (watermark === 'drum') {
+                document.body.classList.add('drum-watermark');
+                updateIconStyles('drum');
+            } else {
+                document.body.classList.remove('drum-watermark');
+                updateIconStyles('guitar');
+            }
+        }
+
+        // Switch watermark
+        function switchWatermark(type) {
+            localStorage.setItem('watermark', type);
+            if (type === 'drum') {
+                document.body.classList.add('drum-watermark');
+            } else {
+                document.body.classList.remove('drum-watermark');
+            }
+            updateIconStyles(type);
+        }
+
+        // Update icon styles to show which is active
+        function updateIconStyles(activeType) {
+            const guitarIcon = document.getElementById('guitarIcon');
+            const drumIcon = document.getElementById('drumIcon');
+            
+            if (activeType === 'guitar') {
+                guitarIcon.style.opacity = '1';
+                drumIcon.style.opacity = '0.5';
+            } else {
+                guitarIcon.style.opacity = '0.5';
+                drumIcon.style.opacity = '1';
+            }
+        }
+
+        // Load songs from localStorage
+        function loadSongs() {
+            const stored = localStorage.getItem('bandSongs');
+            if (stored) {
+                songs = JSON.parse(stored);
+            }
+        }
+
+        // Save songs to localStorage
+        function saveSongs() {
+            localStorage.setItem('bandSongs', JSON.stringify(songs));
+        }
+
+        // Render songs table
+        function renderSongs(filteredSongs = null) {
+            const tbody = document.getElementById('songTableBody');
+            const displaySongs = filteredSongs || songs;
+
+            // Update column visibility in headers
+            const columns = ['actions', 'link', 'artist', 'song', 'album', 'tuning', 'bands', 'key', 'firstNote', 'lastNote'];
+            columns.forEach(col => {
+                const headers = document.querySelectorAll(`.col-${col}`);
+                headers.forEach(header => {
+                    if (hiddenColumns.has(col)) {
+                        header.classList.add('hidden-col');
+                    } else {
+                        header.classList.remove('hidden-col');
+                    }
+                });
+            });
+
+            if (displaySongs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${columns.length - hiddenColumns.size}" class="no-data">No songs yet. Add your first song or import from CSV!</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = displaySongs.map((song, index) => `
+                <tr>
+                    <td class="col-actions ${hiddenColumns.has('actions') ? 'hidden-col' : ''}">
+                        <div class="action-buttons">
+                            <button class="btn-secondary btn-small" onclick="editSong(${song.originalIndex !== undefined ? song.originalIndex : index})" title="Edit">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-danger btn-small" onclick="deleteSong(${song.originalIndex !== undefined ? song.originalIndex : index})" title="Delete">✕</button>
+                        </div>
+                    </td>
+                    <td class="col-link ${hiddenColumns.has('link') ? 'hidden-col' : ''}">${song.link ? `<a href="${escapeHtml(song.link)}" target="_blank" class="link-icon">🔗</a>` : '-'}</td>
+                    <td class="col-artist ${hiddenColumns.has('artist') ? 'hidden-col' : ''}">${escapeHtml(song.artist)}</td>
+                    <td class="col-song ${hiddenColumns.has('song') ? 'hidden-col' : ''}">${escapeHtml(song.song)}</td>
+                    <td class="col-album ${hiddenColumns.has('album') ? 'hidden-col' : ''}">${escapeHtml(song.album || '-')}</td>
+                    <td class="col-tuning ${hiddenColumns.has('tuning') ? 'hidden-col' : ''}">${escapeHtml(song.tuning || '-')}</td>
+                    <td class="col-bands ${hiddenColumns.has('bands') ? 'hidden-col' : ''}">${escapeHtml(song.bands || '-')}</td>
+                    <td class="col-key ${hiddenColumns.has('key') ? 'hidden-col' : ''}">${escapeHtml(song.key || '-')}</td>
+                    <td class="col-firstNote ${hiddenColumns.has('firstNote') ? 'hidden-col' : ''}">${escapeHtml(song.firstNote || '-')}</td>
+                    <td class="col-lastNote ${hiddenColumns.has('lastNote') ? 'hidden-col' : ''}">${escapeHtml(song.lastNote || '-')}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalSongs').textContent = songs.length;
+            
+            const uniqueArtists = new Set(songs.map(s => s.artist.toLowerCase()));
+            document.getElementById('totalArtists').textContent = uniqueArtists.size;
+            
+            const uniqueBands = new Set();
+            songs.forEach(s => {
+                if (s.bands) {
+                    s.bands.split(',').forEach(b => uniqueBands.add(b.trim().toLowerCase()));
+                }
+            });
+            document.getElementById('totalBands').textContent = uniqueBands.size;
+        }
+
+        // Open add modal
+        function openAddModal() {
+            editIndex = -1;
+            document.getElementById('modalTitle').textContent = 'Add Song';
+            document.getElementById('songForm').reset();
+            document.getElementById('songModal').classList.add('active');
+        }
+
+        // Edit song
+        function editSong(index) {
+            editIndex = index;
+            const song = songs[index];
+            document.getElementById('modalTitle').textContent = 'Edit Song';
+            document.getElementById('artist').value = song.artist;
+            document.getElementById('song').value = song.song;
+            document.getElementById('album').value = song.album || '';
+            document.getElementById('link').value = song.link || '';
+            document.getElementById('tuning').value = song.tuning || '';
+            document.getElementById('bands').value = song.bands || '';
+            document.getElementById('key').value = song.key || '';
+            document.getElementById('firstNote').value = song.firstNote || '';
+            document.getElementById('lastNote').value = song.lastNote || '';
+            document.getElementById('songModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('songModal').classList.remove('active');
+        }
+
+        // Close import modal
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('active');
+            importData = [];
+        }
+
+        // Handle form submission
+        document.getElementById('songForm').onsubmit = function(e) {
+            e.preventDefault();
+            
+            const songData = {
+                artist: document.getElementById('artist').value.trim(),
+                song: document.getElementById('song').value.trim(),
+                album: document.getElementById('album').value.trim(),
+                link: document.getElementById('link').value.trim(),
+                tuning: document.getElementById('tuning').value.trim(),
+                bands: document.getElementById('bands').value.trim(),
+                key: document.getElementById('key').value.trim(),
+                firstNote: document.getElementById('firstNote').value.trim(),
+                lastNote: document.getElementById('lastNote').value.trim()
+            };
+
+            if (editIndex >= 0) {
+                songs[editIndex] = songData;
+            } else {
+                songs.push(songData);
+            }
+
+            saveSongs();
+            applyFilters();
+            updateStats();
+            closeModal();
+        };
+
+        // Delete song
+        function deleteSong(index) {
+            if (confirm('Are you sure you want to delete this song?')) {
+                songs.splice(index, 1);
+                saveSongs();
+                applyFilters();
+                updateStats();
+            }
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (confirm('Are you sure you want to delete ALL songs? This cannot be undone!')) {
+                songs = [];
+                activeFilters = [];
+                currentSort = { column: null, direction: 'asc' };
+                saveSongs();
+                updateFilterTags();
+                applyFilters();
+                updateStats();
+            }
+        }
+
+        // Sort table by column
+        function sortTable(column) {
+            // Toggle sort direction
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+
+            // Update header classes
+            document.querySelectorAll('.sortable').forEach(th => {
+                th.classList.remove('asc', 'desc');
+            });
+            
+            // Map column names to header text
+            const columnMap = {
+                'artist': 'artist',
+                'song': 'song',
+                'album': 'album',
+                'tuning': 'tuning',
+                'bands': 'bands',
+                'key': 'key',
+                'firstNote': 'firstnote',
+                'lastNote': 'lastnote'
+            };
+            
+            const activeHeader = Array.from(document.querySelectorAll('.sortable')).find(
+                th => th.textContent.trim().toLowerCase().replace(/\s/g, '') === columnMap[column]
+            );
+            if (activeHeader) {
+                activeHeader.classList.add(currentSort.direction);
+            }
+
+            applyFilters();
+        }
+
+        // Update filter suggestions based on selected column
+        function updateFilterSuggestions() {
+            const column = document.getElementById('filterColumn').value;
+            const datalist = document.getElementById('filterSuggestions');
+            const filterInput = document.getElementById('filterValue');
+            
+            if (!column) {
+                datalist.innerHTML = '';
+                filterInput.placeholder = 'Filter value...';
+                return;
+            }
+
+            // Get unique values for the selected column from ALL songs (not filtered)
+            const uniqueValues = new Set();
+            let hasEmptyValues = false;
+            
+            songs.forEach(song => {
+                const value = song[column];
+                if (value) {
+                    // Handle bands field which might have comma-separated values
+                    if (column === 'bands' && value.includes(',')) {
+                        value.split(',').forEach(band => {
+                            const trimmed = band.trim();
+                            if (trimmed) uniqueValues.add(trimmed);
+                        });
+                    } else {
+                        uniqueValues.add(value);
+                    }
+                } else {
+                    hasEmptyValues = true;
+                }
+            });
+
+            // Sort values
+            const sortedValues = Array.from(uniqueValues).sort((a, b) => 
+                a.toLowerCase().localeCompare(b.toLowerCase())
+            );
+            
+            // Add (empty) option at the beginning if there are songs with empty values
+            if (hasEmptyValues) {
+                sortedValues.unshift('(empty)');
+            }
+
+            // Populate datalist
+            datalist.innerHTML = sortedValues.map(value => 
+                `<option value="${escapeHtml(value)}"></option>`
+            ).join('');
+
+            const filterCount = activeFilters.length > 0 ? ` (${sortedValues.length} matching)` : '';
+            filterInput.placeholder = `Select or type ${formatFieldName(column)}...${filterCount}`;
+            filterInput.focus();
+        }
+
+        // Add filter
+        function addFilter() {
+            const column = document.getElementById('filterColumn').value;
+            const value = document.getElementById('filterValue').value.trim();
+
+            if (!column || !value) {
+                alert('Please select a column and enter a filter value');
+                return;
+            }
+
+            activeFilters.push({ column, value });
+            document.getElementById('filterColumn').value = '';
+            document.getElementById('filterValue').value = '';
+            document.getElementById('filterSuggestions').innerHTML = '';
+            
+            updateFilterTags();
+            applyFilters();
+        }
+
+        // Remove filter
+        function removeFilter(index) {
+            activeFilters.splice(index, 1);
+            updateFilterTags();
+            applyFilters();
+        }
+
+        // Clear all filters
+        function clearAllFilters() {
+            activeFilters = [];
+            document.getElementById('searchBox').value = '';
+            document.getElementById('filterColumn').value = '';
+            document.getElementById('filterValue').value = '';
+            document.getElementById('filterSuggestions').innerHTML = '';
+            updateFilterTags();
+            applyFilters();
+        }
+
+        // Update filter tags display
+        function updateFilterTags() {
+            const container = document.getElementById('activeFilters');
+            if (activeFilters.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = activeFilters.map((filter, index) => `
+                <div class="filter-tag">
+                    <strong>${formatFieldName(filter.column)}:</strong> ${escapeHtml(filter.value)}
+                    <span class="filter-tag-remove" onclick="removeFilter(${index})">✕</span>
+                </div>
+            `).join('');
+        }
+
+        // Apply all filters and sorting
+        function applyFilters() {
+            let filtered = songs.map((song, index) => ({
+                ...song,
+                originalIndex: index
+            }));
+
+            // Apply search filter with multi-word support and quoted phrase support
+            const searchTerm = document.getElementById('searchBox').value.trim();
+            if (searchTerm) {
+                // Parse search term to handle quoted phrases and individual words
+                const searchTerms = [];
+                const quoteRegex = /"([^"]*)"/g;
+                let remainingText = searchTerm;
+                let match;
+                
+                // Extract quoted phrases
+                while ((match = quoteRegex.exec(searchTerm)) !== null) {
+                    searchTerms.push({ text: match[1].toLowerCase(), isPhrase: true });
+                    remainingText = remainingText.replace(match[0], '');
+                }
+                
+                // Extract individual words from remaining text
+                const words = remainingText.trim().split(/\s+/).filter(w => w.length > 0);
+                words.forEach(word => {
+                    searchTerms.push({ text: word.toLowerCase(), isPhrase: false });
+                });
+                
+                filtered = filtered.filter(song => {
+                    // For each song, check if ALL search terms match
+                    return searchTerms.every(term => {
+                        const searchText = term.text;
+                        const matchFound = 
+                            song.artist.toLowerCase().includes(searchText) ||
+                            song.song.toLowerCase().includes(searchText) ||
+                            (song.album && song.album.toLowerCase().includes(searchText)) ||
+                            (song.bands && song.bands.toLowerCase().includes(searchText)) ||
+                            (song.key && song.key.toLowerCase().includes(searchText)) ||
+                            (song.tuning && song.tuning.toLowerCase().includes(searchText)) ||
+                            (song.firstNote && song.firstNote.toLowerCase().includes(searchText)) ||
+                            (song.lastNote && song.lastNote.toLowerCase().includes(searchText));
+                        
+                        return matchFound;
+                    });
+                });
+            }
+
+            // Apply column filters
+            // Group filters by column to handle multiple values per column with OR logic
+            const filtersByColumn = {};
+            activeFilters.forEach(filter => {
+                if (!filtersByColumn[filter.column]) {
+                    filtersByColumn[filter.column] = [];
+                }
+                filtersByColumn[filter.column].push(filter.value.toLowerCase());
+            });
+            
+            // Apply each column's filters (OR within column, AND between columns)
+            Object.keys(filtersByColumn).forEach(column => {
+                const values = filtersByColumn[column];
+                filtered = filtered.filter(song => {
+                    const fieldValue = (song[column] || '').toLowerCase();
+                    // Match if the field value equals ANY of the filter values for this column
+                    return values.some(value => {
+                        // Handle special "(empty)" filter
+                        if (value === '(empty)') {
+                            return fieldValue === '';
+                        }
+                        return fieldValue === value;
+                    });
+                });
+            });
+
+            // Apply sorting
+            if (currentSort.column) {
+                filtered.sort((a, b) => {
+                    const aVal = (a[currentSort.column] || '').toLowerCase();
+                    const bVal = (b[currentSort.column] || '').toLowerCase();
+                    
+                    if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            // Calculate unique artists and bands from filtered results
+            const uniqueArtists = new Set(filtered.map(s => s.artist)).size;
+            const uniqueBands = new Set(
+                filtered.flatMap(s => s.bands ? s.bands.split(',').map(b => b.trim()) : [])
+            ).size;
+
+            // Update search results display
+            const searchResultsEl = document.getElementById('searchResults');
+            const artistResultsEl = document.getElementById('artistResults');
+            const bandResultsEl = document.getElementById('bandResults');
+            
+            if (searchTerm || activeFilters.length > 0) {
+                searchResultsEl.textContent = `${filtered.length} found`;
+                searchResultsEl.style.display = 'block';
+                
+                artistResultsEl.textContent = `${uniqueArtists} found`;
+                artistResultsEl.style.display = 'block';
+                
+                bandResultsEl.textContent = `${uniqueBands} found`;
+                bandResultsEl.style.display = 'block';
+            } else {
+                searchResultsEl.style.display = 'none';
+                artistResultsEl.style.display = 'none';
+                bandResultsEl.style.display = 'none';
+            }
+
+            renderSongs(filtered);
+        }
+
+        // Handle CSV import
+        function handleCSVImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const csv = e.target.result;
+                parseCSV(csv);
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // Parse CSV
+        function parseCSV(csv) {
+            const lines = csv.split('\n').filter(line => line.trim());
+            if (lines.length < 2) {
+                alert('CSV file is empty or invalid!');
+                return;
+            }
+
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            const fieldMap = {
+                'artist': 'artist',
+                'album': 'album',
+                'song': 'song',
+                'link': 'link',
+                'tuning': 'tuning',
+                'bands': 'bands',
+                'key': 'key',
+                'first note': 'firstNote',
+                'firstnote': 'firstNote',
+                'last note': 'lastNote',
+                'lastnote': 'lastNote'
+            };
+
+            const headerIndexMap = {};
+            headers.forEach((header, index) => {
+                const mappedField = fieldMap[header];
+                if (mappedField) {
+                    headerIndexMap[mappedField] = index;
+                }
+            });
+
+            if (headerIndexMap.artist === undefined || headerIndexMap.song === undefined) {
+                alert('CSV must have "Artist" and "Song" columns!');
+                return;
+            }
+
+            importData = [];
+            const csvSongs = [];
+            
+            // First pass: collect all songs from CSV
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length === 0) continue;
+
+                const newSong = {
+                    artist: values[headerIndexMap.artist]?.trim() || '',
+                    song: values[headerIndexMap.song]?.trim() || '',
+                    album: values[headerIndexMap.album]?.trim() || '',
+                    link: values[headerIndexMap.link]?.trim() || '',
+                    tuning: values[headerIndexMap.tuning]?.trim() || '',
+                    bands: values[headerIndexMap.bands]?.trim() || '',
+                    key: values[headerIndexMap.key]?.trim() || '',
+                    firstNote: values[headerIndexMap.firstNote]?.trim() || '',
+                    lastNote: values[headerIndexMap.lastNote]?.trim() || '',
+                    csvLineNumber: i + 1
+                };
+
+                if (!newSong.artist || !newSong.song) continue;
+                csvSongs.push(newSong);
+            }
+
+            // Second pass: process songs and detect duplicates
+            const processedKeys = new Set();
+            
+            for (let csvSong of csvSongs) {
+                const key = `${csvSong.artist.toLowerCase()}|||${csvSong.song.toLowerCase()}`;
+                
+                // Check for duplicate within CSV file
+                const csvDuplicates = csvSongs.filter(s => 
+                    s.artist.toLowerCase() === csvSong.artist.toLowerCase() &&
+                    s.song.toLowerCase() === csvSong.song.toLowerCase()
+                );
+                
+                if (csvDuplicates.length > 1 && !processedKeys.has(key)) {
+                    // Multiple entries in CSV for same song
+                    processedKeys.add(key);
+                    importData.push({
+                        type: 'csv-duplicate',
+                        duplicates: csvDuplicates,
+                        selected: 0, // Index of selected duplicate
+                        artist: csvSong.artist,
+                        songName: csvSong.song
+                    });
+                } else if (csvDuplicates.length === 1) {
+                    // Single entry in CSV, check against existing songs
+                    const existingIndex = songs.findIndex(s => 
+                        s.artist.toLowerCase() === csvSong.artist.toLowerCase() &&
+                        s.song.toLowerCase() === csvSong.song.toLowerCase()
+                    );
+
+                    if (existingIndex >= 0) {
+                        const changes = getChanges(songs[existingIndex], csvSong);
+                        if (changes.length > 0) {
+                            importData.push({
+                                type: 'update',
+                                index: existingIndex,
+                                oldSong: songs[existingIndex],
+                                newSong: csvSong,
+                                changes: changes,
+                                selected: true
+                            });
+                        }
+                    } else {
+                        importData.push({
+                            type: 'new',
+                            newSong: csvSong,
+                            selected: true
+                        });
+                    }
+                }
+            }
+
+            if (importData.length === 0) {
+                alert('No changes detected in CSV file!');
+                return;
+            }
+
+            showImportPreview();
+        }
+
+        // Parse CSV line handling quoted values
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current);
+
+            return values.map(v => v.trim().replace(/^"|"$/g, ''));
+        }
+
+        // Get changes between old and new song
+        function getChanges(oldSong, newSong) {
+            const changes = [];
+            const fields = ['artist', 'song', 'album', 'link', 'tuning', 'bands', 'key', 'firstNote', 'lastNote'];
+            
+            fields.forEach(field => {
+                const oldVal = oldSong[field] || '';
+                const newVal = newSong[field] || '';
+                if (oldVal !== newVal) {
+                    changes.push({
+                        field: field,
+                        oldValue: oldVal,
+                        newValue: newVal
+                    });
+                }
+            });
+
+            return changes;
+        }
+
+        // Show import preview
+        function showImportPreview() {
+            const preview = document.getElementById('importPreview');
+            
+            // Sort import data by bands, album, then song
+            const sortedData = [...importData].map((item, originalIndex) => ({
+                ...item,
+                originalIndex: originalIndex
+            })).sort((a, b) => {
+                const getSongData = (item) => {
+                    if (item.type === 'csv-duplicate') {
+                        return item.duplicates[item.selected];
+                    }
+                    return item.newSong;
+                };
+                
+                const songA = getSongData(a);
+                const songB = getSongData(b);
+                
+                const bandsA = (songA.bands || '').toLowerCase();
+                const bandsB = (songB.bands || '').toLowerCase();
+                if (bandsA !== bandsB) return bandsA.localeCompare(bandsB);
+                
+                const albumA = (songA.album || '').toLowerCase();
+                const albumB = (songB.album || '').toLowerCase();
+                if (albumA !== albumB) return albumA.localeCompare(albumB);
+                
+                const nameA = (songA.song || '').toLowerCase();
+                const nameB = (songB.song || '').toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+            
+            const duplicateCount = importData.filter(i => i.type === 'csv-duplicate').length;
+            
+            preview.innerHTML = `
+                <div style="margin-bottom: 15px; color: #d84315;">
+                    <strong>${importData.filter(i => i.type === 'new').length}</strong> new songs, 
+                    <strong>${importData.filter(i => i.type === 'update').length}</strong> updates
+                    ${duplicateCount > 0 ? `, <strong style="color: #f59e0b;">${duplicateCount}</strong> duplicates in CSV` : ''}
+                </div>
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px; text-align: center;">✓</th>
+                            <th style="width: 60px;">Status</th>
+                            <th>Band</th>
+                            <th>Artist</th>
+                            <th>Song</th>
+                            <th>Album</th>
+                            <th>Key</th>
+                            <th>Changes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedData.map((item) => {
+                            if (item.type === 'csv-duplicate') {
+                                // Special handling for CSV duplicates
+                                const statusBadge = '<span style="background: #f59e0b; padding: 4px 8px; border-radius: 4px; font-size: 12px;">⚠️ DUPLICATE</span>';
+                                const selectedDup = item.duplicates[item.selected];
+                                
+                                const duplicateOptions = `
+                                    <div style="font-size: 12px;">
+                                        <strong style="color: #f59e0b;">Found ${item.duplicates.length} entries in CSV for this song. Select which to import:</strong>
+                                        ${item.duplicates.map((dup, dupIndex) => `
+                                            <div style="margin: 8px 0; padding: 8px; background: ${dupIndex === item.selected ? 'rgba(216, 67, 21, 0.2)' : 'rgba(50, 50, 50, 0.3)'}; border-radius: 4px; border: ${dupIndex === item.selected ? '2px solid #d84315' : '1px solid #444'};">
+                                                <label style="cursor: pointer; display: block;">
+                                                    <input type="radio" name="duplicate_${item.originalIndex}" value="${dupIndex}" 
+                                                           ${dupIndex === item.selected ? 'checked' : ''} 
+                                                           onchange="selectDuplicate(${item.originalIndex}, ${dupIndex})"
+                                                           style="margin-right: 8px;">
+                                                    CSV Line ${dup.csvLineNumber}:
+                                                    <div style="margin-left: 24px; margin-top: 4px;">
+                                                        ${dup.album ? `<span style="color: #aaa;">Album: ${escapeHtml(dup.album)}</span><br>` : ''}
+                                                        ${dup.bands ? `<span style="color: #aaa;">Bands: ${escapeHtml(dup.bands)}</span><br>` : ''}
+                                                        ${dup.key ? `<span style="color: #aaa;">Key: ${escapeHtml(dup.key)}</span>` : ''}
+                                                        ${dup.tuning ? ` | Tuning: ${escapeHtml(dup.tuning)}` : ''}
+                                                        ${dup.link ? ` | <a href="${escapeHtml(dup.link)}" target="_blank" class="link-icon">🔗</a>` : ''}
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                `;
+                                
+                                return `
+                                    <tr style="border-bottom: 1px solid rgba(216, 67, 21, 0.1); background: rgba(245, 158, 11, 0.05);">
+                                        <td style="text-align: center; padding: 8px;">
+                                            <input type="checkbox" id="import_${item.originalIndex}" 
+                                                   checked
+                                                   onchange="toggleImportItem(${item.originalIndex})"
+                                                   style="width: 18px; height: 18px; cursor: pointer;">
+                                        </td>
+                                        <td style="padding: 8px;">${statusBadge}</td>
+                                        <td style="padding: 8px;">${escapeHtml(selectedDup.bands || '-')}</td>
+                                        <td style="padding: 8px;">${escapeHtml(item.artist)}</td>
+                                        <td style="padding: 8px; font-weight: 600;">${escapeHtml(item.songName)}</td>
+                                        <td style="padding: 8px;">${escapeHtml(selectedDup.album || '-')}</td>
+                                        <td style="padding: 8px;">${escapeHtml(selectedDup.key || '-')}</td>
+                                        <td style="padding: 8px;" colspan="1">${duplicateOptions}</td>
+                                    </tr>
+                                `;
+                            }
+                            
+                            const isUpdate = item.type === 'update';
+                            const statusBadge = isUpdate 
+                                ? '<span style="background: #f59e0b; padding: 4px 8px; border-radius: 4px; font-size: 12px;">🔄 UPDATE</span>'
+                                : '<span style="background: #10b981; padding: 4px 8px; border-radius: 4px; font-size: 12px;">✨ NEW</span>';
+                            
+                            const changesHtml = isUpdate ? `
+                                <div style="font-size: 12px;">
+                                    ${item.changes.map(change => `
+                                        <div style="margin: 2px 0;">
+                                            <strong>${formatFieldName(change.field)}:</strong>
+                                            ${change.oldValue ? `<span class="change-old">${escapeHtml(change.oldValue)}</span> → ` : ''}
+                                            <span class="change-new">${escapeHtml(change.newValue)}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : '-';
+                            
+                            return `
+                                <tr style="border-bottom: 1px solid rgba(216, 67, 21, 0.1);">
+                                    <td style="text-align: center; padding: 8px;">
+                                        <input type="checkbox" id="import_${item.originalIndex}" 
+                                               ${item.selected ? 'checked' : ''} 
+                                               onchange="toggleImportItem(${item.originalIndex})"
+                                               style="width: 18px; height: 18px; cursor: pointer;">
+                                    </td>
+                                    <td style="padding: 8px;">${statusBadge}</td>
+                                    <td style="padding: 8px;">${escapeHtml(item.newSong.bands || '-')}</td>
+                                    <td style="padding: 8px;">${escapeHtml(item.newSong.artist)}</td>
+                                    <td style="padding: 8px; font-weight: 600;">${escapeHtml(item.newSong.song)}</td>
+                                    <td style="padding: 8px;">${escapeHtml(item.newSong.album || '-')}</td>
+                                    <td style="padding: 8px;">${escapeHtml(item.newSong.key || '-')}</td>
+                                    <td style="padding: 8px;">${changesHtml}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('importModal').classList.add('active');
+        }
+
+        // Toggle import item selection
+        function toggleImportItem(index) {
+            importData[index].selected = document.getElementById(`import_${index}`).checked;
+        }
+
+        // Select which duplicate to import
+        function selectDuplicate(importIndex, duplicateIndex) {
+            importData[importIndex].selected = duplicateIndex;
+            // Refresh the preview to show the new selection
+            showImportPreview();
+        }
+
+        // Confirm import
+        function confirmImport() {
+            const selectedItems = importData.filter(item => item.selected !== false && item.selected !== undefined);
+            if (selectedItems.length === 0) {
+                alert('No items selected for import!');
+                return;
+            }
+
+            selectedItems.forEach(item => {
+                if (item.type === 'csv-duplicate') {
+                    // Import the selected duplicate
+                    const selectedSong = item.duplicates[item.selected];
+                    const existingIndex = songs.findIndex(s => 
+                        s.artist.toLowerCase() === selectedSong.artist.toLowerCase() &&
+                        s.song.toLowerCase() === selectedSong.song.toLowerCase()
+                    );
+                    
+                    if (existingIndex >= 0) {
+                        songs[existingIndex] = selectedSong;
+                    } else {
+                        songs.push(selectedSong);
+                    }
+                } else if (item.type === 'update') {
+                    songs[item.index] = item.newSong;
+                } else if (item.type === 'new') {
+                    songs.push(item.newSong);
+                }
+            });
+
+            saveSongs();
+            applyFilters();
+            updateStats();
+            closeImportModal();
+            alert(`Successfully imported ${selectedItems.length} song(s)!`);
+        }
+
+        // Export to CSV
+        function exportCSV() {
+            if (songs.length === 0) {
+                alert('No songs to export!');
+                return;
+            }
+
+            const headers = ['Artist', 'Song', 'Album', 'Link', 'Tuning', 'Bands', 'Key', 'First Note', 'Last Note'];
+            const csv = [headers.join(',')];
+
+            songs.forEach(song => {
+                const row = [
+                    escapeCSV(song.artist),
+                    escapeCSV(song.song),
+                    escapeCSV(song.album || ''),
+                    escapeCSV(song.link || ''),
+                    escapeCSV(song.tuning || ''),
+                    escapeCSV(song.bands || ''),
+                    escapeCSV(song.key || ''),
+                    escapeCSV(song.firstNote || ''),
+                    escapeCSV(song.lastNote || '')
+                ];
+                csv.push(row.join(','));
+            });
+
+            const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `band-songs-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Escape CSV value
+        function escapeCSV(value) {
+            if (!value) return '';
+            const str = String(value);
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Format field name for display
+        function formatFieldName(field) {
+            const map = {
+                'artist': 'Artist',
+                'song': 'Song',
+                'album': 'Album',
+                'link': 'Link',
+                'tuning': 'Tuning',
+                'bands': 'Bands',
+                'key': 'Key',
+                'firstNote': 'First Note',
+                'lastNote': 'Last Note'
+            };
+            return map[field] || field;
+        }
+    </script>
+</body>
+</html>
+

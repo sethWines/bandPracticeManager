@@ -1,0 +1,626 @@
+===========================================
+BAND MANAGER - APPLICATION RECREATION GUIDE
+===========================================
+
+VERSION: 1.0
+CREATED: 2024
+PURPOSE: Guide for recreating the Band Manager application from scratch
+
+===========================================
+OVERVIEW
+===========================================
+
+Band Manager is a complete song and setlist management system with two main components:
+1. Band Manager (song-manager.html) - Main song database and organization tool
+2. Setlist Manager (setlist-manager.html) - Tool for creating and managing performance setlists
+
+The application uses localStorage for data persistence and operates entirely client-side (no backend required).
+
+===========================================
+CORE TECHNOLOGIES
+===========================================
+
+- HTML5
+- CSS3 (with CSS Variables for theming)
+- Vanilla JavaScript (ES6+)
+- localStorage API for data persistence
+- Print API for setlist printing
+
+===========================================
+CUSTOM ICONS
+===========================================
+
+GUITAR ICON (used as favicon and in Song Manager title):
+- SVG-based custom icon resembling a guitar
+- Hollow circle (guitar body) with radius 4.5
+- Vertical line from top of circle (guitar neck)
+- Two horizontal lines crossing the neck (frets/strings)
+- Used as favicon for both pages (data URI format)
+- Appears next to "Song Manager" title with theme color and glow effect
+- Color: uses theme's --primary-color
+- **CLICKABLE**: Clicking this icon switches the background watermark to the guitar icon
+- Has `cursor: pointer` and `onclick="switchWatermark('guitar')"` attributes
+- Active state: opacity 1, Inactive state: opacity 0.5
+
+DRUM ICON (used in Setlist Manager for band names and Song Manager title):
+- SVG-based custom icon resembling a drumset
+- Center bass/floor tom: circle (r=4.5) with vertical stand
+- Left vertical stand extends down to bottom of drum
+- Low tom line (horizontal) at top of bass drum
+- Mid tom line reaching toward right
+- Right cymbal stand (vertical line, no drum)
+- Multiple horizontal lines representing cymbals at different heights
+- Snare rim line on right side
+- Width: 60px, Height: 60px in Song Manager title
+- Width: 44px, Height: 24px in Setlist Manager cards
+- ViewBox: 0 0 40 24
+- Color: uses currentColor (inherits from parent text color) or var(--primary-color)
+- Positioned before band name in setlist cards
+- Appears to the right of "Song Manager" title with theme color and glow effect
+- **CLICKABLE in Song Manager**: Clicking this icon switches the background watermark to the drum icon
+- Has `cursor: pointer` and `onclick="switchWatermark('drum')"` attributes
+- Active state: opacity 1, Inactive state: opacity 0.5
+
+WATERMARK FEATURE (Song Manager Page):
+- **Interactive Background Watermarks**: Users can toggle between guitar and drum watermarks
+- **How to Toggle**: Click either the guitar icon (left) or drum icon (right) in the page title
+- **Persistence**: Watermark preference saved in localStorage as 'watermark' (values: 'guitar' or 'drum')
+- **Cross-Page Synchronization**: Setlist Manager automatically inherits the watermark choice from Song Manager
+- **Visual Feedback**: Active watermark's icon shown at full opacity (1), inactive at 0.5 opacity (Song Manager only)
+- **CSS Implementation**:
+  - `body::before` - Guitar watermark (default, 15% opacity, white stroke)
+  - `body::after` - Drum watermark (hidden by default, fades in when active)
+  - `body.drum-watermark::before` - Fades out guitar watermark (opacity: 0)
+  - `body.drum-watermark::after` - Fades in drum watermark (opacity: 1)
+  - Both positioned: top 0%, right -20%, width/height 100%, z-index 0
+  - Smooth transitions: `transition: opacity 0.3s ease`
+- **JavaScript Functions (Song Manager)**:
+  - `loadWatermark()` - Loads saved preference on page load
+  - `switchWatermark(type)` - Switches watermark and saves preference to localStorage
+  - `updateIconStyles(activeType)` - Updates icon opacity to indicate active/inactive state
+- **JavaScript Functions (Setlist Manager)**:
+  - `loadWatermark()` - Reads and applies watermark preference from localStorage (no toggle functionality)
+
+===========================================
+PART 1: BAND MANAGER (Main Song Database)
+===========================================
+
+FILE: song-manager.html
+
+CORE FEATURES TO IMPLEMENT:
+
+1. SONG DATABASE MANAGEMENT
+   - Store songs with fields: artist, song, album, link, tuning, bands, key, firstNote, lastNote, duration
+   - localStorage key: "bandSongs"
+   - Add/Edit/Delete individual songs
+   - Bulk edit capabilities (edit multiple songs at once)
+   - Bulk delete capabilities (delete multiple songs at once)
+   - CSV import/export functionality
+
+2. SEARCH AND FILTERING
+   - Multi-word search that progressively narrows results
+   - Search across all fields (artist, song, album, bands, key, tuning, etc.)
+   - Split search terms by spaces, each word must match at least one field
+   - Column-based filtering system (add multiple filters)
+   - Display active filters with remove buttons
+   - Clear all filters option
+   - Real-time results counter showing "Showing X of Y songs"
+
+3. TABLE DISPLAY
+   - Sortable columns (click to sort ascending/descending)
+   - Responsive table with horizontal and vertical scrolling
+   - Table max-height: calc(100vh - 520px) for viewport-based scrolling
+   - Sticky table header that stays visible during scroll
+   - Click-and-drag scrolling (horizontal and vertical)
+   - Min table width: 1000px to prevent column squishing
+   - Link column with clickable icons (🔗) that open in new tab
+   - Action buttons (Edit/Delete) for each song
+   - Checkbox selection for bulk operations
+
+4. BULK OPERATIONS
+   - Select/deselect individual songs via checkboxes
+   - "Select All" checkbox in table header
+   - Select All only affects currently filtered/visible songs
+   - Indeterminate checkbox state when some songs selected
+   - Bulk Actions panel appears when songs are selected
+   - Bulk Edit modal to update bands, tuning, key, or album for selected songs
+   - Bulk Delete with confirmation
+   - Clear selection button
+
+5. STATISTICS DASHBOARD
+   - Display at top of page in card layout
+   - Total Songs count
+   - Total Bands count (unique bands)
+   - Total Artists count (unique artists)
+   - Auto-update when songs added/removed
+
+6. THEMING SYSTEM
+   - 8 color themes: Grey (default), Red/Orange, Blue, Green, Purple, Cyan, Amber, Pink
+   - CSS Variables for dynamic theming:
+     * --primary-color, --primary-light, --primary-lighter
+     * --primary-dark, --primary-darker
+     * --primary-glow, --primary-border, --primary-bg
+   - Theme selector dropdown in top controls
+   - localStorage persistence (key: "bandOrganizerTheme")
+   - Synchronized between song organizer and setlist manager
+   - Custom checkbox styling that matches theme colors
+
+7. UI STYLING GUIDELINES
+   - Dark background (#000000)
+   - Light text (#e0e0e0)
+   - SVG icons throughout (not emojis) with drop-shadow effects
+   - Buttons styled with theme colors
+   - Modal dialogs with theme-colored headers
+   - Smooth transitions and hover effects
+   - Container max-width: 1920px
+   - No gradients on titles (solid colors only)
+
+8. MODAL DIALOGS
+   - Add Song Modal: Form to add new songs
+   - Edit Song Modal: Pre-populated form to edit existing songs
+   - Bulk Edit Modal: Update multiple songs at once
+   - Import Modal: Show preview of CSV data before importing
+   - All modals have theme-colored headers
+   - Close button (×) in top right
+   - Modal overlay with semi-transparent background
+
+9. DATA PERSISTENCE
+   - Save to localStorage after every add/edit/delete
+   - Load data on page load
+   - Handle missing/corrupted data gracefully
+
+10. CSV IMPORT/EXPORT
+    - Export all songs to CSV file
+    - Import CSV with header mapping
+    - Support common field name variations (band/bands, firstNote/first note)
+    - Show preview modal before confirming import
+    - Validate data during import
+
+11. NAVIGATION
+    - Link to Setlist Manager
+    - Link to Main Hub (if exists)
+    - Styled with theme colors
+
+===========================================
+PART 2: SETLIST MANAGER
+===========================================
+
+FILE: setlist-manager.html
+
+CORE FEATURES TO IMPLEMENT:
+
+1. SETLIST MANAGEMENT
+   - Create setlists with: name, band, number of sets
+   - Each setlist can have multiple sets (1st Set, 2nd Set, etc.)
+   - localStorage key: "setlists"
+   - Edit setlist metadata (name, band)
+   - Delete entire setlists
+   - Export individual setlists to CSV
+   - Export all setlists to CSV
+   - Print individual setlists or selected setlists
+
+2. SONG SELECTION MODAL
+   - Loads songs from Band Manager's localStorage
+   - Multi-word search functionality (same as Band Manager)
+   - Display all songs in selectable list
+   - Checkbox selection for multiple songs
+   - Show count of selected songs
+   - "In setlist" indicators for songs already added
+   - Add selected songs to current set
+
+3. DRAG-AND-DROP ORDERING
+   - Songs within a set are draggable
+   - Visual feedback during drag (opacity, preview line)
+   - Drop to reorder songs in the set
+   - Works for moving songs both up and down the list
+   - Persist new order immediately
+   - State management: draggedSetlistIndex, draggedSetIndex, draggedSongIndex
+   - Clean up drag state after each operation
+
+4. SET ORGANIZATION
+   - Each setlist divided into named sets (1st Set, 2nd Set, etc.)
+   - Add songs to specific sets
+   - Remove songs from sets
+   - Drag-drop reordering within sets
+   - Display song details: artist, song, album, key, tuning
+
+5. PRINT FUNCTIONALITY
+   - "Print Setlists" button opens selection modal
+   - Select which setlists to print (checkboxes)
+   - "Select All" option for convenience
+   - Print styles use current theme colors for accents
+   - Each SET prints on its own page (page-break-after)
+   - Print includes: setlist name, band, set titles, songs with details
+   - @media print rules for proper page breaks
+   - Theme-aware colors in print output
+
+6. THEMING
+   - Same 8 themes as Band Manager
+   - Synchronized via shared localStorage key
+   - All UI elements match theme colors
+   - Print output uses theme colors for headers/accents
+
+7. UI LAYOUT
+   - Card-based layout for setlists
+   - Each setlist card shows: name, band, set count, total songs
+   - Action buttons: Edit, Delete, Export, Print
+   - Expandable sets within each setlist
+   - Song items with drag handles and remove buttons
+
+8. DATA STRUCTURE
+   ```javascript
+   setlists = [
+     {
+       name: "Setlist Name",
+       band: "Band Name",
+       sets: [
+         {
+           name: "1st Set",
+           songs: [
+             {
+               artist: "Artist Name",
+               song: "Song Title",
+               album: "Album Name",
+               key: "G",
+               tuning: "Standard",
+               bands: "Band Tag",
+               // ... other fields
+             }
+           ]
+         }
+       ]
+     }
+   ]
+   ```
+
+9. NAVIGATION
+   - Link back to Band Manager
+   - Link to Main Hub (if exists)
+   - Styled with theme colors
+
+===========================================
+KEY JAVASCRIPT FUNCTIONS TO IMPLEMENT
+===========================================
+
+BAND MANAGER:
+
+1. Data Management:
+   - loadSongs() - Load from localStorage
+   - saveSongs() - Save to localStorage
+   - addSong(songData) - Add new song
+   - editSong(index, songData) - Update existing song
+   - deleteSong(index) - Remove song
+   - clearAllData() - Delete all songs with confirmation
+
+2. Search & Filter:
+   - applyFilters() - Main filtering function
+   - getFilteredSongs() - Helper to get current filtered songs
+   - addFilter(column, value) - Add column filter
+   - removeFilter(index) - Remove column filter
+   - clearAllFilters() - Remove all filters
+   - Multi-word search: split by spaces, each word must match
+
+3. Sorting:
+   - sortTable(column) - Toggle sort direction and apply
+   - Store currentSort: { column, direction }
+
+4. Bulk Operations:
+   - toggleSongSelection(index) - Toggle individual checkbox
+   - toggleSelectAll() - Select/deselect filtered songs only
+   - updateSelectAllCheckbox() - Update checkbox state (checked/indeterminate)
+   - bulkDeleteSongs() - Delete all selected songs
+   - openBulkEditModal() - Open bulk edit dialog
+   - applyBulkEdit(formData) - Apply changes to selected songs
+
+5. UI Updates:
+   - renderSongs(filteredSongs) - Display songs in table
+   - updateStats() - Update statistics cards
+   - updateSongCounts(filteredCount) - Update "Showing X of Y"
+   - updateBulkActionsVisibility() - Show/hide bulk actions panel
+
+6. CSV Operations:
+   - handleCSVImport(event) - Process uploaded CSV file
+   - parseCSV(csv) - Parse CSV string into objects
+   - exportToCSV() - Generate CSV and download
+   - parseCSVLine(line) - Handle CSV line parsing with quotes
+
+7. Theme Management:
+   - loadTheme() - Load theme from localStorage
+   - applyTheme(theme) - Set data-theme attribute
+   - changeTheme(theme) - Save and apply new theme
+
+8. Drag-to-Scroll:
+   - initializeDragScroll() - Set up mouse event listeners
+   - Handle mousedown, mousemove, mouseup, mouseleave
+   - Track isDown, startX, startY, scrollLeft, scrollTop
+
+SETLIST MANAGER:
+
+1. Data Management:
+   - loadSetlists() - Load from localStorage
+   - saveSetlistsToStorage() - Save to localStorage
+   - loadSongsFromOrganizer() - Import from Band Manager
+   - createSetlist(name, band, numSets) - Create new setlist
+   - editSetlistMetadata(index, name, band) - Update setlist info
+   - deleteSetlist(index) - Remove setlist with confirmation
+   - clearAllSetlists() - Delete all setlists
+
+2. Song Management:
+   - openAddSongsModal(setlistIndex, setIndex) - Open song selector
+   - addSelectedSongs() - Add selected songs to current set
+   - removeSong(setlistIndex, setIndex, songIndex) - Remove song from set
+
+3. Drag-and-Drop:
+   - handleDragStart(event, setlistIndex, setIndex, songIndex) - Start drag
+   - handleDragOver(event) - Show drop preview
+   - handleDrop(event, setlistIndex, setIndex, songIndex) - Complete drop
+   - handleDragEnd(event) - Clean up drag state
+   - Calculate targetPosition based on mouse position
+   - Adjust for array removal when dropping
+
+4. Search & Filter:
+   - filterSongs() - Filter song list in modal
+   - getCurrentFilteredSongs() - Get filtered results
+   - Multi-word search support
+
+5. Rendering:
+   - renderSetlists() - Display all setlists
+   - renderSongSelector() - Display song selection modal
+
+6. Export:
+   - exportSetlist(index) - Export single setlist as CSV
+   - exportAllSetlists() - Export all setlists as CSV
+
+7. Print:
+   - openPrintSelectionModal() - Open setlist selector
+   - printSelectedSetlists() - Print selected setlists
+   - printSetlist(index) - Print single setlist
+   - getThemeColor(theme) - Get hex color for theme
+   - Generate HTML with @media print styles
+   - Page breaks for each set
+
+===========================================
+CSS STYLING GUIDELINES
+===========================================
+
+1. COLOR THEMES (CSS Variables):
+   
+   Grey (Default):
+   - primary-color: #6b7280
+   - primary-light: #9ca3af
+   - primary-lighter: #d1d5db
+   - primary-dark: #374151
+   - primary-darker: #4b5563
+   
+   Red/Orange:
+   - primary-color: #d84315
+   - primary-light: #ff6b3d
+   - primary-lighter: #ffa580
+   
+   Blue:
+   - primary-color: #1976d2
+   - primary-light: #42a5f5
+   
+   Green:
+   - primary-color: #388e3c
+   - primary-light: #66bb6a
+   
+   Purple:
+   - primary-color: #7b1fa2
+   - primary-light: #ab47bc
+   
+   Cyan:
+   - primary-color: #00838f
+   - primary-light: #00acc1
+   
+   Amber:
+   - primary-color: #f57c00
+   - primary-light: #ff9800
+   
+   Pink:
+   - primary-color: #c2185b
+   - primary-light: #e91e63
+
+2. BUTTON STYLES:
+   - .btn-primary: Theme-colored button for primary actions
+   - .btn-success: Green button for add/create actions
+   - .btn-secondary: Grey button for secondary actions
+   - .btn-danger: Red button for delete actions
+   - All buttons have hover effects with box-shadow glow
+
+3. TABLE STYLES:
+   - Dark background, light text
+   - Sticky header with theme background
+   - Hover effect on rows
+   - Border colors match theme
+   - Scrollable container with custom scrollbar
+
+4. MODAL STYLES:
+   - Dark background with theme borders
+   - Header with theme color
+   - Form inputs with theme borders
+   - Backdrop overlay with blur effect
+
+5. CUSTOM CHECKBOX STYLES:
+   - appearance: none
+   - Border color matches theme
+   - Checked state uses theme background
+   - White checkmark (CSS ::after pseudo-element)
+   - Hover effects with glow
+
+6. SVG ICONS:
+   - Use inline SVG (not emojis)
+   - currentColor for fill/stroke
+   - filter: drop-shadow for glow effect
+   - Consistent sizing (16x16 or 20x20)
+
+===========================================
+DATA PERSISTENCE STRUCTURE
+===========================================
+
+localStorage Keys:
+
+1. "bandSongs" - Array of song objects
+   ```javascript
+   [
+     {
+       artist: "Artist Name",
+       song: "Song Title",
+       album: "Album Name",
+       link: "https://...",
+       tuning: "Standard",
+       bands: "Band Tag",
+       key: "G",
+       firstNote: "G",
+       lastNote: "D",
+       duration: "3:45"
+     }
+   ]
+   ```
+
+2. "setlists" - Array of setlist objects
+   ```javascript
+   [
+     {
+       name: "Summer Tour 2024",
+       band: "The Rock Band",
+       sets: [
+         {
+           name: "1st Set",
+           songs: [ /* song objects copied from bandSongs */ ]
+         },
+         {
+           name: "2nd Set",
+           songs: [ /* song objects */ ]
+         }
+       ]
+     }
+   ]
+   ```
+
+3. "bandOrganizerTheme" - String (theme name)
+   - Values: "grey", "red", "blue", "green", "purple", "cyan", "amber", "pink"
+
+===========================================
+IMPORTANT IMPLEMENTATION NOTES
+===========================================
+
+1. DRAG-AND-DROP ORDERING:
+   - Must track: draggedSetlistIndex, draggedSetIndex, draggedSongIndex
+   - Calculate targetPosition BEFORE removing dragged item
+   - Adjust targetPosition after removal if necessary
+   - Reset all drag state variables to null after operation
+   - Clean up CSS classes (.dragging, .drop-preview)
+   - Re-render after save to prevent state issues
+
+2. SELECT ALL WITH FILTERS:
+   - Must only select currently filtered/visible songs
+   - Create getFilteredSongs() helper function
+   - Check filtered songs for checkbox state (indeterminate if partial)
+   - Update count display to show filtered vs total
+
+3. PRINT FUNCTIONALITY:
+   - Use @media print rules for page breaks
+   - page-break-after: always on .set-section
+   - page-break-inside: avoid to prevent splitting
+   - Inject theme colors dynamically into print styles
+   - Open print window, write HTML, call window.print()
+
+4. MULTI-WORD SEARCH:
+   - Split by /\s+/ (whitespace)
+   - Use Array.every() - all words must match
+   - Each word matches if found in ANY field
+   - Case-insensitive (toLowerCase())
+
+5. RESPONSIVE TABLE:
+   - overflow-x: auto on container
+   - min-width on table
+   - max-height: calc(100vh - Xpx) for vertical scroll
+   - position: sticky on thead for fixed header
+
+6. THEME SYNCHRONIZATION:
+   - Both files read from same localStorage key
+   - Load theme on page load (window.onload)
+   - Apply by setting data-theme attribute on <body>
+   - Grey theme = no data-theme attribute (uses :root variables)
+
+===========================================
+FILE STRUCTURE
+===========================================
+
+/music/
+  ├── song-manager.html      (Band Manager - main page)
+  ├── setlist-manager.html     (Setlist Manager)
+  └── prompt.txt               (this file)
+
+Optional:
+  └── /main_hub/
+      └── _main.html           (Hub page with links to both)
+
+===========================================
+TESTING CHECKLIST
+===========================================
+
+Band Manager:
+☐ Add songs (all fields save correctly)
+☐ Edit songs (changes persist)
+☐ Delete songs (with confirmation)
+☐ Multi-word search works across all fields
+☐ Column filters can be added/removed
+☐ Sorting works (ascending/descending)
+☐ Select All only selects filtered songs
+☐ Bulk edit updates selected songs
+☐ Bulk delete removes selected songs
+☐ CSV import/export works correctly
+☐ Statistics update automatically
+☐ Theme changes apply throughout
+☐ Theme persists on page reload
+☐ Table scrolls horizontally and vertically
+☐ Drag-to-scroll works
+☐ Checkboxes styled with theme colors
+☐ Results counter shows correct filtered/total
+
+Setlist Manager:
+☐ Create setlists with multiple sets
+☐ Edit setlist name/band
+☐ Delete setlists (with confirmation)
+☐ Add songs to sets from Band Manager
+☐ Remove songs from sets
+☐ Drag-and-drop reordering works up and down
+☐ Multi-word search in song selector
+☐ Print modal shows setlists with checkboxes
+☐ Select All in print modal works
+☐ Print output uses theme colors
+☐ Each set prints on separate page
+☐ Export single setlist to CSV
+☐ Export all setlists to CSV
+☐ Theme synchronized with Band Manager
+
+===========================================
+FUTURE ENHANCEMENT IDEAS
+===========================================
+
+- Backend integration for multi-device sync
+- User authentication
+- Sharing setlists with band members
+- Real-time collaboration
+- Mobile app version
+- Audio file attachments
+- Practice mode with metronome
+- Lyrics display
+- Chord diagrams
+- Print sheet music integration
+- Setlist statistics (most played, etc.)
+- Calendar integration for gig scheduling
+- Equipment/gear tracking per song
+
+===========================================
+END OF GUIDE
+===========================================
+
+Use this guide to recreate the Band Manager application from scratch.
+Follow the feature descriptions, styling guidelines, and implementation notes.
+Test thoroughly using the checklist provided.
+
+Good luck! 🎸🎶
+
