@@ -1,6 +1,8 @@
 
 # Band Manager - Song & Setlist Organizer
 
+![Song Manager Dashboard](img/songManagerDashboard.png)
+
 A powerful, browser-based application for musicians to organize their song library and create performance setlists. Built with vanilla JavaScript and designed to work completely offline using browser localStorage.
 
 ## Quick Start
