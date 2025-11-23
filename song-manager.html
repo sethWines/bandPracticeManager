@@ -1642,6 +1642,8 @@
         let activeFilters = [];
         let hiddenColumns = new Set(); // Track hidden columns
         let searchDebounceTimer = null; // For debouncing search
+        let lastFilterState = null; // Cache last filter state to avoid redundant filtering
+        let cachedFilteredSongs = null; // Cache filtered results
         
         // Undo system
         let undoHistory = [];
@@ -2562,6 +2564,11 @@ What would you like to do?
         function saveSongs() {
             localStorage.setItem('songDatabase', JSON.stringify(songs));
             localStorage.setItem('bandSongs', JSON.stringify(songs)); // Keep backup copy
+            
+            // Invalidate filter cache when songs change
+            lastFilterState = null;
+            cachedFilteredSongs = null;
+            
             showSaveIndicator();
         }
 
@@ -2570,16 +2577,13 @@ What would you like to do?
             const tbody = document.getElementById('songTableBody');
             const displaySongs = filteredSongs || songs;
 
-            // Update column visibility in headers
+            // Update column visibility in headers (cache the lookup)
             const columns = ['checkbox', 'actions', 'link', 'artist', 'song', 'album', 'duration', 'practiceStatus', 'tuning', 'bands', 'tags', 'key', 'firstNote', 'lastNote', 'playCount'];
             columns.forEach(col => {
                 const headers = document.querySelectorAll(`.col-${col}`);
+                const shouldHide = hiddenColumns.has(col);
                 headers.forEach(header => {
-                    if (hiddenColumns.has(col)) {
-                        header.classList.add('hidden-col');
-                    } else {
-                        header.classList.remove('hidden-col');
-                    }
+                    header.classList.toggle('hidden-col', shouldHide);
                 });
             });
 
@@ -2588,26 +2592,36 @@ What would you like to do?
                 return;
             }
 
-            // Helper function to get practice status badge
-            const getPracticeStatusBadge = (status) => {
-                const badges = {
-                    'learning': '<span style="background: #3b82f6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">🎓 Learning</span>',
-                    'practicing': '<span style="background: #f59e0b; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">🎵 Practicing</span>',
-                    'ready': '<span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">✓ Ready</span>',
-                    'mastered': '<span style="background: #8b5cf6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">⭐ Mastered</span>'
-                };
-                return badges[status] || '-';
+            // Helper function to get practice status badge (cached)
+            const badges = {
+                'learning': '<span style="background: #3b82f6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">🎓 Learning</span>',
+                'practicing': '<span style="background: #f59e0b; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">🎵 Practicing</span>',
+                'ready': '<span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">✓ Ready</span>',
+                'mastered': '<span style="background: #8b5cf6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">⭐ Mastered</span>'
             };
+            const getPracticeStatusBadge = (status) => badges[status] || '-';
 
-            tbody.innerHTML = displaySongs.map((song, index) => {
-                const originalIndex = song.originalIndex !== undefined ? song.originalIndex : index;
+            // Pre-compute hidden column classes (avoid repeated lookups)
+            const colClasses = {};
+            columns.forEach(col => {
+                colClasses[col] = hiddenColumns.has(col) ? 'hidden-col' : '';
+            });
+
+            // Use array for faster string concatenation than .map().join()
+            const rows = [];
+            const len = displaySongs.length;
+            
+            for (let i = 0; i < len; i++) {
+                const song = displaySongs[i];
+                const originalIndex = song.originalIndex !== undefined ? song.originalIndex : i;
                 const isSelected = selectedSongIndices.has(originalIndex);
-                return `
+                
+                rows.push(`
                 <tr>
-                    <td class="col-checkbox ${hiddenColumns.has('checkbox') ? 'hidden-col' : ''}">
+                    <td class="col-checkbox ${colClasses.checkbox}">
                         <input type="checkbox" class="song-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleSongSelection(${originalIndex}, event)" title="Select song">
                     </td>
-                    <td class="col-actions ${hiddenColumns.has('actions') ? 'hidden-col' : ''}">
+                    <td class="col-actions ${colClasses.actions}">
                         <div class="action-buttons">
                             <button class="btn-secondary btn-small" onclick="editSong(${originalIndex})" title="Edit">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
@@ -2618,22 +2632,23 @@ What would you like to do?
                             <button class="btn-danger btn-small" onclick="deleteSong(${originalIndex})" title="Delete">✕</button>
                         </div>
                     </td>
-                    <td class="col-link ${hiddenColumns.has('link') ? 'hidden-col' : ''}">${song.link ? `<a href="${escapeHtml(song.link)}" target="_blank" class="link-icon">🔗</a>` : '-'}</td>
-                    <td class="col-artist ${hiddenColumns.has('artist') ? 'hidden-col' : ''}">${escapeHtml(song.artist)}</td>
-                    <td class="col-song ${hiddenColumns.has('song') ? 'hidden-col' : ''}">${escapeHtml(song.song)}</td>
-                    <td class="col-album ${hiddenColumns.has('album') ? 'hidden-col' : ''}">${escapeHtml(song.album || '-')}</td>
-                    <td class="col-duration ${hiddenColumns.has('duration') ? 'hidden-col' : ''}">${escapeHtml(song.duration || '-')}</td>
-                    <td class="col-practiceStatus ${hiddenColumns.has('practiceStatus') ? 'hidden-col' : ''}">${getPracticeStatusBadge(song.practiceStatus)}</td>
-                    <td class="col-tuning ${hiddenColumns.has('tuning') ? 'hidden-col' : ''}">${escapeHtml(song.tuning || '-')}</td>
-                    <td class="col-bands ${hiddenColumns.has('bands') ? 'hidden-col' : ''}">${escapeHtml(song.bands || '-')}</td>
-                    <td class="col-tags ${hiddenColumns.has('tags') ? 'hidden-col' : ''}">${escapeHtml(song.tags || '-')}</td>
-                    <td class="col-key ${hiddenColumns.has('key') ? 'hidden-col' : ''}">${escapeHtml(song.key || '-')}</td>
-                    <td class="col-firstNote ${hiddenColumns.has('firstNote') ? 'hidden-col' : ''}">${escapeHtml(song.firstNote || '-')}</td>
-                    <td class="col-lastNote ${hiddenColumns.has('lastNote') ? 'hidden-col' : ''}">${escapeHtml(song.lastNote || '-')}</td>
-                    <td class="col-playCount ${hiddenColumns.has('playCount') ? 'hidden-col' : ''}">${song.playCount || 0}</td>
-                </tr>
-            `}).join('');
+                    <td class="col-link ${colClasses.link}">${song.link ? `<a href="${escapeHtml(song.link)}" target="_blank" class="link-icon">🔗</a>` : '-'}</td>
+                    <td class="col-artist ${colClasses.artist}">${escapeHtml(song.artist)}</td>
+                    <td class="col-song ${colClasses.song}">${escapeHtml(song.song)}</td>
+                    <td class="col-album ${colClasses.album}">${escapeHtml(song.album || '-')}</td>
+                    <td class="col-duration ${colClasses.duration}">${escapeHtml(song.duration || '-')}</td>
+                    <td class="col-practiceStatus ${colClasses.practiceStatus}">${getPracticeStatusBadge(song.practiceStatus)}</td>
+                    <td class="col-tuning ${colClasses.tuning}">${escapeHtml(song.tuning || '-')}</td>
+                    <td class="col-bands ${colClasses.bands}">${escapeHtml(song.bands || '-')}</td>
+                    <td class="col-tags ${colClasses.tags}">${escapeHtml(song.tags || '-')}</td>
+                    <td class="col-key ${colClasses.key}">${escapeHtml(song.key || '-')}</td>
+                    <td class="col-firstNote ${colClasses.firstNote}">${escapeHtml(song.firstNote || '-')}</td>
+                    <td class="col-lastNote ${colClasses.lastNote}">${escapeHtml(song.lastNote || '-')}</td>
+                    <td class="col-playCount ${colClasses.playCount}">${song.playCount || 0}</td>
+                </tr>`);
+            }
             
+            tbody.innerHTML = rows.join('');
             updateBulkActionsBar();
         }
 
@@ -3156,13 +3171,27 @@ What would you like to do?
 
         // Apply all filters and sorting
         function applyFilters() {
+            // Create a cache key from current filter state
+            const searchTerm = document.getElementById('searchBox').value.trim();
+            const filterState = JSON.stringify({
+                search: searchTerm,
+                filters: activeFilters,
+                sort: currentSort,
+                songsLength: songs.length
+            });
+            
+            // Return cached results if nothing changed
+            if (lastFilterState === filterState && cachedFilteredSongs) {
+                renderSongs(cachedFilteredSongs);
+                return;
+            }
+            
             let filtered = songs.map((song, index) => ({
                 ...song,
                 originalIndex: index
             }));
 
             // Apply search filter with multi-word support and quoted phrase support
-            const searchTerm = document.getElementById('searchBox').value.trim();
             if (searchTerm) {
                 // Parse search term to handle quoted phrases and individual words
                 const searchTerms = [];
@@ -3238,6 +3267,10 @@ What would you like to do?
                     return 0;
                 });
             }
+
+            // Cache the results
+            lastFilterState = filterState;
+            cachedFilteredSongs = filtered;
 
             // Calculate unique artists and bands from filtered results
             const uniqueArtists = new Set(filtered.map(s => s.artist)).size;
@@ -3694,11 +3727,20 @@ What would you like to do?
         }
 
         // Escape HTML
+        // Escape HTML for display (optimized version)
+        const escapeMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        
         function escapeHtml(text) {
             if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            return String(text).replace(/[&<>"']/g, function(char) {
+                return escapeMap[char];
+            });
         }
 
         // Format field name for display
