@@ -11,7 +11,7 @@ OVERVIEW
 ===========================================
 
 Band Manager is a complete song and setlist management system with two main components:
-1. Band Manager (song-manager.html) - Main song database and organization tool
+1. Song Manager (song-manager.html) - Main song database and organization tool
 2. Setlist Manager (setlist-manager.html) - Tool for creating and managing performance setlists
 
 The application uses localStorage for data persistence and operates entirely client-side (no backend required).
@@ -66,6 +66,7 @@ WATERMARK FEATURE (Song Manager Page):
 - **How to Toggle**: Click either the guitar icon (left) or drum icon (right) in the page title
 - **Persistence**: Watermark preference saved in localStorage as 'watermark' (values: 'guitar' or 'drum')
 - **Cross-Page Synchronization**: Setlist Manager automatically inherits the watermark choice from Song Manager
+- **Favicon Synchronization**: Browser tab favicon changes to match the selected watermark (guitar or drum icon)
 - **Visual Feedback**: Active watermark's icon shown at full opacity (1), inactive at 0.5 opacity (Song Manager only)
 - **CSS Implementation**:
   - `body::before` - Guitar watermark (default, 15% opacity, white stroke)
@@ -75,17 +76,20 @@ WATERMARK FEATURE (Song Manager Page):
   - Both positioned: top 0%, right -20%, width/height 100%, z-index 0
   - Smooth transitions: `transition: opacity 0.3s ease`
 - **JavaScript Functions (Song Manager)**:
-  - `loadWatermark()` - Loads saved preference on page load
-  - `switchWatermark(type)` - Switches watermark and saves preference to localStorage
+  - `loadWatermark()` - Loads saved preference on page load, applies to watermark and favicon
+  - `switchWatermark(type)` - Switches watermark and saves preference to localStorage, updates favicon
   - `updateIconStyles(activeType)` - Updates icon opacity to indicate active/inactive state
+  - `updateFavicon(type)` - Dynamically changes the browser favicon to match watermark (guitar or drum)
 - **JavaScript Functions (Setlist Manager)**:
-  - `loadWatermark()` - Reads and applies watermark preference from localStorage (no toggle functionality)
+  - `loadWatermark()` - Reads and applies watermark preference from localStorage (no toggle functionality), updates favicon
+  - `updateFavicon(type)` - Dynamically changes the browser favicon to match watermark (guitar or drum)
 
 ===========================================
-PART 1: BAND MANAGER (Main Song Database)
+PART 1: SONG MANAGER (Main Song Database)
 ===========================================
 
 FILE: song-manager.html
+BROWSER TAB TITLE: "Song Manager"
 
 CORE FEATURES TO IMPLEMENT:
 
@@ -100,21 +104,32 @@ CORE FEATURES TO IMPLEMENT:
 2. SEARCH AND FILTERING
    - Multi-word search that progressively narrows results
    - Search across all fields (artist, song, album, bands, key, tuning, etc.)
-   - Split search terms by spaces, each word must match at least one field
-   - Column-based filtering system (add multiple filters)
+   - Support for quoted phrases: "drop d" searches as a single phrase
+   - Without quotes, split search terms by spaces, each word must match at least one field
+   - Column-based filtering system (add multiple filters per column with OR logic)
+   - Multiple filters for same column: e.g., filter for "Drop D" OR "Drop C" tuning
+   - Exact match filtering (no partial matches): "Drop D" won't match "Drop D#"
+   - Special "(empty)" filter option to find songs with missing values in a field
+   - Filter suggestions always show ALL possible values (not limited by current filters)
    - Display active filters with remove buttons
    - Clear all filters option
-   - Real-time results counter showing "Showing X of Y songs"
+   - Real-time results counter showing "Showing X of Y songs" in theme color
+   - Search result counts for Artists and Bands in theme color
 
 3. TABLE DISPLAY
+   - **Column Order**: Actions (first), Link, Artist, Song, Album, Bands, Key, Tuning, First Note, Last Note, Duration
+   - **Actions Column**: Compact icons - pencil for edit, 'x' for delete, with tooltips
+   - **Link Column**: Styled SVG link icon that opens in new tab
    - Sortable columns (click to sort ascending/descending)
+   - **Column Visibility Toggle**: Show/hide any column via "Columns" button
+   - Column visibility persisted in localStorage
+   - Hidden columns still exist in data, just not displayed
    - Responsive table with horizontal and vertical scrolling
    - Table max-height: calc(100vh - 520px) for viewport-based scrolling
    - Sticky table header that stays visible during scroll
+   - Table header hover effect uses theme color
    - Click-and-drag scrolling (horizontal and vertical)
    - Min table width: 1000px to prevent column squishing
-   - Link column with clickable icons (🔗) that open in new tab
-   - Action buttons (Edit/Delete) for each song
    - Checkbox selection for bulk operations
 
 4. BULK OPERATIONS
@@ -135,25 +150,37 @@ CORE FEATURES TO IMPLEMENT:
    - Auto-update when songs added/removed
 
 6. THEMING SYSTEM
-   - 8 color themes: Grey (default), Red/Orange, Blue, Green, Purple, Cyan, Amber, Pink
+   - 9 color themes: Grey (default), Red/Orange, Blue, Green, Purple, Cyan, Teal, Amber, Copper, Pink
    - CSS Variables for dynamic theming:
      * --primary-color, --primary-light, --primary-lighter
      * --primary-dark, --primary-darker
      * --primary-glow, --primary-border, --primary-bg
    - Theme selector dropdown in top controls
    - localStorage persistence (key: "bandOrganizerTheme")
-   - Synchronized between song organizer and setlist manager
+   - Synchronized between song manager and setlist manager
    - Custom checkbox styling that matches theme colors
+   - All icons and buttons use theme colors
+   - "Clear All Data" button always stays red regardless of theme
 
 7. UI STYLING GUIDELINES
    - Dark background (#000000)
    - Light text (#e0e0e0)
+   - **Glassmorphism Effect**: Control panes and containers with semi-transparent backgrounds
+     * background: rgba(0, 0, 0, 0.15)
+     * backdrop-filter: blur(10px)
+     * border: 1px solid rgba(255, 255, 255, 0.2)
+   - **Background Watermark**: Large, subtle icon watermark (guitar or drum)
+     * 15% opacity white stroke
+     * Positioned top: 0%, right: -20%, width/height: 100%
+     * Toggle between guitar and drum via clickable title icons
    - SVG icons throughout (not emojis) with drop-shadow effects
-   - Buttons styled with theme colors
+   - All control buttons use styled SVG icons with theme colors
+   - Buttons styled with theme colors (no glow effects)
    - Modal dialogs with theme-colored headers
    - Smooth transitions and hover effects
    - Container max-width: 1920px
    - No gradients on titles (solid colors only)
+   - Compact control panes (reduced padding and margins)
 
 8. MODAL DIALOGS
    - Add Song Modal: Form to add new songs
@@ -200,8 +227,8 @@ CORE FEATURES TO IMPLEMENT:
    - Print individual setlists or selected setlists
 
 2. SONG SELECTION MODAL
-   - Loads songs from Band Manager's localStorage
-   - Multi-word search functionality (same as Band Manager)
+   - Loads songs from Song Manager's localStorage
+   - Multi-word search functionality (same as Song Manager)
    - Display all songs in selectable list
    - Checkbox selection for multiple songs
    - Show count of selected songs
@@ -235,7 +262,7 @@ CORE FEATURES TO IMPLEMENT:
    - Theme-aware colors in print output
 
 6. THEMING
-   - Same 8 themes as Band Manager
+   - Same 8 themes as Song Manager
    - Synchronized via shared localStorage key
    - All UI elements match theme colors
    - Print output uses theme colors for headers/accents
@@ -274,7 +301,7 @@ CORE FEATURES TO IMPLEMENT:
    ```
 
 9. NAVIGATION
-   - Link back to Band Manager
+   - Link back to Song Manager
    - Link to Main Hub (if exists)
    - Styled with theme colors
 
@@ -282,7 +309,7 @@ CORE FEATURES TO IMPLEMENT:
 KEY JAVASCRIPT FUNCTIONS TO IMPLEMENT
 ===========================================
 
-BAND MANAGER:
+SONG MANAGER:
 
 1. Data Management:
    - loadSongs() - Load from localStorage
@@ -298,7 +325,11 @@ BAND MANAGER:
    - addFilter(column, value) - Add column filter
    - removeFilter(index) - Remove column filter
    - clearAllFilters() - Remove all filters
-   - Multi-word search: split by spaces, each word must match
+   - updateFilterSuggestions() - Generate filter suggestions from ALL songs
+   - Multi-word search: split by spaces, handle quoted phrases with regex
+   - Column filters: Group by column, apply OR logic within column, AND between columns
+   - Exact matching for filters (no partial matches)
+   - Support (empty) filter for finding songs with missing values
 
 3. Sorting:
    - sortTable(column) - Toggle sort direction and apply
@@ -324,12 +355,27 @@ BAND MANAGER:
    - exportToCSV() - Generate CSV and download
    - parseCSVLine(line) - Handle CSV line parsing with quotes
 
-7. Theme Management:
+7. Theme:
    - loadTheme() - Load theme from localStorage
    - applyTheme(theme) - Set data-theme attribute
-   - changeTheme(theme) - Save and apply new theme
 
-8. Drag-to-Scroll:
+8. Watermark:
+   - loadWatermark() - Load and apply watermark preference (inherited from Song Manager)
+   - updateFavicon(type) - Dynamically change browser favicon to match watermark
+   - No toggle functionality (only Song Manager can change watermark)
+
+8. Watermark Management:
+   - loadWatermark() - Load watermark preference from localStorage
+   - switchWatermark(type) - Toggle between guitar/drum watermarks
+   - updateIconStyles(activeType) - Update icon opacity for active/inactive state
+   - updateFavicon(type) - Dynamically change browser favicon to match watermark
+
+9. Column Visibility:
+   - loadColumnVisibility() - Load column preferences from localStorage
+   - toggleColumn(columnName) - Show/hide specific column
+   - saveColumnVisibility() - Save preferences to localStorage
+
+10. Drag-to-Scroll:
    - initializeDragScroll() - Set up mouse event listeners
    - Handle mousedown, mousemove, mouseup, mouseleave
    - Track isDown, startX, startY, scrollLeft, scrollTop
@@ -339,7 +385,7 @@ SETLIST MANAGER:
 1. Data Management:
    - loadSetlists() - Load from localStorage
    - saveSetlistsToStorage() - Save to localStorage
-   - loadSongsFromOrganizer() - Import from Band Manager
+   - loadSongsFromOrganizer() - Import from Song Manager
    - createSetlist(name, band, numSets) - Create new setlist
    - editSetlistMetadata(index, name, band) - Update setlist info
    - deleteSetlist(index) - Remove setlist with confirmation
@@ -413,9 +459,19 @@ CSS STYLING GUIDELINES
    - primary-color: #00838f
    - primary-light: #00acc1
    
+   Teal:
+   - primary-color: #14b8a6
+   - primary-light: #2dd4bf
+   - primary-lighter: #5eead4
+   
    Amber:
    - primary-color: #f57c00
    - primary-light: #ff9800
+   
+   Copper:
+   - primary-color: #b87333
+   - primary-light: #d4944e
+   - primary-lighter: #e8b67a
    
    Pink:
    - primary-color: #c2185b
@@ -450,9 +506,24 @@ CSS STYLING GUIDELINES
 
 6. SVG ICONS:
    - Use inline SVG (not emojis)
-   - currentColor for fill/stroke
-   - filter: drop-shadow for glow effect
-   - Consistent sizing (16x16 or 20x20)
+   - currentColor or var(--primary-color) for fill/stroke
+   - filter: drop-shadow(0 0 8px var(--primary-glow)) for glow effect
+   - Consistent sizing throughout
+   - **Control Icons**: All control buttons use custom SVG icons
+     * Add Song: Plus icon in circle
+     * Import CSV: Upload/download icon
+     * Export CSV: Download icon
+     * Columns: Eye icon
+     * Clear All Data: Trash icon
+     * Add Filter: Funnel/filter icon
+     * Clear All Filters: X in circle
+   - **Action Icons**: 
+     * Edit: Pencil icon (styled with theme colors)
+     * Delete: X icon
+     * Link: Chain link icon
+   - **Title Icons**:
+     * Guitar icon (left of title, clickable for watermark)
+     * Drum icon (right of title, clickable for watermark)
 
 ===========================================
 DATA PERSISTENCE STRUCTURE
@@ -499,7 +570,16 @@ localStorage Keys:
    ```
 
 3. "bandOrganizerTheme" - String (theme name)
-   - Values: "grey", "red", "blue", "green", "purple", "cyan", "amber", "pink"
+   - Values: "grey", "red", "blue", "green", "purple", "cyan", "teal", "amber", "copper", "pink"
+
+4. "watermark" - String (watermark preference)
+   - Values: "guitar" (default), "drum"
+   - Synchronized between Song Manager and Setlist Manager
+
+5. "columnVisibility" - Object (column show/hide state)
+   - Keys: column names (artist, song, album, link, tuning, bands, key, firstNote, lastNote, duration)
+   - Values: true (visible) or false (hidden)
+   - Actions column always visible (not in this object)
 
 ===========================================
 IMPORTANT IMPLEMENTATION NOTES
@@ -527,29 +607,57 @@ IMPORTANT IMPLEMENTATION NOTES
    - Open print window, write HTML, call window.print()
 
 4. MULTI-WORD SEARCH:
-   - Split by /\s+/ (whitespace)
-   - Use Array.every() - all words must match
-   - Each word matches if found in ANY field
+   - Use regex to find quoted phrases: /"([^"]*)"/g
+   - Treat quoted content as single search term
+   - Split remaining (non-quoted) text by /\s+/ (whitespace)
+   - Use Array.every() - all words/phrases must match
+   - Each word/phrase matches if found in ANY field
    - Case-insensitive (toLowerCase())
+   - Example: 'drop d "standard e"' searches for "drop" AND "d" AND the phrase "standard e"
+
+5. COLUMN FILTERS:
+   - Group filters by column name
+   - Within same column: OR logic (match ANY value)
+   - Between different columns: AND logic (match ALL columns)
+   - Use exact matching (===) not partial (includes)
+   - Example: Tuning="Drop D" OR "Drop C" AND Key="G"
+   - Special (empty) value to filter for missing/blank fields
+   - Filter suggestions always generated from full dataset (not filtered results)
 
 5. RESPONSIVE TABLE:
    - overflow-x: auto on container
    - min-width on table
    - max-height: calc(100vh - Xpx) for vertical scroll
    - position: sticky on thead for fixed header
+   - Column visibility: Use display: none on th/td elements based on columnVisibility state
+
+6. GLASSMORPHISM & WATERMARKS:
+   - Control panes: background: rgba(0, 0, 0, 0.15), backdrop-filter: blur(10px)
+   - Border: 1px solid rgba(255, 255, 255, 0.2)
+   - Watermark: body::before for guitar, body::after for drum
+   - Both watermarks at 15% opacity, positioned identically
+   - body.drum-watermark class toggles which is visible
+   - Smooth opacity transitions (0.3s ease)
 
 6. THEME SYNCHRONIZATION:
-   - Both files read from same localStorage key
+   - Both files read from same localStorage key ("bandOrganizerTheme")
    - Load theme on page load (window.onload)
    - Apply by setting data-theme attribute on <body>
    - Grey theme = no data-theme attribute (uses :root variables)
+
+7. WATERMARK SYNCHRONIZATION:
+   - Both files read from same localStorage key ("watermark")
+   - Song Manager: Interactive toggle via clickable title icons
+   - Setlist Manager: Passive - reads and applies preference only
+   - Load watermark on page load (window.onload)
+   - Apply by adding/removing 'drum-watermark' class on <body>
 
 ===========================================
 FILE STRUCTURE
 ===========================================
 
 /music/
-  ├── song-manager.html      (Band Manager - main page)
+  ├── song-manager.html      (Song Manager - main page)
   ├── setlist-manager.html     (Setlist Manager)
   └── prompt.txt               (this file)
 
@@ -561,30 +669,44 @@ Optional:
 TESTING CHECKLIST
 ===========================================
 
-Band Manager:
+Song Manager:
 ☐ Add songs (all fields save correctly)
 ☐ Edit songs (changes persist)
 ☐ Delete songs (with confirmation)
 ☐ Multi-word search works across all fields
+☐ Quoted phrase search works ("drop d" as single term)
 ☐ Column filters can be added/removed
+☐ Multiple filters per column work with OR logic
+☐ Filters use exact matching (Drop D ≠ Drop D#)
+☐ (empty) filter finds songs with missing values
+☐ Filter suggestions show all values (not limited by current filters)
 ☐ Sorting works (ascending/descending)
+☐ Column visibility toggle works
+☐ Hidden columns persist on page reload
 ☐ Select All only selects filtered songs
 ☐ Bulk edit updates selected songs
 ☐ Bulk delete removes selected songs
 ☐ CSV import/export works correctly
 ☐ Statistics update automatically
+☐ Search result counters show in theme color (Songs, Artists, Bands)
 ☐ Theme changes apply throughout
 ☐ Theme persists on page reload
+☐ Watermark toggle works (guitar/drum icons clickable)
+☐ Watermark preference persists on page reload
 ☐ Table scrolls horizontally and vertically
 ☐ Drag-to-scroll works
 ☐ Checkboxes styled with theme colors
 ☐ Results counter shows correct filtered/total
+☐ Actions column shows compact icons (pencil, x)
+☐ All control buttons show styled SVG icons
+☐ Glassmorphism effect visible on control panes
+☐ Watermark visible in background
 
 Setlist Manager:
 ☐ Create setlists with multiple sets
 ☐ Edit setlist name/band
 ☐ Delete setlists (with confirmation)
-☐ Add songs to sets from Band Manager
+☐ Add songs to sets from Song Manager
 ☐ Remove songs from sets
 ☐ Drag-and-drop reordering works up and down
 ☐ Multi-word search in song selector
@@ -594,7 +716,11 @@ Setlist Manager:
 ☐ Each set prints on separate page
 ☐ Export single setlist to CSV
 ☐ Export all setlists to CSV
-☐ Theme synchronized with Band Manager
+☐ Theme synchronized with Song Manager
+☐ Watermark inherited from Song Manager (guitar or drum)
+☐ Glassmorphism effect visible on setlist cards
+☐ Watermark visible in background
+☐ Drum icon displayed before band names in setlist cards
 
 ===========================================
 FUTURE ENHANCEMENT IDEAS

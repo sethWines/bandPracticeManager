@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Band Song Manager</title>
+    <title>Song Manager</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d84315' stroke-width='2'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>">
     <style>
         * {
@@ -1173,9 +1173,11 @@
             if (watermark === 'drum') {
                 document.body.classList.add('drum-watermark');
                 updateIconStyles('drum');
+                updateFavicon('drum');
             } else {
                 document.body.classList.remove('drum-watermark');
                 updateIconStyles('guitar');
+                updateFavicon('guitar');
             }
         }
 
@@ -1188,6 +1190,21 @@
                 document.body.classList.remove('drum-watermark');
             }
             updateIconStyles(type);
+            updateFavicon(type);
+        }
+
+        // Update favicon to match watermark
+        function updateFavicon(type) {
+            const link = document.querySelector("link[rel*='icon']");
+            if (!link) return;
+
+            if (type === 'drum') {
+                // Drum icon favicon - adjusted viewBox for better sizing and bolder strokes
+                link.href = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24' preserveAspectRatio='xMidYMid meet'><g transform='scale(1.4) translate(-2, -2)'><circle cx='23' cy='17' r='4.5' fill='none' stroke='%23d84315' stroke-width='2'/><line x1='16' y1='21.5' x2='16' y2='2' stroke='%23d84315' stroke-width='2'/><line x1='11' y1='5' x2='21' y2='5' stroke='%23d84315' stroke-width='2'/><line x1='18' y1='8' x2='28' y2='8' stroke='%23d84315' stroke-width='2'/><line x1='21' y1='10' x2='26' y2='10' stroke='%23d84315' stroke-width='2'/><line x1='7' y1='12.5' x2='18' y2='12.5' stroke='%23d84315' stroke-width='2'/><line x1='30' y1='12.5' x2='30' y2='2' stroke='%23d84315' stroke-width='2'/><line x1='25' y1='5' x2='35' y2='5' stroke='%23d84315' stroke-width='2'/><line x1='27' y1='8' x2='33' y2='8' stroke='%23d84315' stroke-width='2'/><line x1='26' y1='14' x2='31' y2='14' stroke='%23d84315' stroke-width='2'/></g></svg>";
+            } else {
+                // Guitar icon favicon
+                link.href = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d84315' stroke-width='2'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>";
+            }
         }
 
         // Update icon styles to show which is active
