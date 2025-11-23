@@ -1019,7 +1019,10 @@
                         ${setlist.sets.map((set, setIndex) => `
                             <div class="set-container">
                                 <div class="set-header">
-                                    <div class="set-title">${escapeHtml(set.name)} (${set.songs.length} songs)</div>
+                                    <div class="set-title">
+                                        ${escapeHtml(set.name)} (${set.songs.length} songs)
+                                        ${set.songs.length > 20 ? `<span style="color: #ff6b3d; font-size: 0.85em; margin-left: 10px;">⚠️ May exceed one page when printed</span>` : ''}
+                                    </div>
                                     <div class="set-actions">
                                         <button class="btn-success btn-small" onclick="openAddSongsModal(${setlistIndex}, ${setIndex})">
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;">
@@ -1598,27 +1601,42 @@
                     <style>
                         @media print {
                             body { margin: 0; }
+                            /* Each set starts on a new page */
                             .set-section { 
+                                page-break-before: always;
                                 page-break-after: always;
                                 page-break-inside: avoid;
                             }
+                            .set-section:first-child { page-break-before: auto; }
                             .set-section:last-child { page-break-after: auto; }
+                            /* Prevent orphaned songs */
+                            .song {
+                                page-break-inside: avoid;
+                            }
                         }
                         body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-                        h1 { color: ${themeColor}; margin-bottom: 10px; }
-                        h2 { color: #666; margin-top: 0; margin-bottom: 30px; }
                         .set-section { margin-bottom: 30px; }
+                        .set-header { 
+                            font-size: 0.75em; 
+                            color: #999; 
+                            margin-bottom: 5px; 
+                            text-transform: uppercase; 
+                            letter-spacing: 0.5px;
+                        }
+                        .set-header .setlist-name { font-weight: 600; }
+                        .set-header .band-name { font-weight: 400; }
                         .set-title { color: ${themeColor}; font-size: 1.2em; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid ${themeColor}; padding-bottom: 5px; }
-                        .song { padding: 10px; margin: 5px 0; border-left: 3px solid ${themeColor}; }
+                        .song { padding: 8px; margin: 4px 0; border-left: 3px solid ${themeColor}; }
                         .song-number { font-weight: bold; margin-right: 10px; color: ${themeColor}; }
-                        .song-info { color: #666; font-size: 0.9em; margin-top: 5px; }
+                        .song-info { color: #666; font-size: 0.85em; margin-top: 3px; }
                     </style>
                 </head>
                 <body>
-                    <h1>${escapeHtml(setlist.name)}</h1>
-                    <h2>${escapeHtml(setlist.band)}</h2>
                     ${setlist.sets.map((set, setIdx) => `
                         <div class="set-section">
+                            <div class="set-header">
+                                <span class="setlist-name">${escapeHtml(setlist.name)}</span> • <span class="band-name">${escapeHtml(setlist.band)}</span>
+                            </div>
                             <div class="set-title">${escapeHtml(set.name)}</div>
                             ${set.songs.map((song, songIdx) => `
                                 <div class="song">
@@ -1717,36 +1735,51 @@
                     <style>
                         @media print {
                             body { margin: 0; }
+                            /* Keep each setlist together if possible */
                             .setlist { 
                                 page-break-after: always; 
                                 page-break-inside: avoid;
                             }
                             .setlist:last-child { page-break-after: auto; }
-                            .setlist:not(:first-child) { page-break-before: always; }
+                            /* Each set starts on a new page */
                             .set-section { 
+                                page-break-before: always;
                                 page-break-after: always;
                                 page-break-inside: avoid;
                             }
+                            .set-section:first-child { page-break-before: auto; }
                             .set-section:last-child { page-break-after: auto; }
+                            /* Prevent orphaned songs */
+                            .song {
+                                page-break-inside: avoid;
+                            }
                         }
                         body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-                        h1 { color: ${themeColor}; margin-bottom: 10px; }
-                        h2 { color: #666; margin-top: 0; margin-bottom: 30px; }
                         .setlist { margin-bottom: 40px; }
                         .set-section { margin-bottom: 30px; }
+                        .set-header { 
+                            font-size: 0.75em; 
+                            color: #999; 
+                            margin-bottom: 5px; 
+                            text-transform: uppercase; 
+                            letter-spacing: 0.5px;
+                        }
+                        .set-header .setlist-name { font-weight: 600; }
+                        .set-header .band-name { font-weight: 400; }
                         .set-title { color: ${themeColor}; font-size: 1.2em; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid ${themeColor}; padding-bottom: 5px; }
-                        .song { padding: 10px; margin: 5px 0; border-left: 3px solid ${themeColor}; }
+                        .song { padding: 8px; margin: 4px 0; border-left: 3px solid ${themeColor}; }
                         .song-number { font-weight: bold; margin-right: 10px; color: ${themeColor}; }
-                        .song-info { color: #666; font-size: 0.9em; margin-top: 5px; }
+                        .song-info { color: #666; font-size: 0.85em; margin-top: 3px; }
                     </style>
                 </head>
                 <body>
                     ${selectedSetlists.map(setlist => `
                         <div class="setlist">
-                            <h1>${escapeHtml(setlist.name)}</h1>
-                            <h2>${escapeHtml(setlist.band)}</h2>
                             ${setlist.sets.map((set, setIdx) => `
                                 <div class="set-section">
+                                    <div class="set-header">
+                                        <span class="setlist-name">${escapeHtml(setlist.name)}</span> • <span class="band-name">${escapeHtml(setlist.band)}</span>
+                                    </div>
                                     <div class="set-title">${escapeHtml(set.name)}</div>
                                     ${set.songs.map((song, songIdx) => `
                                         <div class="song">
