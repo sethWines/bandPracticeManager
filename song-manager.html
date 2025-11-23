@@ -21,6 +21,14 @@
             --primary-glow: rgba(107, 114, 128, 0.3);
             --primary-border: rgba(107, 114, 128, 0.3);
             --primary-bg: rgba(107, 114, 128, 0.15);
+            
+            /* Text colors */
+            --text-primary: #ffffff;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            
+            /* Card background */
+            --card-bg: #1a1a1a;
         }
 
         [data-theme="red"] {
@@ -340,6 +348,9 @@
         thead {
             background: var(--primary-bg);
             border-bottom: 2px solid var(--primary-border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         th {
@@ -472,8 +483,43 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: var(--primary-color);
+            color: var(--primary-light);
             font-weight: 500;
+        }
+
+        /* Themed select dropdowns */
+        select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--primary-border);
+            border-radius: 6px;
+            color: var(--primary-light);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            border-color: var(--primary-color);
+            background: rgba(255, 107, 61, 0.1);
+            box-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 107, 61, 0.3);
+        }
+
+        select option {
+            background: #1a1a1a;
+            color: var(--primary-light);
+            padding: 10px;
+        }
+
+        select option:hover {
+            background: var(--primary-bg);
         }
 
         input[type="text"],
@@ -789,9 +835,216 @@
 
         /* Column visibility classes */
         .hidden-col { display: none; }
+
+        /* Toast notification styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--primary-dark);
+            color: var(--primary-light);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 20px var(--primary-glow);
+            border: 2px solid var(--primary-border);
+            min-width: 300px;
+            max-width: 400px;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast.hide {
+            opacity: 0;
+            transform: translateX(400px);
+        }
+
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .toast-close {
+            cursor: pointer;
+            font-size: 20px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-color: #10b981;
+            background: #064e3b;
+            color: #6ee7b7;
+        }
+
+        .toast.error {
+            border-color: #ef4444;
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .toast.warning {
+            border-color: #f59e0b;
+            background: #78350f;
+            color: #fde68a;
+        }
+
+        .toast.info {
+            border-color: #3b82f6;
+            background: #1e3a8a;
+            color: #93c5fd;
+        }
+
+        /* Auto-save indicator */
+        .save-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: var(--primary-dark);
+            border: 2px solid var(--primary-border);
+            color: var(--primary-light);
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 9999;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .save-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .save-indicator.saved {
+            background: #064e3b;
+            border-color: #10b981;
+            color: #6ee7b7;
+        }
+
+        /* Custom themed checkboxes */
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--primary-border);
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        input[type="checkbox"]:hover {
+            border-color: var(--primary-color);
+            background: rgba(255, 107, 61, 0.1);
+            box-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        input[type="checkbox"]:checked {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        input[type="checkbox"]:indeterminate {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            opacity: 0.7;
+        }
+
+        input[type="checkbox"]:indeterminate::after {
+            content: '−';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        input[type="checkbox"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Checkbox in table header */
+        th input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Checkbox focus state */
+        input[type="checkbox"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 107, 61, 0.3);
+        }
+
+        /* Make labels with checkboxes interactive */
+        label:has(input[type="checkbox"]) {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        label:has(input[type="checkbox"]):hover {
+            color: var(--primary-light);
+        }
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- Auto-save Indicator -->
+    <div class="save-indicator" id="saveIndicator">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Saved ✓
+    </div>
+    
     <div class="container">
         <h1>
             <svg id="guitarIcon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 10px; filter: drop-shadow(0 0 8px var(--primary-glow)); cursor: pointer;" onclick="switchWatermark('guitar')" title="Show Guitar Watermark">
@@ -839,6 +1092,26 @@
             </a>
         </div>
 
+        <!-- Compact Theme Selector (Top Right) -->
+        <div style="position: absolute; top: 15px; right: 20px; display: flex; align-items: center; gap: 8px; font-size: 13px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.7;">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 1v6m0 6v6M5.6 5.6l4.2 4.2m4.2 4.2l4.2 4.2M1 12h6m6 0h6M5.6 18.4l4.2-4.2m4.2-4.2l4.2-4.2"/>
+            </svg>
+            <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 6px 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--primary-border); border-radius: 4px; color: var(--primary-light); cursor: pointer; font-size: 13px;">
+                <option value="grey">Grey</option>
+                <option value="red">Red</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+                <option value="purple">Purple</option>
+                <option value="cyan">Cyan</option>
+                <option value="teal">Teal</option>
+                <option value="copper">Copper</option>
+                <option value="amber">Amber</option>
+                <option value="pink">Pink</option>
+            </select>
+        </div>
+
         <div class="controls">
             <div class="stats">
                 <div class="stat-card">
@@ -866,6 +1139,13 @@
                     </svg>
                     Add Song
                 </button>
+                <button class="btn-secondary" id="undoButton" onclick="undo()" disabled title="Undo last action (Ctrl+Z)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M3 7v6h6"/>
+                        <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+                    </svg>
+                    Undo
+                </button>
                 <button class="btn-success" onclick="document.getElementById('csvFile').click()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -881,6 +1161,13 @@
                         <line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
                     Export CSV
+                </button>
+                <button class="btn-secondary" onclick="openTrashModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    Trash (<span id="trashCount">0</span>)
                 </button>
                 <button class="btn-secondary" onclick="toggleColumnVisibilityPanel()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
@@ -899,32 +1186,55 @@
                     Clear All Data
                 </button>
                 <input type="file" id="csvFile" accept=".csv" onchange="handleCSVImport(event)">
-                <div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
-                    <label style="margin: 0; color: var(--primary-light); font-weight: 500;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                            <circle cx="12" cy="12" r="3"/>
-                            <path d="M12 1v6m0 6v6M5.6 5.6l4.2 4.2m4.2 4.2l4.2 4.2M1 12h6m6 0h6M5.6 18.4l4.2-4.2m4.2-4.2l4.2-4.2"/>
-                        </svg>
-                        Theme:
-                    </label>
-                    <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 8px 12px; background: #000; border: 2px solid var(--primary-border); border-radius: 6px; color: #e0e0e0; cursor: pointer;">
-                        <option value="grey">Grey (Default)</option>
-                        <option value="red">Red/Orange</option>
-                        <option value="blue">Blue</option>
-                        <option value="green">Green</option>
-                        <option value="purple">Purple</option>
-                        <option value="cyan">Cyan</option>
-                        <option value="teal">Teal</option>
-                        <option value="copper">Copper</option>
-                        <option value="amber">Amber</option>
-                        <option value="pink">Pink</option>
-                    </select>
-                </div>
             </div>
 
-            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search by artist, song, album, band... (use spaces for multiple words)" oninput="applyFilters()">
+            <!-- Search Row -->
+            <div style="margin-bottom: 10px;">
+                <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search by artist, song, album, band... (use spaces for multiple words)" oninput="debouncedApplyFilters()" style="width: 100%; margin: 0;">
+            </div>
+
+            <!-- Filter Controls Row -->
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                <select id="filterColumn" class="filter-select" onchange="updateFilterSuggestions()" style="width: 180px;">
+                    <option value="">Select Column</option>
+                    <option value="artist">Artist</option>
+                    <option value="song">Song</option>
+                    <option value="album">Album</option>
+                    <option value="duration">Duration</option>
+                    <option value="practiceStatus">Practice Status</option>
+                    <option value="tuning">Tuning</option>
+                    <option value="bands">Bands</option>
+                    <option value="tags">Tags</option>
+                    <option value="key">Key</option>
+                    <option value="firstNote">First Note</option>
+                    <option value="lastNote">Last Note</option>
+                </select>
+                
+                <input type="text" id="filterValue" class="filter-input" placeholder="Filter value..." list="filterSuggestions" onkeypress="if(event.key==='Enter') addFilter()" style="width: 200px;">
+                <datalist id="filterSuggestions"></datalist>
+                
+                <button class="btn-success btn-filter" onclick="addFilter()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add Filter
+                </button>
+                
+                <button class="btn-secondary btn-filter" onclick="clearAllFilters()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                    Clear All
+                </button>
+            </div>
             
-            <div id="columnVisibilityPanel" style="display: none; margin-top: 10px; padding: 12px; background: #000000; border-radius: 8px; border: 1px solid var(--primary-border);">
+            <!-- Active Filters -->
+            <div id="activeFilters" class="active-filters"></div>
+            
+            <!-- Column Visibility Panel -->
+            <div id="columnVisibilityPanel" style="display: none; margin-top: 10px; margin-bottom: 15px; padding: 12px; background: #000000; border-radius: 8px; border: 1px solid var(--primary-border);">
                 <h4 style="margin: 0 0 10px 0; color: var(--primary-color);">Show/Hide Columns</h4>
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
@@ -940,6 +1250,14 @@
                         <span>Album</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-duration" checked onchange="toggleColumn('duration')">
+                        <span>Duration</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-practiceStatus" checked onchange="toggleColumn('practiceStatus')">
+                        <span>Status</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox" id="col-link" checked onchange="toggleColumn('link')">
                         <span>Link</span>
                     </label>
@@ -950,6 +1268,10 @@
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox" id="col-bands" checked onchange="toggleColumn('bands')">
                         <span>Bands</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-tags" checked onchange="toggleColumn('tags')">
+                        <span>Tags</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox" id="col-key" checked onchange="toggleColumn('key')">
@@ -964,43 +1286,40 @@
                         <span>Last Note</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="col-playCount" checked onchange="toggleColumn('playCount')">
+                        <span>Plays</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox" id="col-actions" checked onchange="toggleColumn('actions')">
                         <span>Actions</span>
                     </label>
                 </div>
             </div>
 
-            <div class="filter-container">
-                <div class="filter-row">
-                    <select id="filterColumn" class="filter-select" onchange="updateFilterSuggestions()">
-                        <option value="">Select Column</option>
-                        <option value="artist">Artist</option>
-                        <option value="song">Song</option>
-                        <option value="album">Album</option>
-                        <option value="tuning">Tuning</option>
-                        <option value="bands">Bands</option>
-                        <option value="key">Key</option>
-                        <option value="firstNote">First Note</option>
-                        <option value="lastNote">Last Note</option>
-                    </select>
-                    <input type="text" id="filterValue" class="filter-input" placeholder="Filter value..." list="filterSuggestions" onkeypress="if(event.key==='Enter') addFilter()">
-                    <datalist id="filterSuggestions"></datalist>
-                    <button class="btn-success btn-filter" onclick="addFilter()">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;">
-                            <line x1="12" y1="5" x2="12" y2="19"/>
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
-                        Add Filter
-                    </button>
-                    <button class="btn-secondary btn-filter" onclick="clearAllFilters()">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;">
-                            <line x1="18" y1="6" x2="6" y2="18"/>
-                            <line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
-                        Clear All
-                    </button>
+            <!-- Bulk Actions Bar -->
+            <div id="bulkActionsBar" style="display: none; margin-top: 15px; padding: 15px; background: var(--primary-bg); border: 2px solid var(--primary-border); border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="color: var(--primary-light); font-weight: 600;">
+                        <span id="selectedCount">0</span> song(s) selected
+                    </div>
+                    <div class="button-group">
+                        <button class="btn-primary btn-small" onclick="openBulkEditModal()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Bulk Edit
+                        </button>
+                        <button class="btn-danger btn-small" onclick="bulkDelete()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                            Delete Selected
+                        </button>
+                        <button class="btn-secondary btn-small" onclick="clearBulkSelection()">Clear Selection</button>
+                    </div>
                 </div>
-                <div id="activeFilters" class="active-filters"></div>
             </div>
         </div>
 
@@ -1008,16 +1327,23 @@
             <table>
                 <thead>
                     <tr>
+                        <th class="col-checkbox" style="width: 40px;">
+                            <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" title="Select All">
+                        </th>
                         <th class="col-actions">Actions</th>
                         <th class="col-link">Link</th>
                         <th class="sortable col-artist" onclick="sortTable('artist')">Artist</th>
                         <th class="sortable col-song" onclick="sortTable('song')">Song</th>
                         <th class="sortable col-album" onclick="sortTable('album')">Album</th>
+                        <th class="sortable col-duration" onclick="sortTable('duration')">Duration</th>
+                        <th class="sortable col-practiceStatus" onclick="sortTable('practiceStatus')">Status</th>
                         <th class="sortable col-tuning" onclick="sortTable('tuning')">Tuning</th>
                         <th class="sortable col-bands" onclick="sortTable('bands')">Bands</th>
+                        <th class="sortable col-tags" onclick="sortTable('tags')">Tags</th>
                         <th class="sortable col-key" onclick="sortTable('key')">Key</th>
                         <th class="sortable col-firstNote" onclick="sortTable('firstNote')">First Note</th>
                         <th class="sortable col-lastNote" onclick="sortTable('lastNote')">Last Note</th>
+                        <th class="sortable col-playCount" onclick="sortTable('playCount')">Plays</th>
                     </tr>
                 </thead>
                 <tbody id="songTableBody">
@@ -1059,6 +1385,25 @@
                     <input type="text" id="bands" placeholder="Comma-separated band names">
                 </div>
                 <div class="form-group">
+                    <label>Tags</label>
+                    <input type="text" id="tags" placeholder="e.g., upbeat, ballad, dance, cover, original">
+                    <small style="color: #999; display: block; margin-top: 5px;">Comma-separated tags for flexible organization</small>
+                </div>
+                <div class="form-group">
+                    <label>Duration (mm:ss)</label>
+                    <input type="text" id="duration" placeholder="e.g., 3:45" pattern="[0-9]{1,2}:[0-9]{2}">
+                </div>
+                <div class="form-group">
+                    <label>Practice Status</label>
+                    <select id="practiceStatus">
+                        <option value="">Not set</option>
+                        <option value="learning">🎓 Learning</option>
+                        <option value="practicing">🎵 Practicing</option>
+                        <option value="ready">✓ Ready</option>
+                        <option value="mastered">⭐ Mastered</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Key</label>
                     <input type="text" id="key" placeholder="e.g., Am, G">
                 </div>
@@ -1093,6 +1438,202 @@
         </div>
     </div>
 
+    <!-- Trash Modal -->
+    <div id="trashModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="color: var(--primary-light); text-align: center;">🗑️ Trash (2-day retention)</h2>
+                <span class="close" onclick="closeTrashModal()">&times;</span>
+            </div>
+            <div id="trashContent" style="max-height: 500px; overflow-y: auto;">
+                <!-- Trash items will be rendered here -->
+            </div>
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="btn-primary" onclick="restoreAllFromTrash()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M3 7v6h6"/>
+                        <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+                    </svg>
+                    Restore All
+                </button>
+                <button class="btn-danger" onclick="emptyTrash()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    Empty Trash
+                </button>
+                <button class="btn-secondary" onclick="closeTrashModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Edit Modal -->
+    <div id="bulkEditModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Bulk Edit <span id="bulkEditCount" style="color: var(--primary-light);">(0 songs)</span></h2>
+                <span class="close" onclick="closeBulkEditModal()">&times;</span>
+            </div>
+            <form id="bulkEditForm" style="margin-top: 20px;">
+                <div style="margin-bottom: 20px; padding: 15px; background: rgba(255,107,61,0.1); border: 1px solid var(--primary-border); border-radius: 6px;">
+                    <p style="color: var(--primary-light); margin-bottom: 10px;">
+                        <strong>How bulk edit works:</strong>
+                    </p>
+                    <ul style="color: #999; font-size: 14px; margin-left: 20px;">
+                        <li><strong>Replace:</strong> Overwrites the field with new value</li>
+                        <li><strong>Add:</strong> Appends to existing value (for bands/tags)</li>
+                        <li><strong>Remove:</strong> Removes specific text from field</li>
+                    </ul>
+                </div>
+
+                <!-- Tuning -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="bulkUpdateTuning">
+                        <strong>Update Tuning</strong>
+                    </label>
+                    <div id="tuningBulkOptions" style="display: none; margin-top: 10px; margin-left: 30px;">
+                        <input type="text" id="bulkTuning" placeholder="e.g., Drop D, Standard, DADGAD" style="width: 100%; padding: 8px; margin-bottom: 8px;">
+                        <select id="bulkTuningAction" style="width: 100%; padding: 8px;">
+                            <option value="replace">Replace existing value</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Album -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="bulkUpdateAlbum">
+                        <strong>Update Album</strong>
+                    </label>
+                    <div id="albumBulkOptions" style="display: none; margin-top: 10px; margin-left: 30px;">
+                        <input type="text" id="bulkAlbum" placeholder="e.g., Greatest Hits, Live Album" style="width: 100%; padding: 8px; margin-bottom: 8px;">
+                        <select id="bulkAlbumAction" style="width: 100%; padding: 8px;">
+                            <option value="replace">Replace existing value</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Duration -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="bulkUpdateDuration">
+                        <strong>Update Duration</strong>
+                    </label>
+                    <div id="durationBulkOptions" style="display: none; margin-top: 10px; margin-left: 30px;">
+                        <input type="text" id="bulkDuration" placeholder="e.g., 3:45, 4:20" pattern="[0-9]{1,2}:[0-9]{2}" style="width: 100%; padding: 8px; margin-bottom: 8px;">
+                        <select id="bulkDurationAction" style="width: 100%; padding: 8px;">
+                            <option value="replace">Replace existing value</option>
+                        </select>
+                        <small style="color: #999; display: block; margin-top: 5px;">Format: mm:ss</small>
+                    </div>
+                </div>
+
+                <!-- Bands -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="bulkUpdateBands">
+                        <strong>Update Bands</strong>
+                    </label>
+                    <div id="bandsBulkOptions" style="display: none; margin-top: 10px; margin-left: 30px;">
+                        <input type="text" id="bulkBands" placeholder="e.g., Rock Band, Jazz Trio" style="width: 100%; padding: 8px; margin-bottom: 8px;">
+                        <select id="bulkBandsAction" style="width: 100%; padding: 8px;">
+                            <option value="add">Add to existing bands</option>
+                            <option value="replace">Replace all bands</option>
+                            <option value="remove">Remove from bands</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tags -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="bulkUpdateTags">
+                        <strong>Update Tags</strong>
+                    </label>
+                    <div id="tagsBulkOptions" style="display: none; margin-top: 10px; margin-left: 30px;">
+                        <input type="text" id="bulkTags" placeholder="e.g., upbeat, dance, cover" style="width: 100%; padding: 8px; margin-bottom: 8px;">
+                        <select id="bulkTagsAction" style="width: 100%; padding: 8px;">
+                            <option value="add">Add to existing tags</option>
+                            <option value="replace">Replace all tags</option>
+                            <option value="remove">Remove from tags</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Practice Status -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="bulkUpdateStatus">
+                        <strong>Update Practice Status</strong>
+                    </label>
+                    <div id="statusBulkOptions" style="display: none; margin-top: 10px; margin-left: 30px;">
+                        <select id="bulkPracticeStatus" style="width: 100%; padding: 8px;">
+                            <option value="">Not set</option>
+                            <option value="learning">🎓 Learning</option>
+                            <option value="practicing">🎵 Practicing</option>
+                            <option value="ready">✓ Ready</option>
+                            <option value="mastered">⭐ Mastered</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Key -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="bulkUpdateKey">
+                        <strong>Update Key</strong>
+                    </label>
+                    <div id="keyBulkOptions" style="display: none; margin-top: 10px; margin-left: 30px;">
+                        <input type="text" id="bulkKey" placeholder="e.g., Am, G, C#m" style="width: 100%; padding: 8px; margin-bottom: 8px;">
+                        <select id="bulkKeyAction" style="width: 100%; padding: 8px;">
+                            <option value="replace">Replace existing value</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- First Note -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="bulkUpdateFirstNote">
+                        <strong>Update First Note</strong>
+                    </label>
+                    <div id="firstNoteBulkOptions" style="display: none; margin-top: 10px; margin-left: 30px;">
+                        <input type="text" id="bulkFirstNote" placeholder="e.g., A, C#, Eb" style="width: 100%; padding: 8px; margin-bottom: 8px;">
+                        <select id="bulkFirstNoteAction" style="width: 100%; padding: 8px;">
+                            <option value="replace">Replace existing value</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Last Note -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="bulkUpdateLastNote">
+                        <strong>Update Last Note</strong>
+                    </label>
+                    <div id="lastNoteBulkOptions" style="display: none; margin-top: 10px; margin-left: 30px;">
+                        <input type="text" id="bulkLastNote" placeholder="e.g., E, G, D" style="width: 100%; padding: 8px; margin-bottom: 8px;">
+                        <select id="bulkLastNoteAction" style="width: 100%; padding: 8px;">
+                            <option value="replace">Replace existing value</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="button-group" style="margin-top: 30px;">
+                    <button type="submit" class="btn-success">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Apply Changes
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="closeBulkEditModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         let songs = [];
         let editIndex = -1;
@@ -1100,6 +1641,758 @@
         let currentSort = { column: null, direction: 'asc' };
         let activeFilters = [];
         let hiddenColumns = new Set(); // Track hidden columns
+        let searchDebounceTimer = null; // For debouncing search
+        
+        // Undo system
+        let undoHistory = [];
+        const MAX_UNDO_HISTORY = 10;
+        
+        // Trash system - Simple version that works
+        let trash = [];
+        const TRASH_RETENTION_DAYS = 2;
+        
+        // Bulk edit system
+        let selectedSongIndices = new Set();
+
+        // Toast notification system
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: '✓',
+                error: '✕',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type] || icons.info}</div>
+                <div class="toast-message">${message}</div>
+                <div class="toast-close" onclick="this.parentElement.remove()">✕</div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Auto-remove after duration
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // Auto-save indicator
+        function showSaveIndicator() {
+            const indicator = document.getElementById('saveIndicator');
+            indicator.classList.add('show', 'saved');
+            
+            setTimeout(() => {
+                indicator.classList.remove('show');
+                setTimeout(() => {
+                    indicator.classList.remove('saved');
+                }, 300);
+            }, 1500);
+        }
+
+        // Undo system functions
+        function saveUndoState(action, data) {
+            undoHistory.push({
+                action: action,
+                data: JSON.parse(JSON.stringify(data)), // Deep clone
+                timestamp: Date.now()
+            });
+            
+            // Limit history size
+            if (undoHistory.length > MAX_UNDO_HISTORY) {
+                undoHistory.shift();
+            }
+            
+            updateUndoButton();
+        }
+
+        function undo() {
+            if (undoHistory.length === 0) return;
+            
+            const lastAction = undoHistory.pop();
+            console.log('Undoing action:', lastAction.action, lastAction.data);
+            
+            switch (lastAction.action) {
+                case 'delete':
+                    // Restore deleted song
+                    songs.splice(lastAction.data.index, 0, lastAction.data.song);
+                    
+                    // IMPORTANT: Also remove from trash if it's there
+                    const songToRemove = lastAction.data.song;
+                    trash = trash.filter(item => 
+                        !(item.song.song === songToRemove.song && item.song.artist === songToRemove.artist)
+                    );
+                    saveTrash();
+                    
+                    showToast(`Restored: ${lastAction.data.song.song} by ${lastAction.data.song.artist}`, 'success');
+                    break;
+                    
+                case 'bulkDelete':
+                    // Restore multiple deleted songs
+                    if (lastAction.data.songs && Array.isArray(lastAction.data.songs)) {
+                        lastAction.data.songs.forEach(item => {
+                            songs.splice(item.index, 0, item.song);
+                            
+                            // Also remove from trash
+                            trash = trash.filter(trashItem => 
+                                !(trashItem.song.song === item.song.song && trashItem.song.artist === item.song.artist)
+                            );
+                        });
+                        saveTrash();
+                        showToast(`Restored ${lastAction.data.songs.length} song(s)`, 'success');
+                    }
+                    break;
+                    
+                case 'add':
+                    // Remove added song
+                    songs.pop();
+                    showToast('Add song undone', 'info');
+                    break;
+                    
+                case 'edit':
+                    // Restore old song data
+                    songs[lastAction.data.index] = lastAction.data.oldSong;
+                    showToast('Edit undone', 'info');
+                    break;
+                    
+                case 'clearAll':
+                    // Restore all songs
+                    songs = lastAction.data.songs;
+                    showToast(`Restored ${songs.length} song(s)`, 'success');
+                    break;
+                    
+                case 'import':
+                    // Remove imported songs
+                    songs.splice(songs.length - lastAction.data.count, lastAction.data.count);
+                    showToast(`Import of ${lastAction.data.count} song(s) undone`, 'info');
+                    break;
+                    
+                default:
+                    console.warn('Unknown undo action:', lastAction.action);
+                    showToast('Cannot undo this action', 'warning');
+                    return;
+            }
+            
+            saveSongs();
+            applyFilters();
+            updateStats();
+            updateUndoButton();
+        }
+
+        function updateUndoButton() {
+            const undoBtn = document.getElementById('undoButton');
+            if (undoBtn) {
+                undoBtn.disabled = undoHistory.length === 0;
+                if (undoHistory.length > 0) {
+                    const lastAction = undoHistory[undoHistory.length - 1];
+                    const actionNames = {
+                        'delete': 'Undo delete',
+                        'add': 'Undo add',
+                        'edit': 'Undo edit',
+                        'clearAll': 'Undo clear all',
+                        'import': 'Undo import'
+                    };
+                    undoBtn.title = actionNames[lastAction.action] || 'Undo last action';
+                }
+            }
+        }
+
+        // Keyboard shortcut for undo
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                undo();
+            }
+        });
+
+        // Bulk edit system functions
+        function toggleSongSelection(index, event) {
+            const checkbox = event.target;
+            
+            // Sync our Set with the checkbox state
+            if (checkbox.checked) {
+                selectedSongIndices.add(index);
+            } else {
+                selectedSongIndices.delete(index);
+            }
+            
+            updateSelectAllCheckbox();
+            updateBulkActionsBar();
+        }
+
+        function toggleSelectAll() {
+            const checkbox = document.getElementById('selectAllCheckbox');
+            if (checkbox.checked) {
+                // Select all visible songs
+                songs.forEach((_, index) => selectedSongIndices.add(index));
+            } else {
+                selectedSongIndices.clear();
+            }
+            applyFilters(); // Re-render to update checkboxes
+        }
+
+        function updateSelectAllCheckbox() {
+            const checkbox = document.getElementById('selectAllCheckbox');
+            if (selectedSongIndices.size === 0) {
+                checkbox.checked = false;
+                checkbox.indeterminate = false;
+            } else if (selectedSongIndices.size === songs.length) {
+                checkbox.checked = true;
+                checkbox.indeterminate = false;
+            } else {
+                checkbox.checked = false;
+                checkbox.indeterminate = true;
+            }
+        }
+
+        function updateBulkActionsBar() {
+            const bar = document.getElementById('bulkActionsBar');
+            const count = document.getElementById('selectedCount');
+            
+            count.textContent = selectedSongIndices.size;
+            
+            if (selectedSongIndices.size > 0) {
+                bar.style.display = 'block';
+            } else {
+                bar.style.display = 'none';
+            }
+            
+            updateSelectAllCheckbox();
+        }
+
+        function clearBulkSelection() {
+            selectedSongIndices.clear();
+            applyFilters(); // Re-render to update checkboxes
+        }
+
+        function openBulkEditModal() {
+            if (selectedSongIndices.size === 0) {
+                showToast('No songs selected!', 'warning');
+                return;
+            }
+            
+            document.getElementById('bulkEditCount').textContent = `(${selectedSongIndices.size} songs)`;
+            document.getElementById('bulkEditModal').classList.add('active');
+            
+            // Set up checkbox toggle handlers
+            const checkboxes = [
+                'bulkUpdateTuning', 
+                'bulkUpdateAlbum', 
+                'bulkUpdateDuration', 
+                'bulkUpdateBands', 
+                'bulkUpdateTags', 
+                'bulkUpdateStatus', 
+                'bulkUpdateKey',
+                'bulkUpdateFirstNote',
+                'bulkUpdateLastNote'
+            ];
+            checkboxes.forEach(id => {
+                const checkbox = document.getElementById(id);
+                const optionsId = id.replace('bulkUpdate', '').toLowerCase() + 'BulkOptions';
+                checkbox.onchange = function() {
+                    document.getElementById(optionsId).style.display = this.checked ? 'block' : 'none';
+                };
+            });
+        }
+
+        function closeBulkEditModal() {
+            document.getElementById('bulkEditModal').classList.remove('active');
+            document.getElementById('bulkEditForm').reset();
+            // Hide all option divs
+            [
+                'tuningBulkOptions', 
+                'albumBulkOptions', 
+                'durationBulkOptions', 
+                'bandsBulkOptions', 
+                'tagsBulkOptions', 
+                'statusBulkOptions', 
+                'keyBulkOptions',
+                'firstNoteBulkOptions',
+                'lastNoteBulkOptions'
+            ].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+        }
+
+        function bulkDelete() {
+            if (selectedSongIndices.size === 0) {
+                showToast('No songs selected!', 'warning');
+                return;
+            }
+            
+            if (!confirm(`Move ${selectedSongIndices.size} song(s) to trash?`)) {
+                return;
+            }
+            
+            // Save undo state
+            const deletedSongs = [];
+            selectedSongIndices.forEach(index => {
+                deletedSongs.push({ index, song: JSON.parse(JSON.stringify(songs[index])) });
+            });
+            saveUndoState('bulkDelete', { songs: deletedSongs });
+            
+            // Move to trash and delete (in reverse order to maintain indices)
+            const indicesToDelete = Array.from(selectedSongIndices).sort((a, b) => b - a);
+            indicesToDelete.forEach(index => {
+                trash.push({
+                    song: JSON.parse(JSON.stringify(songs[index])),
+                    deletedAt: Date.now()
+                });
+                songs.splice(index, 1);
+            });
+            
+            selectedSongIndices.clear();
+            saveSongs();
+            saveTrash();
+            applyFilters();
+            updateStats();
+            showToast(`${indicesToDelete.length} song(s) moved to trash`, 'success');
+        }
+
+        // Handle bulk edit form submission
+        document.getElementById('bulkEditForm').onsubmit = function(e) {
+            e.preventDefault();
+            
+            let updateCount = 0;
+            const updates = [];
+            
+            // Get selected songs
+            const selectedSongs = Array.from(selectedSongIndices).map(i => songs[i]);
+            
+            selectedSongs.forEach((song, idx) => {
+                const originalIndex = Array.from(selectedSongIndices)[idx];
+                let hasChanges = false;
+                
+                // Tuning
+                if (document.getElementById('bulkUpdateTuning').checked) {
+                    const value = document.getElementById('bulkTuning').value.trim();
+                    if (value) {
+                        song.tuning = value;
+                        hasChanges = true;
+                    }
+                }
+                
+                // Album
+                if (document.getElementById('bulkUpdateAlbum').checked) {
+                    const value = document.getElementById('bulkAlbum').value.trim();
+                    if (value) {
+                        song.album = value;
+                        hasChanges = true;
+                    }
+                }
+                
+                // Duration
+                if (document.getElementById('bulkUpdateDuration').checked) {
+                    const value = document.getElementById('bulkDuration').value.trim();
+                    if (value) {
+                        song.duration = value;
+                        hasChanges = true;
+                    }
+                }
+                
+                // Bands
+                if (document.getElementById('bulkUpdateBands').checked) {
+                    const value = document.getElementById('bulkBands').value.trim();
+                    const action = document.getElementById('bulkBandsAction').value;
+                    if (value) {
+                        if (action === 'replace') {
+                            song.bands = value;
+                            hasChanges = true;
+                        } else if (action === 'add') {
+                            const existing = song.bands ? song.bands.split(',').map(b => b.trim()) : [];
+                            const newBands = value.split(',').map(b => b.trim());
+                            const combined = [...new Set([...existing, ...newBands])];
+                            song.bands = combined.join(', ');
+                            hasChanges = true;
+                        } else if (action === 'remove') {
+                            const existing = song.bands ? song.bands.split(',').map(b => b.trim()) : [];
+                            const toRemove = value.split(',').map(b => b.trim());
+                            const filtered = existing.filter(b => !toRemove.includes(b));
+                            song.bands = filtered.join(', ');
+                            hasChanges = true;
+                        }
+                    }
+                }
+                
+                // Tags
+                if (document.getElementById('bulkUpdateTags').checked) {
+                    const value = document.getElementById('bulkTags').value.trim();
+                    const action = document.getElementById('bulkTagsAction').value;
+                    if (value) {
+                        if (action === 'replace') {
+                            song.tags = value;
+                            hasChanges = true;
+                        } else if (action === 'add') {
+                            const existing = song.tags ? song.tags.split(',').map(t => t.trim()) : [];
+                            const newTags = value.split(',').map(t => t.trim());
+                            const combined = [...new Set([...existing, ...newTags])];
+                            song.tags = combined.join(', ');
+                            hasChanges = true;
+                        } else if (action === 'remove') {
+                            const existing = song.tags ? song.tags.split(',').map(t => t.trim()) : [];
+                            const toRemove = value.split(',').map(t => t.trim());
+                            const filtered = existing.filter(t => !toRemove.includes(t));
+                            song.tags = filtered.join(', ');
+                            hasChanges = true;
+                        }
+                    }
+                }
+                
+                // Practice Status
+                if (document.getElementById('bulkUpdateStatus').checked) {
+                    song.practiceStatus = document.getElementById('bulkPracticeStatus').value;
+                    hasChanges = true;
+                }
+                
+                // Key
+                if (document.getElementById('bulkUpdateKey').checked) {
+                    const value = document.getElementById('bulkKey').value.trim();
+                    if (value) {
+                        song.key = value;
+                        hasChanges = true;
+                    }
+                }
+                
+                // First Note
+                if (document.getElementById('bulkUpdateFirstNote').checked) {
+                    const value = document.getElementById('bulkFirstNote').value.trim();
+                    if (value) {
+                        song.firstNote = value;
+                        hasChanges = true;
+                    }
+                }
+                
+                // Last Note
+                if (document.getElementById('bulkUpdateLastNote').checked) {
+                    const value = document.getElementById('bulkLastNote').value.trim();
+                    if (value) {
+                        song.lastNote = value;
+                        hasChanges = true;
+                    }
+                }
+                
+                if (hasChanges) {
+                    updateCount++;
+                    updates.push({ index: originalIndex, song: JSON.parse(JSON.stringify(song)) });
+                }
+            });
+            
+            if (updateCount === 0) {
+                showToast('No changes to apply. Please select at least one field to update.', 'warning');
+                return;
+            }
+            
+            // Save undo state
+            saveUndoState('bulkEdit', { updates });
+            
+            // Save and update
+            saveSongs();
+            applyFilters();
+            closeBulkEditModal();
+            selectedSongIndices.clear();
+            showToast(`Successfully updated ${updateCount} song(s)!`, 'success');
+        };
+
+        // Trash system functions
+        function loadTrash() {
+            const stored = localStorage.getItem('bandSongsTrash');
+            if (stored) {
+                trash = JSON.parse(stored);
+                cleanExpiredTrash();
+            }
+        }
+
+        function saveTrash() {
+            localStorage.setItem('bandSongsTrash', JSON.stringify(trash));
+            updateTrashCount();
+        }
+
+        // Duplicate detection using Levenshtein distance
+        function levenshteinDistance(str1, str2) {
+            const len1 = str1.length;
+            const len2 = str2.length;
+            const matrix = [];
+
+            for (let i = 0; i <= len1; i++) {
+                matrix[i] = [i];
+            }
+
+            for (let j = 0; j <= len2; j++) {
+                matrix[0][j] = j;
+            }
+
+            for (let i = 1; i <= len1; i++) {
+                for (let j = 1; j <= len2; j++) {
+                    if (str1.charAt(i - 1) === str2.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1, // substitution
+                            matrix[i][j - 1] + 1,     // insertion
+                            matrix[i - 1][j] + 1      // deletion
+                        );
+                    }
+                }
+            }
+
+            return matrix[len1][len2];
+        }
+
+        function findSimilarSongs(artist, song, threshold = 0.8) {
+            const similar = [];
+            const artistLower = artist.toLowerCase();
+            const songLower = song.toLowerCase();
+
+            songs.forEach((existingSong, index) => {
+                // Skip the song being edited
+                if (editIndex >= 0 && index === editIndex) return;
+
+                const existingArtistLower = existingSong.artist.toLowerCase();
+                const existingSongLower = existingSong.song.toLowerCase();
+
+                // Calculate similarity
+                const artistDist = levenshteinDistance(artistLower, existingArtistLower);
+                const songDist = levenshteinDistance(songLower, existingSongLower);
+
+                const artistSim = 1 - (artistDist / Math.max(artistLower.length, existingArtistLower.length));
+                const songSim = 1 - (songDist / Math.max(songLower.length, existingSongLower.length));
+
+                // If both artist and song are very similar, or exact match
+                if ((artistSim > threshold && songSim > threshold) || 
+                    (artistLower === existingArtistLower && songLower === existingSongLower)) {
+                    similar.push({
+                        song: existingSong,
+                        artistSimilarity: artistSim,
+                        songSimilarity: songSim,
+                        index: index
+                    });
+                }
+            });
+
+            return similar;
+        }
+
+        function showDuplicateWarning(similarSongs, callback) {
+            if (similarSongs.length === 0) {
+                callback(true);
+                return;
+            }
+
+            const duplicateList = similarSongs.map(item => 
+                `• ${escapeHtml(item.song.song)} by ${escapeHtml(item.song.artist)}`
+            ).join('\n');
+
+            const message = `⚠️ Found ${similarSongs.length} similar song(s):\n\n${duplicateList}\n\nDo you want to add this song anyway?`;
+            
+            if (confirm(message)) {
+                callback(true);
+            } else {
+                callback(false);
+            }
+        }
+
+        function cleanExpiredTrash() {
+            const now = Date.now();
+            const retentionMs = TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+            trash = trash.filter(item => (now - item.deletedAt) < retentionMs);
+            saveTrash();
+        }
+
+        function moveToTrash(song) {
+            trash.push({
+                song: JSON.parse(JSON.stringify(song)),
+                deletedAt: Date.now()
+            });
+            saveTrash();
+        }
+
+        function restoreFromTrash(index) {
+            const item = trash[index];
+            if (!item || !item.song) {
+                showToast('Invalid trash item', 'error');
+                return;
+            }
+            
+            console.log('Restoring:', item.song.song, 'by', item.song.artist);
+            
+            // Add back to songs
+            songs.push(item.song);
+            
+            // Remove from trash
+            trash.splice(index, 1);
+            
+            // Save
+            localStorage.setItem('songDatabase', JSON.stringify(songs));
+            localStorage.setItem('songTrash', JSON.stringify(trash));
+            
+            // Show message and reload page
+            showToast(`Restoring song - page will reload...`, 'success');
+            setTimeout(() => location.reload(), 800);
+        }
+
+        function restoreAllFromTrash() {
+            if (trash.length === 0) {
+                showToast('Trash is empty', 'info');
+                return;
+            }
+            
+            const count = trash.length;
+            
+            // Add all songs back
+            trash.forEach(item => {
+                songs.push(item.song);
+            });
+            
+            // Clear trash
+            trash = [];
+            
+            // Save
+            localStorage.setItem('songDatabase', JSON.stringify(songs));
+            localStorage.setItem('songTrash', JSON.stringify(trash));
+            
+            // Reload
+            showToast(`Restoring ${count} songs - page will reload...`, 'success');
+            setTimeout(() => location.reload(), 800);
+        }
+
+        function emergencyRecovery() {
+            console.log('=== EMERGENCY RECOVERY ===');
+            console.log('Current songs count:', songs.length);
+            console.log('Current trash count:', trash.length);
+            
+            // Check localStorage for backup data
+            const backupSongs = localStorage.getItem('songDatabase');
+            const backupTrash = localStorage.getItem('songTrash');
+            
+            console.log('LocalStorage songDatabase:', backupSongs ? JSON.parse(backupSongs).length : 0);
+            console.log('LocalStorage songTrash:', backupTrash ? JSON.parse(backupTrash).length : 0);
+            
+            // Show recovery dialog
+            const message = `Current State:
+- Songs in table: ${songs.length}
+- Songs in trash: ${trash.length}
+- Songs in localStorage: ${backupSongs ? JSON.parse(backupSongs).length : 0}
+- Trash in localStorage: ${backupTrash ? JSON.parse(backupTrash).length : 0}
+
+What would you like to do?
+1. Reload from localStorage (may restore lost songs)
+2. Export current data to CSV as backup
+3. Cancel`;
+            
+            const choice = prompt(message + '\n\nEnter 1, 2, or 3:');
+            
+            if (choice === '1') {
+                // Reload from localStorage
+                songs = backupSongs ? JSON.parse(backupSongs) : [];
+                trash = backupTrash ? JSON.parse(backupTrash) : [];
+                
+                // Clear filters and re-render
+                document.getElementById('searchBox').value = '';
+                activeFilters = [];
+                updateFilterTags();
+                renderSongs(songs);
+                updateStats();
+                renderTrashContent();
+                
+                showToast(`Reloaded: ${songs.length} songs, ${trash.length} in trash`, 'success');
+                console.log('Recovery complete - songs:', songs.length, 'trash:', trash.length);
+            } else if (choice === '2') {
+                exportToCSV();
+            }
+        }
+
+        function deleteFromTrashPermanently(index) {
+            const item = trash[index];
+            if (confirm(`Permanently delete "${item.song.song}" by ${item.song.artist}? This cannot be undone!`)) {
+                trash.splice(index, 1);
+                saveTrash();
+                renderTrashContent();
+                showToast('Permanently deleted', 'warning');
+            }
+        }
+
+        function emptyTrash() {
+            if (trash.length === 0) {
+                showToast('Trash is already empty', 'info');
+                return;
+            }
+            if (confirm(`Permanently delete all ${trash.length} item(s) in trash? This cannot be undone!`)) {
+                trash = [];
+                saveTrash();
+                renderTrashContent();
+                showToast('Trash emptied', 'warning');
+            }
+        }
+
+        function updateTrashCount() {
+            document.getElementById('trashCount').textContent = trash.length;
+        }
+
+        function openTrashModal() {
+            cleanExpiredTrash();
+            renderTrashContent();
+            document.getElementById('trashModal').classList.add('active');
+        }
+
+        function closeTrashModal() {
+            document.getElementById('trashModal').classList.remove('active');
+        }
+
+        function renderTrashContent() {
+            const container = document.getElementById('trashContent');
+            
+            if (trash.length === 0) {
+                container.innerHTML = '<div class="no-data">Trash is empty</div>';
+                return;
+            }
+
+            const now = Date.now();
+            const retentionMs = TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
+            container.innerHTML = trash.map((item, index) => {
+                const timeLeft = retentionMs - (now - item.deletedAt);
+                const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
+                const daysLeft = Math.floor(hoursLeft / 24);
+                const timeLeftStr = daysLeft > 0 
+                    ? `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`
+                    : `${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''} left`;
+
+                return `
+                    <div class="import-item" style="margin-bottom: 10px;">
+                        <h4>${escapeHtml(item.song.song)} - ${escapeHtml(item.song.artist)}</h4>
+                        <div style="font-size: 13px; color: #999; margin-top: 5px;">
+                            ${item.song.album ? `Album: ${escapeHtml(item.song.album)} • ` : ''}
+                            ${item.song.key ? `Key: ${escapeHtml(item.song.key)} • ` : ''}
+                            <span style="color: #f59e0b;">${timeLeftStr}</span>
+                        </div>
+                        <div class="button-group" style="margin-top: 10px;">
+                            <button class="btn-success btn-small" onclick="restoreFromTrash(${index})">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                                    <path d="M3 7v6h6"/>
+                                    <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+                                </svg>
+                                Restore
+                            </button>
+                            <button class="btn-danger btn-small" onclick="deleteFromTrashPermanently(${index})">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                                Delete Permanently
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
         // Theme Management
         function loadTheme() {
@@ -1159,12 +2452,42 @@
             }
         }
 
+        // Apply default sort (Artist → Album → Song)
+        function applyDefaultSort() {
+            songs.sort((a, b) => {
+                // Sort by Artist first
+                const artistA = (a.artist || '').toLowerCase();
+                const artistB = (b.artist || '').toLowerCase();
+                if (artistA < artistB) return -1;
+                if (artistA > artistB) return 1;
+                
+                // If artists are the same, sort by Album
+                const albumA = (a.album || '').toLowerCase();
+                const albumB = (b.album || '').toLowerCase();
+                if (albumA < albumB) return -1;
+                if (albumA > albumB) return 1;
+                
+                // If albums are the same, sort by Song
+                const songA = (a.song || '').toLowerCase();
+                const songB = (b.song || '').toLowerCase();
+                if (songA < songB) return -1;
+                if (songA > songB) return 1;
+                
+                return 0;
+            });
+            
+            // Save the sorted order
+            saveSongs();
+        }
+
         // Load data on page load
         window.onload = function() {
             loadTheme(); // Load theme first
             loadWatermark(); // Load watermark preference
             loadColumnVisibility(); // Load column visibility preferences
             loadSongs();
+            loadTrash(); // Load trash
+            applyDefaultSort(); // Sort by Artist → Album → Song
             applyFilters();
             updateStats();
         };
@@ -1225,15 +2548,21 @@
 
         // Load songs from localStorage
         function loadSongs() {
-            const stored = localStorage.getItem('bandSongs');
+            // Try both keys for backward compatibility
+            const stored = localStorage.getItem('songDatabase') || localStorage.getItem('bandSongs');
             if (stored) {
                 songs = JSON.parse(stored);
+                console.log('Loaded', songs.length, 'songs from localStorage');
+            } else {
+                console.log('No songs found in localStorage');
             }
         }
 
         // Save songs to localStorage
         function saveSongs() {
-            localStorage.setItem('bandSongs', JSON.stringify(songs));
+            localStorage.setItem('songDatabase', JSON.stringify(songs));
+            localStorage.setItem('bandSongs', JSON.stringify(songs)); // Keep backup copy
+            showSaveIndicator();
         }
 
         // Render songs table
@@ -1242,7 +2571,7 @@
             const displaySongs = filteredSongs || songs;
 
             // Update column visibility in headers
-            const columns = ['actions', 'link', 'artist', 'song', 'album', 'tuning', 'bands', 'key', 'firstNote', 'lastNote'];
+            const columns = ['checkbox', 'actions', 'link', 'artist', 'song', 'album', 'duration', 'practiceStatus', 'tuning', 'bands', 'tags', 'key', 'firstNote', 'lastNote', 'playCount'];
             columns.forEach(col => {
                 const headers = document.querySelectorAll(`.col-${col}`);
                 headers.forEach(header => {
@@ -1259,30 +2588,53 @@
                 return;
             }
 
-            tbody.innerHTML = displaySongs.map((song, index) => `
+            // Helper function to get practice status badge
+            const getPracticeStatusBadge = (status) => {
+                const badges = {
+                    'learning': '<span style="background: #3b82f6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">🎓 Learning</span>',
+                    'practicing': '<span style="background: #f59e0b; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">🎵 Practicing</span>',
+                    'ready': '<span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">✓ Ready</span>',
+                    'mastered': '<span style="background: #8b5cf6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">⭐ Mastered</span>'
+                };
+                return badges[status] || '-';
+            };
+
+            tbody.innerHTML = displaySongs.map((song, index) => {
+                const originalIndex = song.originalIndex !== undefined ? song.originalIndex : index;
+                const isSelected = selectedSongIndices.has(originalIndex);
+                return `
                 <tr>
+                    <td class="col-checkbox ${hiddenColumns.has('checkbox') ? 'hidden-col' : ''}">
+                        <input type="checkbox" class="song-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleSongSelection(${originalIndex}, event)" title="Select song">
+                    </td>
                     <td class="col-actions ${hiddenColumns.has('actions') ? 'hidden-col' : ''}">
                         <div class="action-buttons">
-                            <button class="btn-secondary btn-small" onclick="editSong(${song.originalIndex !== undefined ? song.originalIndex : index})" title="Edit">
+                            <button class="btn-secondary btn-small" onclick="editSong(${originalIndex})" title="Edit">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                                 </svg>
                             </button>
-                            <button class="btn-danger btn-small" onclick="deleteSong(${song.originalIndex !== undefined ? song.originalIndex : index})" title="Delete">✕</button>
+                            <button class="btn-danger btn-small" onclick="deleteSong(${originalIndex})" title="Delete">✕</button>
                         </div>
                     </td>
                     <td class="col-link ${hiddenColumns.has('link') ? 'hidden-col' : ''}">${song.link ? `<a href="${escapeHtml(song.link)}" target="_blank" class="link-icon">🔗</a>` : '-'}</td>
                     <td class="col-artist ${hiddenColumns.has('artist') ? 'hidden-col' : ''}">${escapeHtml(song.artist)}</td>
                     <td class="col-song ${hiddenColumns.has('song') ? 'hidden-col' : ''}">${escapeHtml(song.song)}</td>
                     <td class="col-album ${hiddenColumns.has('album') ? 'hidden-col' : ''}">${escapeHtml(song.album || '-')}</td>
+                    <td class="col-duration ${hiddenColumns.has('duration') ? 'hidden-col' : ''}">${escapeHtml(song.duration || '-')}</td>
+                    <td class="col-practiceStatus ${hiddenColumns.has('practiceStatus') ? 'hidden-col' : ''}">${getPracticeStatusBadge(song.practiceStatus)}</td>
                     <td class="col-tuning ${hiddenColumns.has('tuning') ? 'hidden-col' : ''}">${escapeHtml(song.tuning || '-')}</td>
                     <td class="col-bands ${hiddenColumns.has('bands') ? 'hidden-col' : ''}">${escapeHtml(song.bands || '-')}</td>
+                    <td class="col-tags ${hiddenColumns.has('tags') ? 'hidden-col' : ''}">${escapeHtml(song.tags || '-')}</td>
                     <td class="col-key ${hiddenColumns.has('key') ? 'hidden-col' : ''}">${escapeHtml(song.key || '-')}</td>
                     <td class="col-firstNote ${hiddenColumns.has('firstNote') ? 'hidden-col' : ''}">${escapeHtml(song.firstNote || '-')}</td>
                     <td class="col-lastNote ${hiddenColumns.has('lastNote') ? 'hidden-col' : ''}">${escapeHtml(song.lastNote || '-')}</td>
+                    <td class="col-playCount ${hiddenColumns.has('playCount') ? 'hidden-col' : ''}">${song.playCount || 0}</td>
                 </tr>
-            `).join('');
+            `}).join('');
+            
+            updateBulkActionsBar();
         }
 
         // Update statistics
@@ -1320,6 +2672,9 @@
             document.getElementById('link').value = song.link || '';
             document.getElementById('tuning').value = song.tuning || '';
             document.getElementById('bands').value = song.bands || '';
+            document.getElementById('tags').value = song.tags || '';
+            document.getElementById('duration').value = song.duration || '';
+            document.getElementById('practiceStatus').value = song.practiceStatus || '';
             document.getElementById('key').value = song.key || '';
             document.getElementById('firstNote').value = song.firstNote || '';
             document.getElementById('lastNote').value = song.lastNote || '';
@@ -1348,36 +2703,67 @@
                 link: document.getElementById('link').value.trim(),
                 tuning: document.getElementById('tuning').value.trim(),
                 bands: document.getElementById('bands').value.trim(),
+                tags: document.getElementById('tags').value.trim(),
+                duration: document.getElementById('duration').value.trim(),
+                practiceStatus: document.getElementById('practiceStatus').value,
                 key: document.getElementById('key').value.trim(),
                 firstNote: document.getElementById('firstNote').value.trim(),
-                lastNote: document.getElementById('lastNote').value.trim()
+                lastNote: document.getElementById('lastNote').value.trim(),
+                playCount: editIndex >= 0 ? songs[editIndex].playCount || 0 : 0,
+                lastPlayed: editIndex >= 0 ? songs[editIndex].lastPlayed : null,
+                createdAt: editIndex >= 0 ? songs[editIndex].createdAt : new Date().toISOString()
             };
 
-            if (editIndex >= 0) {
-                songs[editIndex] = songData;
-            } else {
-                songs.push(songData);
-            }
+            // Check for duplicates before saving
+            const similarSongs = findSimilarSongs(songData.artist, songData.song);
+            
+            showDuplicateWarning(similarSongs, (proceed) => {
+                if (!proceed) return;
 
-            saveSongs();
-            applyFilters();
-            updateStats();
-            closeModal();
+                if (editIndex >= 0) {
+                    saveUndoState('edit', { index: editIndex, oldSong: JSON.parse(JSON.stringify(songs[editIndex])) });
+                    songs[editIndex] = songData;
+                    showToast('Song updated successfully', 'success');
+                } else {
+                    saveUndoState('add', {});
+                    songs.push(songData);
+                    showToast('Song added successfully', 'success');
+                }
+
+                saveSongs();
+                applyFilters();
+                updateStats();
+                closeModal();
+            });
         };
 
         // Delete song
         function deleteSong(index) {
-            if (confirm('Are you sure you want to delete this song?')) {
+            const song = songs[index];
+            if (confirm(`Move "${song.song}" by ${song.artist} to trash?`)) {
+                // Save to undo history so user can recover if needed
+                saveUndoState('delete', { index: index, song: JSON.parse(JSON.stringify(song)) });
+                
+                // Add to trash with timestamp
+                trash.push({
+                    song: JSON.parse(JSON.stringify(song)),
+                    deletedAt: Date.now()
+                });
+                saveTrash();
+                
+                // Remove from songs
                 songs.splice(index, 1);
                 saveSongs();
                 applyFilters();
                 updateStats();
+                showToast('Song moved to trash (2-day retention)', 'success');
             }
         }
 
         // Clear all data
         function clearAllData() {
             if (confirm('Are you sure you want to delete ALL songs? This cannot be undone!')) {
+                saveUndoState('clearAll', { songs: JSON.parse(JSON.stringify(songs)) });
                 songs = [];
                 activeFilters = [];
                 currentSort = { column: null, direction: 'asc' };
@@ -1385,6 +2771,209 @@
                 updateFilterTags();
                 applyFilters();
                 updateStats();
+                showToast('All songs cleared', 'warning');
+            }
+        }
+
+        // ===== TRASH SYSTEM FUNCTIONS (Simple & Reliable) =====
+        
+        function loadTrash() {
+            const stored = localStorage.getItem('songTrash');
+            if (stored) {
+                trash = JSON.parse(stored);
+                cleanExpiredTrash();
+            }
+            updateTrashCount();
+        }
+
+        function saveTrash() {
+            localStorage.setItem('songTrash', JSON.stringify(trash));
+            updateTrashCount();
+        }
+
+        function cleanExpiredTrash() {
+            const now = Date.now();
+            const retentionMs = TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+            const originalLength = trash.length;
+            trash = trash.filter(item => (now - item.deletedAt) < retentionMs);
+            if (trash.length < originalLength) {
+                saveTrash();
+                console.log(`Cleaned ${originalLength - trash.length} expired item(s) from trash`);
+            }
+        }
+
+        function updateTrashCount() {
+            document.getElementById('trashCount').textContent = trash.length;
+        }
+
+        function openTrashModal() {
+            cleanExpiredTrash();
+            renderTrashContent();
+            document.getElementById('trashModal').classList.add('active');
+        }
+
+        function closeTrashModal() {
+            document.getElementById('trashModal').classList.remove('active');
+        }
+
+        function renderTrashContent() {
+            const container = document.getElementById('trashContent');
+            
+            if (trash.length === 0) {
+                container.innerHTML = '<div class="no-data">Trash is empty</div>';
+                return;
+            }
+
+            const now = Date.now();
+            const html = trash.map((item, index) => {
+                const song = item.song;
+                const timeLeft = TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000 - (now - item.deletedAt);
+                const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                
+                return `
+                    <div style="background: var(--card-bg); border: 1px solid var(--primary-border); border-radius: 8px; padding: 15px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 16px; color: var(--text-primary); margin-bottom: 5px;">
+                                    ${song.song || 'Untitled'}
+                                </div>
+                                <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 5px;">
+                                    by ${song.artist || 'Unknown Artist'}
+                                </div>
+                                <div style="color: var(--text-tertiary); font-size: 12px;">
+                                    ${hoursLeft > 0 ? `Expires in ${hoursLeft} hours` : 'Expires soon'}
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn-success btn-small" onclick="restoreFromTrash(${index})" style="margin-right: 5px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                                        <path d="M3 7v6h6"/>
+                                        <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+                                    </svg>
+                                    Restore
+                                </button>
+                                <button class="btn-danger btn-small" onclick="deleteFromTrashPermanently(${index})">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                                        <line x1="18" y1="6" x2="6" y2="18"/>
+                                        <line x1="6" y1="6" x2="18" y2="18"/>
+                                    </svg>
+                                    Delete Forever
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function restoreFromTrash(index) {
+            const item = trash[index];
+            if (!item || !item.song) {
+                showToast('Invalid trash item', 'error');
+                return;
+            }
+
+            const songName = item.song.song;
+            const artistName = item.song.artist;
+            
+            // Check if already in songs (duplicate check)
+            const alreadyExists = songs.find(s => s.song === songName && s.artist === artistName);
+            if (alreadyExists) {
+                console.warn('Song already exists in songs array!');
+                // Just remove from trash and update
+                trash.splice(index, 1);
+                saveTrash();
+                showToast(`⚠️ "${songName}" already in song list - removed from trash`, 'warning');
+                setTimeout(() => location.reload(), 800);
+                return;
+            }
+
+            // Create a deep copy - SAME AS UNDO
+            const songCopy = JSON.parse(JSON.stringify(item.song));
+            
+            // Use splice like undo does - insert at end is fine
+            songs.splice(songs.length, 0, songCopy);
+            
+            // Remove from trash
+            trash.splice(index, 1);
+            
+            // Save - use the SAME functions as everywhere else
+            saveSongs();
+            saveTrash();
+            
+            // Show message and reload
+            showToast(`✅ Restoring: ${songName} by ${artistName}`, 'success');
+            
+            setTimeout(() => {
+                location.reload();
+            }, 800);
+        }
+
+        function restoreAllFromTrash() {
+            if (trash.length === 0) {
+                showToast('Trash is empty', 'info');
+                return;
+            }
+
+            const count = trash.length;
+            
+            // Restore all - check for duplicates
+            let restored = 0;
+            let skipped = 0;
+            
+            trash.forEach(item => {
+                const alreadyExists = songs.find(s => 
+                    s.song === item.song.song && s.artist === item.song.artist
+                );
+                
+                if (!alreadyExists) {
+                    songs.splice(songs.length, 0, JSON.parse(JSON.stringify(item.song)));
+                    restored++;
+                } else {
+                    skipped++;
+                }
+            });
+
+            // Clear trash
+            trash = [];
+
+            // Save using standard functions
+            saveSongs();
+            saveTrash();
+
+            // Show message and reload
+            const msg = skipped > 0 
+                ? `✅ Restored ${restored}, skipped ${skipped} duplicate(s)`
+                : `✅ Restored ${restored} song(s)`;
+            showToast(msg, 'success');
+            
+            setTimeout(() => {
+                location.reload();
+            }, 800);
+        }
+
+        function deleteFromTrashPermanently(index) {
+            const item = trash[index];
+            if (confirm(`Permanently delete "${item.song.song}" by ${item.song.artist}? This cannot be undone!`)) {
+                trash.splice(index, 1);
+                saveTrash();
+                renderTrashContent();
+                showToast('Permanently deleted', 'warning');
+            }
+        }
+
+        function emptyTrash() {
+            if (trash.length === 0) {
+                showToast('Trash is already empty', 'info');
+                return;
+            }
+            if (confirm(`Permanently delete all ${trash.length} song(s) in trash? This cannot be undone!`)) {
+                trash = [];
+                saveTrash();
+                renderTrashContent();
+                showToast('Trash emptied', 'warning');
             }
         }
 
@@ -1437,17 +3026,50 @@
                 return;
             }
 
-            // Get unique values for the selected column from ALL songs (not filtered)
+            // Get songs filtered by OTHER columns (not the current one)
+            // This gives cascading filter behavior
+            let availableSongs = songs.map((song, index) => ({
+                ...song,
+                originalIndex: index
+            }));
+
+            // Apply existing filters for OTHER columns only
+            const filtersByColumn = {};
+            activeFilters.forEach(filter => {
+                // Skip filters for the current column being edited
+                if (filter.column !== column) {
+                    if (!filtersByColumn[filter.column]) {
+                        filtersByColumn[filter.column] = [];
+                    }
+                    filtersByColumn[filter.column].push(filter.value.toLowerCase());
+                }
+            });
+
+            // Filter songs by other columns
+            Object.keys(filtersByColumn).forEach(col => {
+                const values = filtersByColumn[col];
+                availableSongs = availableSongs.filter(song => {
+                    const fieldValue = (song[col] || '').toLowerCase();
+                    return values.some(value => {
+                        if (value === '(empty)') {
+                            return fieldValue === '';
+                        }
+                        return fieldValue === value;
+                    });
+                });
+            });
+
+            // Get unique values for the selected column from FILTERED songs
             const uniqueValues = new Set();
             let hasEmptyValues = false;
             
-            songs.forEach(song => {
+            availableSongs.forEach(song => {
                 const value = song[column];
                 if (value) {
-                    // Handle bands field which might have comma-separated values
-                    if (column === 'bands' && value.includes(',')) {
-                        value.split(',').forEach(band => {
-                            const trimmed = band.trim();
+                    // Handle bands/tags fields which might have comma-separated values
+                    if ((column === 'bands' || column === 'tags') && value.includes(',')) {
+                        value.split(',').forEach(item => {
+                            const trimmed = item.trim();
                             if (trimmed) uniqueValues.add(trimmed);
                         });
                     } else {
@@ -1484,7 +3106,7 @@
             const value = document.getElementById('filterValue').value.trim();
 
             if (!column || !value) {
-                alert('Please select a column and enter a filter value');
+                showToast('Please select a column and enter a filter value', 'warning');
                 return;
             }
 
@@ -1495,6 +3117,7 @@
             
             updateFilterTags();
             applyFilters();
+            showToast(`Filter added: ${formatFieldName(column)} = ${value}`, 'success', 2000);
         }
 
         // Remove filter
@@ -1645,6 +3268,14 @@
             renderSongs(filtered);
         }
 
+        // Debounced version of applyFilters (300ms delay)
+        function debouncedApplyFilters() {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                applyFilters();
+            }, 300);
+        }
+
         // Handle CSV import
         function handleCSVImport(event) {
             const file = event.target.files[0];
@@ -1663,7 +3294,7 @@
         function parseCSV(csv) {
             const lines = csv.split('\n').filter(line => line.trim());
             if (lines.length < 2) {
-                alert('CSV file is empty or invalid!');
+                showToast('CSV file is empty or invalid!', 'error');
                 return;
             }
 
@@ -1691,7 +3322,7 @@
             });
 
             if (headerIndexMap.artist === undefined || headerIndexMap.song === undefined) {
-                alert('CSV must have "Artist" and "Song" columns!');
+                showToast('CSV must have "Artist" and "Song" columns!', 'error');
                 return;
             }
 
@@ -1772,7 +3403,7 @@
             }
 
             if (importData.length === 0) {
-                alert('No changes detected in CSV file!');
+                showToast('No changes detected in CSV file!', 'info');
                 return;
             }
 
@@ -1982,7 +3613,7 @@
         function confirmImport() {
             const selectedItems = importData.filter(item => item.selected !== false && item.selected !== undefined);
             if (selectedItems.length === 0) {
-                alert('No items selected for import!');
+                showToast('No items selected for import!', 'warning');
                 return;
             }
 
@@ -2011,13 +3642,16 @@
             applyFilters();
             updateStats();
             closeImportModal();
-            alert(`Successfully imported ${selectedItems.length} song(s)!`);
+            
+            // Save undo state for import
+            saveUndoState('import', { count: selectedItems.length });
+            showToast(`Successfully imported ${selectedItems.length} song(s)!`, 'success');
         }
 
         // Export to CSV
         function exportCSV() {
             if (songs.length === 0) {
-                alert('No songs to export!');
+                showToast('No songs to export!', 'warning');
                 return;
             }
 
@@ -2046,6 +3680,7 @@
             a.download = `band-songs-${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
             window.URL.revokeObjectURL(url);
+            showToast(`Exported ${songs.length} songs to CSV`, 'success');
         }
 
         // Escape CSV value
