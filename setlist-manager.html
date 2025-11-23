@@ -785,7 +785,7 @@
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <label style="margin: 0; color: var(--primary-light);">Add to:</label>
-                    <select id="targetSet" style="padding: 6px 12px; background: #000; border: 2px solid var(--primary-border); border-radius: 6px; color: #e0e0e0;"></select>
+                    <select id="targetSet" onchange="renderSongSelector(getCurrentFilteredSongs())" style="padding: 6px 12px; background: #000; border: 2px solid var(--primary-border); border-radius: 6px; color: #e0e0e0;"></select>
                     <button class="btn-secondary btn-small" onclick="clearSelection()">✕ Clear Selection</button>
                 </div>
             </div>
@@ -1251,31 +1251,34 @@
             }
 
             const setlist = setlists[currentSetlistIndex];
-            const setlistSongKeys = new Set();
-            setlist.sets.forEach(set => {
-                set.songs.forEach(s => setlistSongKeys.add(`${s.artist}|||${s.song}`));
+            const targetSetIndex = parseInt(document.getElementById('targetSet').value);
+            const targetSetSongKeys = new Set();
+            
+            // Only check songs in the TARGET set (not the entire setlist)
+            setlist.sets[targetSetIndex].songs.forEach(s => {
+                targetSetSongKeys.add(`${s.artist}|||${s.song}`);
             });
 
             selector.innerHTML = displaySongs.map((song) => {
                 const songKey = `${song.artist}|||${song.song}`;
-                const isInSetlist = setlistSongKeys.has(songKey);
+                const isInTargetSet = targetSetSongKeys.has(songKey);
                 const isSelected = selectedSongs.has(songKey);
                 
                 return `
-                    <div class="song-selector-item ${isSelected ? 'selected' : ''} ${isInSetlist ? 'disabled' : ''}" 
-                         style="${isInSetlist ? 'opacity: 0.4;' : ''}">
-                        <div class="song-info-selector" onclick="${isInSetlist ? '' : `toggleSongSelection('${escapeForAttribute(song.artist)}', '${escapeForAttribute(song.song)}')`}">
-                            ${!isInSetlist ? `<input type="checkbox" ${isSelected ? 'checked' : ''} style="margin-right: 10px; pointer-events: none;">` : ''}
+                    <div class="song-selector-item ${isSelected ? 'selected' : ''} ${isInTargetSet ? 'disabled' : ''}" 
+                         style="${isInTargetSet ? 'opacity: 0.4;' : ''}">
+                        <div class="song-info-selector" onclick="${isInTargetSet ? '' : `toggleSongSelection('${escapeForAttribute(song.artist)}', '${escapeForAttribute(song.song)}')`}">
+                            ${!isInTargetSet ? `<input type="checkbox" ${isSelected ? 'checked' : ''} style="margin-right: 10px; pointer-events: none;">` : ''}
                             <div style="flex: 1;">
                                 <strong>${escapeHtml(song.song)}</strong> - ${escapeHtml(song.artist)}
                                 ${song.key ? `<span style="color: #999;"> • Key: ${song.key}</span>` : ''}
                                 ${song.tuning ? `<span style="color: #999;"> • ${song.tuning}</span>` : ''}
                                 ${song.duration ? `<span style="color: #ff6b3d;"> • ${song.duration}</span>` : ''}
                                 ${song.album ? `<span style="color: #666;"> • ${song.album}</span>` : ''}
-                                ${isInSetlist ? '<span style="color: #f59e0b;"> • In setlist</span>' : ''}
+                                ${isInTargetSet ? '<span style="color: #f59e0b;"> • Already in this set</span>' : ''}
                             </div>
                         </div>
-                        ${isInSetlist ? `<button class="btn-danger btn-small" onclick="event.stopPropagation(); removeSongFromCurrentSetlist('${escapeForAttribute(song.artist)}', '${escapeForAttribute(song.song)}')" title="Remove from setlist">✕</button>` : ''}
+                        ${isInTargetSet ? `<button class="btn-danger btn-small" onclick="event.stopPropagation(); removeSongFromTargetSet('${escapeForAttribute(song.artist)}', '${escapeForAttribute(song.song)}')" title="Remove from this set">✕</button>` : ''}
                     </div>
                 `;
             }).join('');
@@ -1420,6 +1423,22 @@
                 renderSetlists();
                 // Re-render the song selector to update the "In setlist" status
                 renderSongSelector();
+            }
+        }
+
+        // Remove song from target set only (from song selector modal)
+        function removeSongFromTargetSet(artist, song) {
+            const setlist = setlists[currentSetlistIndex];
+            const targetSetIndex = parseInt(document.getElementById('targetSet').value);
+            const set = setlist.sets[targetSetIndex];
+            
+            const songIndex = set.songs.findIndex(s => s.artist === artist && s.song === song);
+            if (songIndex !== -1) {
+                set.songs.splice(songIndex, 1);
+                saveSetlistsToStorage();
+                renderSetlists();
+                // Re-render the song selector to update the status
+                renderSongSelector(getCurrentFilteredSongs());
             }
         }
 
