@@ -1,3 +1,4 @@
 *.csv
 !sample-songs.csv
 rec*
+PERFORMANCE-*

@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Song Manager</title>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#d84315">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Band Manager">
+    <!-- Performance: Resource Hints -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="preconnect" href="//fonts.googleapis.com">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d84315' stroke-width='2'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>">
     <style>
         * {
@@ -337,6 +346,9 @@
             max-height: calc(100vh - 400px);
             box-shadow: 0 4px 20px var(--primary-glow);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            /* Performance: Enable GPU acceleration for smooth scrolling */
+            will-change: scroll-position;
+            transform: translateZ(0);
         }
 
         table {
@@ -1635,12 +1647,42 @@
     </div>
 
     <script>
+        // ============================================================================
+        // UTILITY FUNCTIONS
+        // ============================================================================
+        
+        /**
+         * Debounce function - delays execution until after specified wait time
+         * @param {Function} func - Function to debounce
+         * @param {number} wait - Milliseconds to wait
+         * @returns {Function} Debounced function
+         */
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // ============================================================================
+        // STATE MANAGEMENT
+        // ============================================================================
+        
         let songs = [];
         let editIndex = -1;
         let importData = [];
         let currentSort = { column: null, direction: 'asc' };
         let activeFilters = [];
         let hiddenColumns = new Set(); // Track hidden columns
+        
+        // Performance: Memoization caches
+        let statsCache = null;
+        let statsCacheKey = null;
         let searchDebounceTimer = null; // For debouncing search
         let lastFilterState = null; // Cache last filter state to avoid redundant filtering
         let cachedFilteredSongs = null; // Cache filtered results
@@ -2492,6 +2534,45 @@ What would you like to do?
             applyDefaultSort(); // Sort by Artist → Album → Song
             applyFilters();
             updateStats();
+            
+            // Performance: Debounced resize handler
+            const handleResize = debounce(() => {
+                // Handle any resize-dependent logic here
+                // Currently minimal impact, but prevents issues if expanded later
+                console.log('Window resized');
+            }, 150);
+            window.addEventListener('resize', handleResize);
+            
+            // Performance: Smooth scrolling with requestAnimationFrame
+            const tableContainer = document.querySelector('.table-container');
+            let ticking = false;
+            
+            tableContainer.addEventListener('scroll', () => {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        // Handle scroll-dependent updates here
+                        // Currently passive - just ensures smooth rendering
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }, { passive: true });
+            
+            // Performance: Register Service Worker for PWA capabilities
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('[PWA] Service Worker registered:', registration.scope);
+                        
+                        // Check for updates periodically
+                        setInterval(() => {
+                            registration.update();
+                        }, 60000); // Check every minute
+                    })
+                    .catch((error) => {
+                        console.error('[PWA] Service Worker registration failed:', error);
+                    });
+            }
         };
 
         // Load and apply watermark preference
@@ -2568,6 +2649,9 @@ What would you like to do?
             // Invalidate filter cache when songs change
             lastFilterState = null;
             cachedFilteredSongs = null;
+            
+            // Performance: Invalidate stats cache
+            invalidateStatsCache();
             
             showSaveIndicator();
         }
@@ -2652,12 +2736,24 @@ What would you like to do?
             updateBulkActionsBar();
         }
 
-        // Update statistics
+        // Update statistics (with memoization)
         function updateStats() {
-            document.getElementById('totalSongs').textContent = songs.length;
+            // Performance: Generate cache key from songs array
+            const cacheKey = `${songs.length}-${songs.map(s => s.artist + s.bands).join(',')}`;
+            
+            // Return cached result if available
+            if (statsCache && statsCacheKey === cacheKey) {
+                document.getElementById('totalSongs').textContent = statsCache.totalSongs;
+                document.getElementById('totalArtists').textContent = statsCache.totalArtists;
+                document.getElementById('totalBands').textContent = statsCache.totalBands;
+                return;
+            }
+            
+            // Calculate stats
+            const totalSongs = songs.length;
             
             const uniqueArtists = new Set(songs.map(s => s.artist.toLowerCase()));
-            document.getElementById('totalArtists').textContent = uniqueArtists.size;
+            const totalArtists = uniqueArtists.size;
             
             const uniqueBands = new Set();
             songs.forEach(s => {
@@ -2665,7 +2761,22 @@ What would you like to do?
                     s.bands.split(',').forEach(b => uniqueBands.add(b.trim().toLowerCase()));
                 }
             });
-            document.getElementById('totalBands').textContent = uniqueBands.size;
+            const totalBands = uniqueBands.size;
+            
+            // Cache the results
+            statsCache = { totalSongs, totalArtists, totalBands };
+            statsCacheKey = cacheKey;
+            
+            // Update DOM
+            document.getElementById('totalSongs').textContent = totalSongs;
+            document.getElementById('totalArtists').textContent = totalArtists;
+            document.getElementById('totalBands').textContent = totalBands;
+        }
+        
+        // Performance: Invalidate stats cache when songs change
+        function invalidateStatsCache() {
+            statsCache = null;
+            statsCacheKey = null;
         }
 
         // Open add modal
@@ -3758,7 +3869,178 @@ What would you like to do?
             };
             return map[field] || field;
         }
+        
+        // ============================================================================
+        // PERFORMANCE MONITORING (Admin Page)
+        // ============================================================================
+        
+        function openPerformanceMonitor() {
+            const modal = document.getElementById('perfMonitorModal');
+            modal.classList.add('active');
+            updatePerformanceMetrics();
+            
+            // Start live monitoring
+            window.perfMonitorInterval = setInterval(updatePerformanceMetrics, 1000);
+        }
+        
+        function closePerformanceMonitor() {
+            const modal = document.getElementById('perfMonitorModal');
+            modal.classList.remove('active');
+            
+            // Stop live monitoring
+            if (window.perfMonitorInterval) {
+                clearInterval(window.perfMonitorInterval);
+                window.perfMonitorInterval = null;
+            }
+        }
+        
+        function updatePerformanceMetrics() {
+            const perf = performance;
+            const navigation = perf.getEntriesByType('navigation')[0];
+            const paint = perf.getEntriesByType('paint');
+            
+            // Navigation Timing
+            if (navigation) {
+                document.getElementById('loadTime').textContent = 
+                    `${(navigation.loadEventEnd - navigation.fetchStart).toFixed(2)} ms`;
+                document.getElementById('domReady').textContent = 
+                    `${(navigation.domContentLoadedEventEnd - navigation.fetchStart).toFixed(2)} ms`;
+            }
+            
+            // Paint Timing
+            const fcp = paint.find(entry => entry.name === 'first-contentful-paint');
+            if (fcp) {
+                document.getElementById('fcp').textContent = `${fcp.startTime.toFixed(2)} ms`;
+            }
+            
+            // Memory (if available)
+            if (performance.memory) {
+                const usedMemory = (performance.memory.usedJSHeapSize / 1048576).toFixed(2);
+                const totalMemory = (performance.memory.totalJSHeapSize / 1048576).toFixed(2);
+                document.getElementById('memory').textContent = `${usedMemory} / ${totalMemory} MB`;
+            } else {
+                document.getElementById('memory').textContent = 'N/A (not supported)';
+            }
+            
+            // LocalStorage Size
+            let storageSize = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    storageSize += localStorage[key].length + key.length;
+                }
+            }
+            document.getElementById('storageSize').textContent = 
+                `${(storageSize / 1024).toFixed(2)} KB`;
+            
+            // DOM Stats
+            document.getElementById('domNodes').textContent = 
+                document.querySelectorAll('*').length;
+            document.getElementById('tableRows').textContent = 
+                document.querySelectorAll('#songTableBody tr').length;
+            
+            // Song Stats
+            document.getElementById('totalSongsPerf').textContent = songs.length;
+            document.getElementById('filterCacheStatus').textContent = 
+                cachedFilteredSongs ? 'Active' : 'Empty';
+            document.getElementById('statsCacheStatus').textContent = 
+                statsCache ? 'Active' : 'Empty';
+        }
+        
+        function logSlowOperations() {
+            const originalConsoleLog = console.log;
+            const threshold = 100; // ms
+            
+            // Wrap expensive functions to log if they take > 100ms
+            const functionsToMonitor = ['renderSongs', 'applyFilters', 'updateStats'];
+            
+            functionsToMonitor.forEach(funcName => {
+                const originalFunc = window[funcName];
+                if (originalFunc) {
+                    window[funcName] = function(...args) {
+                        const start = performance.now();
+                        const result = originalFunc.apply(this, args);
+                        const duration = performance.now() - start;
+                        
+                        if (duration > threshold) {
+                            console.warn(`⚠️ SLOW: ${funcName}() took ${duration.toFixed(2)}ms`);
+                        }
+                        
+                        return result;
+                    };
+                }
+            });
+            
+            console.log('✅ Performance monitoring enabled - slow operations (>100ms) will be logged');
+        }
     </script>
+    
+    <!-- Performance Monitor Modal -->
+    <div id="perfMonitorModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" onclick="closePerformanceMonitor()">&times;</span>
+            <h2 style="color: var(--primary-light);">⚡ Performance Monitor</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 3px solid #4caf50;">
+                    <h4 style="margin: 0 0 10px 0; color: #4caf50;">⏱️ Page Load</h4>
+                    <div style="font-size: 0.9em; color: var(--text-secondary);">
+                        <div>Load Time: <span id="loadTime" style="color: var(--text-primary); font-weight: bold;">-</span></div>
+                        <div>DOM Ready: <span id="domReady" style="color: var(--text-primary); font-weight: bold;">-</span></div>
+                        <div>First Paint: <span id="fcp" style="color: var(--text-primary); font-weight: bold;">-</span></div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 3px solid #2196f3;">
+                    <h4 style="margin: 0 0 10px 0; color: #2196f3;">💾 Memory</h4>
+                    <div style="font-size: 0.9em; color: var(--text-secondary);">
+                        <div>JS Heap: <span id="memory" style="color: var(--text-primary); font-weight: bold;">-</span></div>
+                        <div>LocalStorage: <span id="storageSize" style="color: var(--text-primary); font-weight: bold;">-</span></div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 3px solid #ff9800;">
+                    <h4 style="margin: 0 0 10px 0; color: #ff9800;">🔢 DOM Stats</h4>
+                    <div style="font-size: 0.9em; color: var(--text-secondary);">
+                        <div>Total Nodes: <span id="domNodes" style="color: var(--text-primary); font-weight: bold;">-</span></div>
+                        <div>Table Rows: <span id="tableRows" style="color: var(--text-primary); font-weight: bold;">-</span></div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 3px solid #9c27b0;">
+                    <h4 style="margin: 0 0 10px 0; color: #9c27b0;">⚡ Cache Status</h4>
+                    <div style="font-size: 0.9em; color: var(--text-secondary);">
+                        <div>Total Songs: <span id="totalSongsPerf" style="color: var(--text-primary); font-weight: bold;">-</span></div>
+                        <div>Filter Cache: <span id="filterCacheStatus" style="color: var(--text-primary); font-weight: bold;">-</span></div>
+                        <div>Stats Cache: <span id="statsCacheStatus" style="color: var(--text-primary); font-weight: bold;">-</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                <h4 style="color: var(--primary-light); margin: 0 0 10px 0;">🛠️ Developer Tools</h4>
+                <button class="btn-secondary" onclick="logSlowOperations()" style="margin-right: 10px;">
+                    Enable Slow Operation Logging
+                </button>
+                <button class="btn-secondary" onclick="console.log(performance.getEntries())">
+                    Log All Performance Entries
+                </button>
+            </div>
+            
+            <div style="margin-top: 15px; font-size: 0.85em; color: var(--text-tertiary);">
+                ℹ️ Metrics update every second while this modal is open. Slow operations (>100ms) are logged to console.
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Monitor Link (bottom of page) -->
+    <div style="position: fixed; bottom: 10px; right: 10px; font-size: 0.75em; opacity: 0.5; transition: opacity 0.3s; z-index: 1000;" 
+         onmouseover="this.style.opacity='1'" 
+         onmouseout="this.style.opacity='0.5'">
+        <a href="#" onclick="event.preventDefault(); openPerformanceMonitor();" 
+           style="color: var(--text-tertiary); text-decoration: none; padding: 5px 10px; background: rgba(0,0,0,0.5); border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">
+            ⚡ Perf
+        </a>
+    </div>
 </body>
 </html>
 
