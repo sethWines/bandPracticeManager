@@ -615,7 +615,7 @@
                 background: white;
                 color: black;
             }
-            .controls, .nav-links, .setlist-actions, button {
+            .controls, .nav-links, .setlist-actions, button, .no-print {
                 display: none !important;
             }
             .setlist-card {
@@ -1098,7 +1098,13 @@
                                                 </div>
                                                 <div style="display: flex; align-items: center; gap: 10px;">
                                                     ${song.duration ? `<span style="color: var(--primary-light); font-size: 0.9em; min-width: 50px; text-align: right;">${escapeHtml(song.duration)}</span>` : ''}
-                                                    <button class="btn-danger btn-small" onclick="removeSongFromSet(${setlistIndex}, ${setIndex}, ${songIndex})">
+                                                    <button class="btn-secondary btn-small no-print" onclick="editSongFromSetlist('${escapeHtml(song.artist)}', '${escapeHtml(song.song)}')" title="Edit song in Song Manager">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                                        </svg>
+                                                    </button>
+                                                    <button class="btn-danger btn-small no-print" onclick="removeSongFromSet(${setlistIndex}, ${setIndex}, ${songIndex})">
                                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
                                                             <line x1="18" y1="6" x2="6" y2="18"/>
                                                             <line x1="6" y1="6" x2="18" y2="18"/>
@@ -1447,6 +1453,15 @@
             
             const setName = setlists[currentSetlistIndex].sets[targetSetIndex].name;
             alert(`Successfully added ${songsToAdd.length} song(s) to ${setName}!`);
+        }
+
+        // Edit song from setlist - opens song manager with search
+        function editSongFromSetlist(artist, songName) {
+            // Store the song info to search for in song manager
+            localStorage.setItem('editSongSearch', JSON.stringify({ artist, song: songName }));
+            
+            // Open song manager in a new tab
+            window.open('song-manager.html', '_blank');
         }
 
         // Remove song from set

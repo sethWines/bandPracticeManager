@@ -3026,6 +3026,25 @@ What would you like to do?
             applyFilters();
             updateStats();
             
+            // Check if we need to search for a song from setlist manager
+            const editSongSearch = localStorage.getItem('editSongSearch');
+            if (editSongSearch) {
+                try {
+                    const { artist, song } = JSON.parse(editSongSearch);
+                    // Set the search term
+                    document.getElementById('searchBox').value = `${artist} ${song}`;
+                    searchTerm = `${artist} ${song}`;
+                    applyFilters();
+                    // Clear the localStorage item
+                    localStorage.removeItem('editSongSearch');
+                    // Show a toast
+                    showToast(`🔍 Showing results for: ${artist} - ${song}`);
+                } catch (e) {
+                    console.error('Error parsing editSongSearch:', e);
+                    localStorage.removeItem('editSongSearch');
+                }
+            }
+            
             // Performance: Debounced resize handler
             const handleResize = debounce(() => {
                 // Handle any resize-dependent logic here
