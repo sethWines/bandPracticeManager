@@ -1694,11 +1694,45 @@
             
             const draggedSong = sourceSet.songs[draggedSongIndex];
             
+            // Find the closest song item to determine drop position
+            const songItems = Array.from(event.currentTarget.querySelectorAll('.song-item:not(.dragging)'));
+            let targetPosition = targetSet.songs.length; // Default to end
+            
+            if (songItems.length > 0) {
+                // Find which song we're closest to
+                let closestItem = null;
+                let closestDistance = Infinity;
+                let insertBefore = true;
+                
+                songItems.forEach(item => {
+                    const rect = item.getBoundingClientRect();
+                    const itemCenter = rect.top + rect.height / 2;
+                    const distance = Math.abs(event.clientY - itemCenter);
+                    
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestItem = item;
+                        insertBefore = event.clientY < itemCenter;
+                    }
+                });
+                
+                if (closestItem) {
+                    // Get the song index from the closest item
+                    const songIndex = songItems.indexOf(closestItem);
+                    targetPosition = insertBefore ? songIndex : songIndex + 1;
+                }
+            }
+            
             // Remove from source
             sourceSet.songs.splice(draggedSongIndex, 1);
             
-            // Add to end of target set
-            targetSet.songs.push(draggedSong);
+            // If moving within the same set, adjust target position
+            if (draggedSetIndex === setIndex && draggedSongIndex < targetPosition) {
+                targetPosition--;
+            }
+            
+            // Insert at calculated position
+            targetSet.songs.splice(targetPosition, 0, draggedSong);
             
             // Clean up dragging class
             document.querySelectorAll('.dragging').forEach(el => {
