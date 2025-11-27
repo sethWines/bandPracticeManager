@@ -1033,6 +1033,11 @@
             100% { transform: translateX(100%); }
         }
 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .toast {
             background: var(--primary-dark);
             color: var(--primary-light);
@@ -1684,7 +1689,16 @@
                     <input type="text" id="lastNote">
                 </div>
                 <div class="button-group">
-                    <button type="submit" class="btn-primary">Save</button>
+                    <button type="submit" class="btn-primary" id="saveSongBtn">
+                        <span id="saveBtnText">Save</span>
+                        <span id="saveBtnSpinner" style="display: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; animation: spin 1s linear infinite;">
+                                <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+                                <path d="M12 2 A10 10 0 0 1 22 12" stroke-opacity="1"/>
+                            </svg>
+                            Saving...
+                        </span>
+                    </button>
                     <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
                 </div>
             </form>
@@ -2922,8 +2936,6 @@ What would you like to do?
             // Update button label
             const label = document.getElementById('densityLabel');
             label.textContent = currentDensity.charAt(0).toUpperCase() + currentDensity.slice(1);
-            
-            showToast(`Table density: ${currentDensity}`);
         }
 
         function saveDensity() {
@@ -3470,6 +3482,15 @@ What would you like to do?
         document.getElementById('songForm').onsubmit = function(e) {
             e.preventDefault();
             
+            // Show loading state
+            const saveBtn = document.getElementById('saveSongBtn');
+            const saveBtnText = document.getElementById('saveBtnText');
+            const saveBtnSpinner = document.getElementById('saveBtnSpinner');
+            
+            saveBtn.disabled = true;
+            saveBtnText.style.display = 'none';
+            saveBtnSpinner.style.display = 'inline';
+            
             const songData = {
                 artist: document.getElementById('artist').value.trim(),
                 song: document.getElementById('song').value.trim(),
@@ -3492,7 +3513,13 @@ What would you like to do?
             const similarSongs = findSimilarSongs(songData.artist, songData.song);
             
             showDuplicateWarning(similarSongs, (proceed) => {
-                if (!proceed) return;
+                if (!proceed) {
+                    // Reset button state
+                    saveBtn.disabled = false;
+                    saveBtnText.style.display = 'inline';
+                    saveBtnSpinner.style.display = 'none';
+                    return;
+                }
 
                 if (editIndex >= 0) {
                     saveUndoState('edit', { index: editIndex, oldSong: JSON.parse(JSON.stringify(songs[editIndex])) });
@@ -3507,6 +3534,12 @@ What would you like to do?
                 saveSongs();
                 applyFilters();
                 updateStats();
+                
+                // Reset button state
+                saveBtn.disabled = false;
+                saveBtnText.style.display = 'inline';
+                saveBtnSpinner.style.display = 'none';
+                
                 closeModal();
             });
         };
