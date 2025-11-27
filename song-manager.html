@@ -1320,19 +1320,12 @@
             </div>
 
             <div class="button-group">
-                <button class="btn-success" onclick="openQuickAddModal()">
+                <button class="btn-success" onclick="openAddModal()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;">
                         <line x1="12" y1="5" x2="12" y2="19"/>
                         <line x1="5" y1="12" x2="19" y2="12"/>
                     </svg>
-                    Quick Add
-                </button>
-                <button class="btn-secondary" onclick="openAddModal()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
-                    Full Form
+                    Add Song(s)
                 </button>
                 <button class="btn-secondary" id="undoButton" onclick="undo()" disabled title="Undo last action (Ctrl+Z)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
@@ -1693,84 +1686,6 @@
                 <div class="button-group">
                     <button type="submit" class="btn-primary">Save</button>
                     <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Quick Add Modal -->
-    <div id="quickAddModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>⚡ Quick Add Song</h2>
-                <span class="close" onclick="closeQuickAddModal()">&times;</span>
-            </div>
-            <form id="quickAddForm">
-                <div class="form-group">
-                    <label>Artist *</label>
-                    <input type="text" id="quickArtist" required autofocus>
-                </div>
-                <div class="form-group">
-                    <label>Song *</label>
-                    <input type="text" id="quickSong" required>
-                </div>
-                <div id="quickAdvancedOptions" style="display: none;">
-                    <div class="form-group">
-                        <label>Album</label>
-                        <input type="text" id="quickAlbum">
-                    </div>
-                    <div class="form-group">
-                        <label>Link</label>
-                        <input type="text" id="quickLink">
-                    </div>
-                    <div class="form-group">
-                        <label>Tuning</label>
-                        <input type="text" id="quickTuning" placeholder="e.g., Standard, Drop D">
-                    </div>
-                    <div class="form-group">
-                        <label>Bands</label>
-                        <input type="text" id="quickBands" placeholder="Comma-separated band names">
-                    </div>
-                    <div class="form-group">
-                        <label>Tags</label>
-                        <input type="text" id="quickTags" placeholder="e.g., upbeat, ballad, dance">
-                    </div>
-                    <div class="form-group">
-                        <label>Duration (mm:ss)</label>
-                        <input type="text" id="quickDuration" placeholder="e.g., 3:45" pattern="[0-9]{1,2}:[0-9]{2}">
-                    </div>
-                    <div class="form-group">
-                        <label>Practice Status</label>
-                        <select id="quickPracticeStatus">
-                            <option value="">Not set</option>
-                            <option value="learning">🎓 Learning</option>
-                            <option value="practicing">🎵 Practicing</option>
-                            <option value="ready">✓ Ready</option>
-                            <option value="mastered">⭐ Mastered</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Key</label>
-                        <input type="text" id="quickKey" placeholder="e.g., Am, G">
-                    </div>
-                    <div class="form-group">
-                        <label>First Note</label>
-                        <input type="text" id="quickFirstNote">
-                    </div>
-                    <div class="form-group">
-                        <label>Last Note</label>
-                        <input type="text" id="quickLastNote">
-                    </div>
-                </div>
-                <div style="margin: 15px 0; text-align: center;">
-                    <button type="button" class="btn-secondary" onclick="toggleQuickAdvancedOptions()" style="font-size: 0.9em;">
-                        <span id="quickAdvancedToggleText">▼ Show Advanced Options</span>
-                    </button>
-                </div>
-                <div class="button-group">
-                    <button type="submit" class="btn-primary">💾 Save</button>
-                    <button type="button" class="btn-success" onclick="quickSaveAndAddAnother()">💾 Save & Add Another</button>
-                    <button type="button" class="btn-secondary" onclick="closeQuickAddModal()">Cancel</button>
                 </div>
             </form>
         </div>
@@ -3276,59 +3191,6 @@ What would you like to do?
             }, 150);
             window.addEventListener('resize', handleResize);
             
-            // Quick Add Form Submission - must be in onload to ensure DOM is ready
-            document.getElementById('quickAddForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const newSong = {
-                    artist: document.getElementById('quickArtist').value.trim(),
-                    song: document.getElementById('quickSong').value.trim(),
-                    album: document.getElementById('quickAlbum').value.trim() || '',
-                    link: document.getElementById('quickLink').value.trim() || '',
-                    tuning: document.getElementById('quickTuning').value.trim() || '',
-                    bands: document.getElementById('quickBands').value.trim() || '',
-                    tags: document.getElementById('quickTags').value.trim() || '',
-                    duration: document.getElementById('quickDuration').value.trim() || '',
-                    practiceStatus: document.getElementById('quickPracticeStatus').value || '',
-                    key: document.getElementById('quickKey').value.trim() || '',
-                    firstNote: document.getElementById('quickFirstNote').value.trim() || '',
-                    lastNote: document.getElementById('quickLastNote').value.trim() || '',
-                    playCount: 0
-                };
-
-                // Check for duplicates (same logic as main form)
-                const duplicates = findDuplicates(newSong);
-                if (duplicates.length > 0) {
-                    const dupNames = duplicates.map(d => `"${d.song}" by ${d.artist}`).join(', ');
-                    if (!confirm(`Possible duplicate(s) found:\n${dupNames}\n\nAdd anyway?`)) {
-                        return;
-                    }
-                }
-
-                // Save undo state before adding
-                saveUndoState('add');
-
-                // Add song
-                songs.push(newSong);
-                saveSongs();
-                invalidateFilterCache();
-                invalidateStatsCache();
-                applyFilters();
-                updateStats();
-                updateUndoButton();
-
-                showToast(`✓ Added: "${newSong.song}" by ${newSong.artist}`);
-
-                // If "Save & Add Another" was clicked, clear form and refocus
-                if (quickAddKeepOpen) {
-                    document.getElementById('quickAddForm').reset();
-                    setTimeout(() => document.getElementById('quickArtist').focus(), 100);
-                    quickAddKeepOpen = false;
-                } else {
-                    closeQuickAddModal();
-                }
-            });
-            
             // Performance: Smooth scrolling with requestAnimationFrame
             const tableContainer = document.querySelector('.table-container');
             let ticking = false;
@@ -3571,41 +3433,6 @@ What would you like to do?
             document.getElementById('modalTitle').textContent = 'Add Song';
             document.getElementById('songForm').reset();
             document.getElementById('songModal').classList.add('active');
-        }
-
-        // Quick Add Modal Functions
-        let quickAddKeepOpen = false;
-
-        function openQuickAddModal() {
-            document.getElementById('quickAddForm').reset();
-            document.getElementById('quickAddModal').classList.add('active');
-            // Hide advanced options by default
-            document.getElementById('quickAdvancedOptions').style.display = 'none';
-            document.getElementById('quickAdvancedToggleText').textContent = '▼ Show Advanced Options';
-            // Focus artist field
-            setTimeout(() => document.getElementById('quickArtist').focus(), 100);
-        }
-
-        function closeQuickAddModal() {
-            document.getElementById('quickAddModal').classList.remove('active');
-            quickAddKeepOpen = false;
-        }
-
-        function toggleQuickAdvancedOptions() {
-            const advancedDiv = document.getElementById('quickAdvancedOptions');
-            const toggleText = document.getElementById('quickAdvancedToggleText');
-            if (advancedDiv.style.display === 'none') {
-                advancedDiv.style.display = 'block';
-                toggleText.textContent = '▲ Hide Advanced Options';
-            } else {
-                advancedDiv.style.display = 'none';
-                toggleText.textContent = '▼ Show Advanced Options';
-            }
-        }
-
-        function quickSaveAndAddAnother() {
-            quickAddKeepOpen = true;
-            document.getElementById('quickAddForm').requestSubmit();
         }
 
         // Edit song
