@@ -868,6 +868,79 @@
             color: #e0e0e0;
         }
 
+        /* Inline editing styles */
+        .editable-cell {
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .editable-cell:hover {
+            background: rgba(255, 255, 255, 0.05);
+            outline: 1px solid var(--primary-border);
+        }
+
+        .editable-cell.editing {
+            padding: 0 !important;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .inline-input {
+            width: 100%;
+            background: #1a1a1a;
+            border: 2px solid var(--primary-color);
+            color: #e0e0e0;
+            padding: 8px;
+            font-family: inherit;
+            font-size: inherit;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .inline-input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+
+        .inline-select {
+            width: 100%;
+            background: #1a1a1a;
+            border: 2px solid var(--primary-color);
+            color: #e0e0e0;
+            padding: 8px;
+            font-family: inherit;
+            font-size: inherit;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .inline-select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+
+        /* Column resizing styles */
+        th {
+            position: relative;
+            user-select: none;
+        }
+
+        .resize-handle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 5px;
+            cursor: col-resize;
+            z-index: 1;
+            background: transparent;
+            transition: background 0.2s;
+        }
+
+        .resize-handle:hover,
+        .resize-handle.resizing {
+            background: var(--primary-color);
+        }
+
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -1400,11 +1473,11 @@
                 </button>
                 <div style="position: relative; display: inline-block;">
                     <button class="btn-secondary" onclick="toggleExportMenu()" id="exportMenuBtn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="17 8 12 3 7 8"/>
-                            <line x1="12" y1="3" x2="12" y2="15"/>
-                        </svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
                         Export ▼
                     </button>
                     <div id="exportMenu" class="dropdown-menu" style="display: none;">
@@ -1483,7 +1556,25 @@
 
             <!-- Search Row -->
             <div style="margin-bottom: 10px; position: relative;">
-                <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search by artist, song, album, band... (use spaces for multiple words)" oninput="handleSearchInput(event)" onkeydown="handleSearchKeydown(event)" style="width: 100%; margin: 0;">
+                <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search... (Try: rock AND blues, metal OR punk, artist:metallica -live)" oninput="handleSearchInput(event)" onkeydown="handleSearchKeydown(event)" style="width: calc(100% - 30px); margin: 0;">
+                <button class="btn-secondary" onclick="toggleSearchHelp()" title="Search Help" style="position: absolute; right: 0; top: 0; bottom: 0; padding: 0 10px; border-radius: 0 4px 4px 0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </button>
+                <div id="searchHelp" style="display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; background: var(--primary-dark); border: 2px solid var(--primary-border); border-radius: 8px; padding: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 1000; font-size: 0.85em;">
+                    <h4 style="color: var(--primary-light); margin: 0 0 10px 0;">🔍 Advanced Search Operators</h4>
+                    <div style="display: grid; gap: 8px;">
+                        <div><strong style="color: var(--primary-light);">AND</strong> - rock AND blues (both terms)</div>
+                        <div><strong style="color: var(--primary-light);">OR</strong> - metal OR punk (either term)</div>
+                        <div><strong style="color: var(--primary-light);">NOT / -</strong> - metallica NOT live or metallica -live</div>
+                        <div><strong style="color: var(--primary-light);">Field:</strong> - artist:metallica, album:black, song:enter</div>
+                        <div><strong style="color: var(--primary-light);">Quotes:</strong> - "black sabbath" (exact phrase)</div>
+                        <div><strong style="color: var(--primary-light);">Combine:</strong> - artist:metallica AND (live OR concert) NOT -cover</div>
+                    </div>
+                </div>
                 <div id="autocompleteDropdown" class="autocomplete-dropdown" style="display: none;"></div>
             </div>
 
@@ -1494,12 +1585,12 @@
                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                         <polyline points="17 21 17 13 7 13 7 21"/>
                         <polyline points="7 3 7 8 15 8"/>
-                    </svg>
+                        </svg>
                     Saved Filters:
-                </label>
+                    </label>
                 <select id="savedFiltersDropdown" class="filter-select" onchange="applySavedFilter()" style="flex: 1; min-width: 200px; max-width: 300px;">
                     <option value="">-- Select a saved filter --</option>
-                </select>
+                    </select>
                 <button class="btn-success btn-small" onclick="openSaveFilterModal()" title="Save current filters">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
@@ -1515,7 +1606,7 @@
                     </svg>
                     Manage
                 </button>
-            </div>
+                </div>
 
             <!-- Filter Controls Row -->
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
@@ -1553,7 +1644,7 @@
                     Clear All
                 </button>
             </div>
-            
+
             <!-- Active Filters -->
             <div id="activeFilters" class="active-filters"></div>
             
@@ -1631,18 +1722,18 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
+                        </svg>
                             Bulk Edit
-                        </button>
+                    </button>
                         <button class="btn-danger btn-small" onclick="bulkDelete()">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
                                 <polyline points="3 6 5 6 21 6"/>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            </svg>
+                        </svg>
                             Delete Selected
-                        </button>
+                    </button>
                         <button class="btn-secondary btn-small" onclick="clearBulkSelection()">Clear Selection</button>
-                    </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -3227,6 +3318,7 @@ What would you like to do?
             applyDefaultSort(); // Sort by Artist → Album → Song
             applyFilters();
             updateStats();
+            initColumnResizing(); // Initialize column resizing
             
             // Check if we need to search for a song from setlist manager
             const editSongSearch = localStorage.getItem('editSongSearch');
@@ -3429,17 +3521,17 @@ What would you like to do?
                         </div>
                     </td>
                     <td class="col-link ${colClasses.link}">${song.link ? `<a href="${escapeHtml(song.link)}" target="_blank" class="link-icon">🔗</a>` : '-'}</td>
-                    <td class="col-artist ${colClasses.artist}">${escapeHtml(song.artist)}</td>
-                    <td class="col-song ${colClasses.song}">${escapeHtml(song.song)}</td>
-                    <td class="col-album ${colClasses.album}">${escapeHtml(song.album || '-')}</td>
-                    <td class="col-duration ${colClasses.duration}">${escapeHtml(song.duration || '-')}</td>
-                    <td class="col-practiceStatus ${colClasses.practiceStatus}">${getPracticeStatusBadge(song.practiceStatus)}</td>
-                    <td class="col-tuning ${colClasses.tuning}">${escapeHtml(song.tuning || '-')}</td>
-                    <td class="col-bands ${colClasses.bands}">${escapeHtml(song.bands || '-')}</td>
-                    <td class="col-tags ${colClasses.tags}">${escapeHtml(song.tags || '-')}</td>
-                    <td class="col-key ${colClasses.key}">${escapeHtml(song.key || '-')}</td>
-                    <td class="col-firstNote ${colClasses.firstNote}">${escapeHtml(song.firstNote || '-')}</td>
-                    <td class="col-lastNote ${colClasses.lastNote}">${escapeHtml(song.lastNote || '-')}</td>
+                    <td class="col-artist editable-cell ${colClasses.artist}" ondblclick="startInlineEdit(this, ${originalIndex}, 'artist')" title="Double-click to edit">${escapeHtml(song.artist)}</td>
+                    <td class="col-song editable-cell ${colClasses.song}" ondblclick="startInlineEdit(this, ${originalIndex}, 'song')" title="Double-click to edit">${escapeHtml(song.song)}</td>
+                    <td class="col-album editable-cell ${colClasses.album}" ondblclick="startInlineEdit(this, ${originalIndex}, 'album')" title="Double-click to edit">${escapeHtml(song.album || '-')}</td>
+                    <td class="col-duration editable-cell ${colClasses.duration}" ondblclick="startInlineEdit(this, ${originalIndex}, 'duration')" title="Double-click to edit">${escapeHtml(song.duration || '-')}</td>
+                    <td class="col-practiceStatus editable-cell ${colClasses.practiceStatus}" ondblclick="startInlineEdit(this, ${originalIndex}, 'practiceStatus')" title="Double-click to edit">${getPracticeStatusBadge(song.practiceStatus)}</td>
+                    <td class="col-tuning editable-cell ${colClasses.tuning}" ondblclick="startInlineEdit(this, ${originalIndex}, 'tuning')" title="Double-click to edit">${escapeHtml(song.tuning || '-')}</td>
+                    <td class="col-bands editable-cell ${colClasses.bands}" ondblclick="startInlineEdit(this, ${originalIndex}, 'bands')" title="Double-click to edit">${escapeHtml(song.bands || '-')}</td>
+                    <td class="col-tags editable-cell ${colClasses.tags}" ondblclick="startInlineEdit(this, ${originalIndex}, 'tags')" title="Double-click to edit">${escapeHtml(song.tags || '-')}</td>
+                    <td class="col-key editable-cell ${colClasses.key}" ondblclick="startInlineEdit(this, ${originalIndex}, 'key')" title="Double-click to edit">${escapeHtml(song.key || '-')}</td>
+                    <td class="col-firstNote editable-cell ${colClasses.firstNote}" ondblclick="startInlineEdit(this, ${originalIndex}, 'firstNote')" title="Double-click to edit">${escapeHtml(song.firstNote || '-')}</td>
+                    <td class="col-lastNote editable-cell ${colClasses.lastNote}" ondblclick="startInlineEdit(this, ${originalIndex}, 'lastNote')" title="Double-click to edit">${escapeHtml(song.lastNote || '-')}</td>
                     <td class="col-playCount ${colClasses.playCount}">${song.playCount || 0}</td>
                 </tr>`);
             }
@@ -3602,7 +3694,362 @@ What would you like to do?
             if (panel && panel.style.display !== 'none' && !panel.contains(e.target) && !btn) {
                 panel.style.display = 'none';
             }
+            
+            // Close search help when clicking outside
+            const helpPanel = document.getElementById('searchHelp');
+            const helpBtn = e.target.closest('button[onclick*="toggleSearchHelp"]');
+            if (helpPanel && helpPanel.style.display !== 'none' && !helpPanel.contains(e.target) && !helpBtn) {
+                helpPanel.style.display = 'none';
+            }
         });
+
+        // Column Resizing
+        let resizingColumn = null;
+        let startX = 0;
+        let startWidth = 0;
+        const columnWidths = JSON.parse(localStorage.getItem('columnWidths') || '{}');
+
+        function initColumnResizing() {
+            const headers = document.querySelectorAll('#songTable th');
+            headers.forEach((header, index) => {
+                // Skip checkbox and actions columns
+                if (header.classList.contains('col-checkbox') || header.classList.contains('col-actions')) {
+                    return;
+                }
+
+                // Apply saved width if exists
+                const columnClass = Array.from(header.classList).find(cls => cls.startsWith('col-'));
+                if (columnClass && columnWidths[columnClass]) {
+                    header.style.width = columnWidths[columnClass] + 'px';
+                    header.style.minWidth = columnWidths[columnClass] + 'px';
+                }
+
+                // Create resize handle
+                const resizeHandle = document.createElement('div');
+                resizeHandle.className = 'resize-handle';
+                header.appendChild(resizeHandle);
+
+                resizeHandle.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    resizingColumn = header;
+                    startX = e.pageX;
+                    startWidth = header.offsetWidth;
+                    resizeHandle.classList.add('resizing');
+                    document.body.style.cursor = 'col-resize';
+                    document.body.style.userSelect = 'none';
+                });
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!resizingColumn) return;
+
+                const diff = e.pageX - startX;
+                const newWidth = Math.max(50, startWidth + diff); // Minimum 50px
+                resizingColumn.style.width = newWidth + 'px';
+                resizingColumn.style.minWidth = newWidth + 'px';
+
+                // Also update all cells in this column
+                const columnClass = Array.from(resizingColumn.classList).find(cls => cls.startsWith('col-'));
+                if (columnClass) {
+                    const cells = document.querySelectorAll(`#songTable .${columnClass}`);
+                    cells.forEach(cell => {
+                        cell.style.width = newWidth + 'px';
+                        cell.style.minWidth = newWidth + 'px';
+                    });
+                }
+            });
+
+            document.addEventListener('mouseup', function(e) {
+                if (!resizingColumn) return;
+
+                // Save the new width
+                const columnClass = Array.from(resizingColumn.classList).find(cls => cls.startsWith('col-'));
+                if (columnClass) {
+                    columnWidths[columnClass] = resizingColumn.offsetWidth;
+                    localStorage.setItem('columnWidths', JSON.stringify(columnWidths));
+                }
+
+                // Clean up
+                const handle = resizingColumn.querySelector('.resize-handle');
+                if (handle) handle.classList.remove('resizing');
+                resizingColumn = null;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            });
+        }
+
+        // Search Help Toggle
+        function toggleSearchHelp() {
+            const panel = document.getElementById('searchHelp');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Advanced Search Parser
+        function parseAdvancedSearch(searchTerm) {
+            // Handle empty search
+            if (!searchTerm.trim()) return null;
+
+            // Parse the search query into a structured format
+            const tokens = [];
+            let currentToken = '';
+            let inQuotes = false;
+            let inField = false;
+            let fieldName = '';
+
+            for (let i = 0; i < searchTerm.length; i++) {
+                const char = searchTerm[i];
+                const nextChar = searchTerm[i + 1];
+
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                    currentToken += char;
+                } else if (char === ':' && !inQuotes && currentToken) {
+                    // Field specifier
+                    fieldName = currentToken.toLowerCase();
+                    currentToken = '';
+                    inField = true;
+                } else if (char === ' ' && !inQuotes) {
+                    if (currentToken) {
+                        const upperToken = currentToken.toUpperCase();
+                        if (upperToken === 'AND' || upperToken === 'OR' || upperToken === 'NOT') {
+                            tokens.push({ type: 'operator', value: upperToken });
+                        } else {
+                            tokens.push({
+                                type: 'term',
+                                value: currentToken,
+                                field: fieldName || null,
+                                negative: currentToken.startsWith('-')
+                            });
+                            fieldName = '';
+                        }
+                        currentToken = '';
+                        inField = false;
+                    }
+                } else if (char === '(' || char === ')') {
+                    if (currentToken) {
+                        tokens.push({
+                            type: 'term',
+                            value: currentToken,
+                            field: fieldName || null,
+                            negative: currentToken.startsWith('-')
+                        });
+                        currentToken = '';
+                        fieldName = '';
+                    }
+                    tokens.push({ type: char === '(' ? 'open' : 'close' });
+                } else {
+                    currentToken += char;
+                }
+            }
+
+            // Add final token
+            if (currentToken) {
+                const upperToken = currentToken.toUpperCase();
+                if (upperToken === 'AND' || upperToken === 'OR' || upperToken === 'NOT') {
+                    tokens.push({ type: 'operator', value: upperToken });
+                } else {
+                    tokens.push({
+                        type: 'term',
+                        value: currentToken,
+                        field: fieldName || null,
+                        negative: currentToken.startsWith('-')
+                    });
+                }
+            }
+
+            return tokens;
+        }
+
+        // Evaluate advanced search against a song
+        function evaluateAdvancedSearch(song, tokens) {
+            if (!tokens || tokens.length === 0) return true;
+
+            // Simple evaluation: process AND, OR, NOT operators
+            let result = true;
+            let currentOperator = 'AND'; // Default operator
+            let pendingNot = false;
+
+            for (let i = 0; i < tokens.length; i++) {
+                const token = tokens[i];
+
+                if (token.type === 'operator') {
+                    if (token.value === 'NOT') {
+                        pendingNot = true;
+                    } else {
+                        currentOperator = token.value;
+                    }
+                } else if (token.type === 'term') {
+                    let termValue = token.value.replace(/^-/, '').replace(/"/g, '').toLowerCase();
+                    let matchFound = false;
+
+                    // Field-specific search
+                    if (token.field) {
+                        const fieldValue = (song[token.field] || '').toLowerCase();
+                        matchFound = fieldValue.includes(termValue);
+                    } else {
+                        // Search across all fields
+                        matchFound =
+                            song.artist.toLowerCase().includes(termValue) ||
+                            song.song.toLowerCase().includes(termValue) ||
+                            (song.album && song.album.toLowerCase().includes(termValue)) ||
+                            (song.bands && song.bands.toLowerCase().includes(termValue)) ||
+                            (song.key && song.key.toLowerCase().includes(termValue)) ||
+                            (song.tuning && song.tuning.toLowerCase().includes(termValue)) ||
+                            (song.tags && song.tags.toLowerCase().includes(termValue)) ||
+                            (song.firstNote && song.firstNote.toLowerCase().includes(termValue)) ||
+                            (song.lastNote && song.lastNote.toLowerCase().includes(termValue));
+                    }
+
+                    // Apply NOT/negative
+                    if (token.negative || pendingNot) {
+                        matchFound = !matchFound;
+                        pendingNot = false;
+                    }
+
+                    // Apply operator
+                    if (i === 0) {
+                        result = matchFound;
+                    } else if (currentOperator === 'AND') {
+                        result = result && matchFound;
+                    } else if (currentOperator === 'OR') {
+                        result = result || matchFound;
+                    }
+
+                    // Reset to default AND for next term
+                    if (i < tokens.length - 1 && tokens[i + 1].type !== 'operator') {
+                        currentOperator = 'AND';
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // Inline Editing Functions
+        let currentEditCell = null;
+
+        function startInlineEdit(cell, index, field) {
+            // Prevent multiple edits at once
+            if (currentEditCell) {
+                cancelInlineEdit();
+            }
+
+            currentEditCell = { cell, index, field };
+            const song = songs[index];
+            const currentValue = song[field] || '';
+
+            // Store original content
+            const originalContent = cell.innerHTML;
+            cell.classList.add('editing');
+
+            // Special handling for practiceStatus (dropdown)
+            if (field === 'practiceStatus') {
+                const select = document.createElement('select');
+                select.className = 'inline-select';
+                select.innerHTML = `
+                    <option value="">-</option>
+                    <option value="learning" ${currentValue === 'learning' ? 'selected' : ''}>🎓 Learning</option>
+                    <option value="practicing" ${currentValue === 'practicing' ? 'selected' : ''}>🎵 Practicing</option>
+                    <option value="ready" ${currentValue === 'ready' ? 'selected' : ''}>✓ Ready</option>
+                    <option value="mastered" ${currentValue === 'mastered' ? 'selected' : ''}>⭐ Mastered</option>
+                `;
+                cell.innerHTML = '';
+                cell.appendChild(select);
+                select.focus();
+
+                select.onchange = () => saveInlineEdit(select.value);
+                select.onblur = () => setTimeout(() => cancelInlineEdit(), 200);
+                select.onkeydown = (e) => {
+                    if (e.key === 'Escape') cancelInlineEdit();
+                    if (e.key === 'Enter') saveInlineEdit(select.value);
+                };
+            } else {
+                // Regular text input
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'inline-input';
+                input.value = currentValue === '-' ? '' : currentValue;
+                cell.innerHTML = '';
+                cell.appendChild(input);
+                input.focus();
+                input.select();
+
+                input.onblur = () => setTimeout(() => saveInlineEdit(input.value), 200);
+                input.onkeydown = (e) => {
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        cancelInlineEdit();
+                    }
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveInlineEdit(input.value);
+                    }
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        saveInlineEdit(input.value);
+                        // Focus next editable cell
+                        const nextCell = cell.nextElementSibling;
+                        if (nextCell && nextCell.classList.contains('editable-cell')) {
+                            setTimeout(() => startInlineEdit(nextCell, index, nextCell.className.match(/col-(\w+)/)[1]), 50);
+                        }
+                    }
+                };
+            }
+        }
+
+        function saveInlineEdit(newValue) {
+            if (!currentEditCell) return;
+
+            const { cell, index, field } = currentEditCell;
+            const song = songs[index];
+            const oldValue = song[field] || '';
+
+            // Trim and clean the value
+            newValue = newValue.trim();
+            if (newValue === '-') newValue = '';
+
+            // Only save if value changed
+            if (newValue !== oldValue) {
+                // Store for undo
+                actionHistory.push({
+                    type: 'edit',
+                    index: index,
+                    field: field,
+                    oldValue: oldValue,
+                    newValue: newValue
+                });
+                updateUndoButton();
+
+                // Update song
+                song[field] = newValue;
+                saveSongs();
+                invalidateStatsCache();
+                invalidateFilterCache();
+                
+                // Show save indicator
+                showSaveIndicator();
+                showToast(`Updated ${field}`, 'success');
+            }
+
+            // Reset cell and re-render
+            cell.classList.remove('editing');
+            currentEditCell = null;
+            
+            // Re-render to show updated value
+            applyFilters();
+        }
+
+        function cancelInlineEdit() {
+            if (!currentEditCell) return;
+
+            const { cell } = currentEditCell;
+            cell.classList.remove('editing');
+            currentEditCell = null;
+
+            // Re-render to restore original content
+            applyFilters();
+        }
 
         // Open add modal
         function openAddModal() {
@@ -3686,26 +4133,26 @@ What would you like to do?
                     return;
                 }
 
-                if (editIndex >= 0) {
+            if (editIndex >= 0) {
                     saveUndoState('edit', { index: editIndex, oldSong: JSON.parse(JSON.stringify(songs[editIndex])) });
-                    songs[editIndex] = songData;
+                songs[editIndex] = songData;
                     showToast('Song updated successfully', 'success');
-                } else {
+            } else {
                     saveUndoState('add', {});
-                    songs.push(songData);
+                songs.push(songData);
                     showToast('Song added successfully', 'success');
-                }
+            }
 
-                saveSongs();
-                applyFilters();
-                updateStats();
+            saveSongs();
+            applyFilters();
+            updateStats();
                 
                 // Reset button state
                 saveBtn.disabled = false;
                 saveBtnText.style.display = 'inline';
                 saveBtnSpinner.style.display = 'none';
                 
-                closeModal();
+            closeModal();
             });
         };
 
@@ -4148,43 +4595,50 @@ What would you like to do?
                 originalIndex: index
             }));
 
-            // Apply search filter with multi-word support and quoted phrase support
+            // Apply search filter with advanced operators (AND, OR, NOT, field:)
             if (searchTerm) {
-                // Parse search term to handle quoted phrases and individual words
-                const searchTerms = [];
-                const quoteRegex = /"([^"]*)"/g;
-                let remainingText = searchTerm;
-                let match;
+                const searchTokens = parseAdvancedSearch(searchTerm);
                 
-                // Extract quoted phrases
-                while ((match = quoteRegex.exec(searchTerm)) !== null) {
-                    searchTerms.push({ text: match[1].toLowerCase(), isPhrase: true });
-                    remainingText = remainingText.replace(match[0], '');
-                }
-                
-                // Extract individual words from remaining text
-                const words = remainingText.trim().split(/\s+/).filter(w => w.length > 0);
-                words.forEach(word => {
-                    searchTerms.push({ text: word.toLowerCase(), isPhrase: false });
-                });
-                
-                filtered = filtered.filter(song => {
-                    // For each song, check if ALL search terms match
-                    return searchTerms.every(term => {
-                        const searchText = term.text;
-                        const matchFound = 
-                            song.artist.toLowerCase().includes(searchText) ||
-                            song.song.toLowerCase().includes(searchText) ||
-                            (song.album && song.album.toLowerCase().includes(searchText)) ||
-                            (song.bands && song.bands.toLowerCase().includes(searchText)) ||
-                            (song.key && song.key.toLowerCase().includes(searchText)) ||
-                            (song.tuning && song.tuning.toLowerCase().includes(searchText)) ||
-                            (song.firstNote && song.firstNote.toLowerCase().includes(searchText)) ||
-                            (song.lastNote && song.lastNote.toLowerCase().includes(searchText));
-                        
-                        return matchFound;
+                if (searchTokens && searchTokens.length > 0) {
+                    // Use advanced search evaluation
+                    filtered = filtered.filter(song => evaluateAdvancedSearch(song, searchTokens));
+                } else {
+                    // Fallback to simple search with multi-word support
+                    const searchTerms = [];
+                    const quoteRegex = /"([^"]*)"/g;
+                    let remainingText = searchTerm;
+                    let match;
+                    
+                    // Extract quoted phrases
+                    while ((match = quoteRegex.exec(searchTerm)) !== null) {
+                        searchTerms.push({ text: match[1].toLowerCase(), isPhrase: true });
+                        remainingText = remainingText.replace(match[0], '');
+                    }
+                    
+                    // Extract individual words from remaining text
+                    const words = remainingText.trim().split(/\s+/).filter(w => w.length > 0);
+                    words.forEach(word => {
+                        searchTerms.push({ text: word.toLowerCase(), isPhrase: false });
                     });
-                });
+                    
+                    filtered = filtered.filter(song => {
+                        // For each song, check if ALL search terms match
+                        return searchTerms.every(term => {
+                            const searchText = term.text;
+                            const matchFound = 
+                                song.artist.toLowerCase().includes(searchText) ||
+                                song.song.toLowerCase().includes(searchText) ||
+                                (song.album && song.album.toLowerCase().includes(searchText)) ||
+                                (song.bands && song.bands.toLowerCase().includes(searchText)) ||
+                                (song.key && song.key.toLowerCase().includes(searchText)) ||
+                                (song.tuning && song.tuning.toLowerCase().includes(searchText)) ||
+                                (song.firstNote && song.firstNote.toLowerCase().includes(searchText)) ||
+                                (song.lastNote && song.lastNote.toLowerCase().includes(searchText));
+                            
+                            return matchFound;
+                        });
+                    });
+                }
             }
 
             // Apply column filters
