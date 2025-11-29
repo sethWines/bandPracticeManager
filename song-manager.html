@@ -1463,13 +1463,13 @@
                     </svg>
                     Undo
                 </button>
-                <button class="btn-success" onclick="document.getElementById('csvFile').click()">
+                <button class="btn-success" onclick="openImportModal()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    Import CSV
+                    Import
                 </button>
                 <div style="position: relative; display: inline-block;">
                     <button class="btn-secondary" onclick="toggleExportMenu()" id="exportMenuBtn">
@@ -1947,6 +1947,95 @@
             <div id="savedFiltersList" style="padding: 20px; max-height: 400px; overflow-y: auto;"></div>
             <div class="button-group">
                 <button class="btn-secondary" onclick="closeManageFiltersModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Selection Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Import Songs</h2>
+                <span class="close" onclick="closeImportModal()">&times;</span>
+            </div>
+            <div style="margin: 20px 0;">
+                <p style="color: var(--primary-light); margin-bottom: 20px;">
+                    Choose how you want to import your songs:
+                </p>
+                
+                <!-- CSV Import Option -->
+                <div class="import-option" onclick="document.getElementById('csvFile').click(); closeImportModal();" style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; border: 2px solid var(--primary-border); margin-bottom: 15px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.background='rgba(var(--primary-color-rgb, 255, 107, 61), 0.1)'" onmouseout="this.style.borderColor='var(--primary-border)'; this.style.background='rgba(0,0,0,0.3)'">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="12" y1="18" x2="12" y2="12"/>
+                            <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                        <div>
+                            <h3 style="color: var(--primary-light); margin: 0 0 5px 0; font-size: 1.1em;">Import from CSV File</h3>
+                            <p style="color: #999; margin: 0; font-size: 0.9em;">Upload a CSV file from your computer</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Paste Import Option -->
+                <div class="import-option" onclick="closeImportModal(); openPasteImportModal();" style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; border: 2px solid var(--primary-border); cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.background='rgba(var(--primary-color-rgb, 255, 107, 61), 0.1)'" onmouseout="this.style.borderColor='var(--primary-border)'; this.style.background='rgba(0,0,0,0.3)'">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
+                            <rect x="9" y="2" width="6" height="4" rx="1"/>
+                            <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/>
+                            <path d="M12 11v6m-3-3h6"/>
+                        </svg>
+                        <div>
+                            <h3 style="color: var(--primary-light); margin: 0 0 5px 0; font-size: 1.1em;">Paste from Clipboard</h3>
+                            <p style="color: #999; margin: 0; font-size: 0.9em;">Paste tab/comma-separated text from anywhere</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paste Import Modal -->
+    <div id="pasteImportModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2>📋 Paste Import</h2>
+                <span class="close" onclick="closePasteImportModal()">&times;</span>
+            </div>
+            <div style="margin: 20px 0;">
+                <p style="color: var(--primary-light); margin-bottom: 10px;">
+                    Paste your song list below. Supported formats:
+                </p>
+                <ul style="color: #999; font-size: 14px; margin-left: 20px; margin-bottom: 15px;">
+                    <li><strong>Artist - Song</strong> (e.g., "Metallica - Enter Sandman")</li>
+                    <li><strong>Artist, Song</strong> (comma-separated)</li>
+                    <li><strong>Artist\tSong</strong> (tab-separated, from spreadsheets)</li>
+                    <li><strong>Multiple columns</strong> (Artist, Song, Album, etc.)</li>
+                </ul>
+                <textarea id="pasteImportText" placeholder="Paste your song list here...&#10;&#10;Examples:&#10;Metallica - Enter Sandman&#10;Iron Maiden, The Trooper&#10;Tool	Schism	Lateralus" style="width: 100%; min-height: 300px; padding: 10px; background: #1a1a1a; border: 2px solid var(--primary-border); color: #e0e0e0; font-family: monospace; font-size: 13px; border-radius: 4px;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn-secondary" onclick="closePasteImportModal()">Cancel</button>
+                <button type="button" class="btn-success" onclick="processPasteImport()">Preview & Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Edit Preview Modal -->
+    <div id="bulkEditPreviewModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2>Preview Bulk Changes</h2>
+                <span class="close" onclick="closeBulkEditPreview()">&times;</span>
+            </div>
+            <div id="bulkEditPreviewContent" style="margin: 20px 0; max-height: 500px; overflow-y: auto;">
+                <!-- Preview content will be inserted here -->
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn-secondary" onclick="closeBulkEditPreview()">Cancel</button>
+                <button type="button" class="btn-success" onclick="confirmBulkEdit()">Apply Changes</button>
             </div>
         </div>
     </div>
@@ -2536,6 +2625,140 @@
         document.getElementById('bulkEditForm').onsubmit = async function(e) {
             e.preventDefault();
             
+            // Instead of applying immediately, show preview first
+            showBulkEditPreview();
+        };
+
+        // Store pending bulk edit data
+        let pendingBulkEdits = null;
+
+        function showBulkEditPreview() {
+            const totalSongs = selectedSongIndices.size;
+            const selectedSongs = Array.from(selectedSongIndices).map(i => songs[i]);
+            
+            // Calculate what changes will be made
+            const changes = {
+                byField: {},
+                affected: 0,
+                preview: []
+            };
+            
+            // Check each field
+            const fieldUpdates = [
+                { id: 'bulkUpdateTuning', field: 'tuning', value: 'bulkTuning', action: null },
+                { id: 'bulkUpdateAlbum', field: 'album', value: 'bulkAlbum', action: null },
+                { id: 'bulkUpdateDuration', field: 'duration', value: 'bulkDuration', action: null },
+                { id: 'bulkUpdateBands', field: 'bands', value: 'bulkBands', action: 'bulkBandsAction' },
+                { id: 'bulkUpdateTags', field: 'tags', value: 'bulkTags', action: 'bulkTagsAction' },
+                { id: 'bulkUpdateStatus', field: 'practiceStatus', value: 'bulkPracticeStatus', action: null },
+                { id: 'bulkUpdateKey', field: 'key', value: 'bulkKey', action: null },
+                { id: 'bulkUpdateFirstNote', field: 'firstNote', value: 'bulkFirstNote', action: null },
+                { id: 'bulkUpdateLastNote', field: 'lastNote', value: 'bulkLastNote', action: null }
+            ];
+            
+            selectedSongs.forEach((song, idx) => {
+                const songChanges = [];
+                
+                fieldUpdates.forEach(update => {
+                    if (document.getElementById(update.id).checked) {
+                        const value = document.getElementById(update.value).value.trim();
+                        const action = update.action ? document.getElementById(update.action).value : 'replace';
+                        
+                        if (value || update.field === 'practiceStatus') {
+                            const oldValue = song[update.field] || '';
+                            let newValue = value;
+                            
+                            // Calculate new value based on action
+                            if (action === 'add' && (update.field === 'bands' || update.field === 'tags')) {
+                                const existing = oldValue ? oldValue.split(',').map(t => t.trim()) : [];
+                                const newItems = value.split(',').map(t => t.trim());
+                                const combined = [...new Set([...existing, ...newItems])];
+                                newValue = combined.join(', ');
+                            } else if (action === 'remove' && (update.field === 'bands' || update.field === 'tags')) {
+                                const existing = oldValue ? oldValue.split(',').map(t => t.trim()) : [];
+                                const toRemove = value.split(',').map(t => t.trim());
+                                const filtered = existing.filter(t => !toRemove.includes(t));
+                                newValue = filtered.join(', ');
+                            }
+                            
+                            if (oldValue !== newValue) {
+                                songChanges.push({
+                                    field: update.field,
+                                    oldValue: oldValue,
+                                    newValue: newValue
+                                });
+                                
+                                if (!changes.byField[update.field]) {
+                                    changes.byField[update.field] = 0;
+                                }
+                                changes.byField[update.field]++;
+                            }
+                        }
+                    }
+                });
+                
+                if (songChanges.length > 0) {
+                    changes.affected++;
+                    changes.preview.push({
+                        song: song,
+                        changes: songChanges
+                    });
+                }
+            });
+            
+            // Store for later
+            pendingBulkEdits = changes;
+            
+            // Render preview
+            const previewHtml = `
+                <div style="padding: 15px; background: rgba(var(--primary-color-rgb, 255, 107, 61), 0.1); border: 1px solid var(--primary-border); border-radius: 6px; margin-bottom: 20px;">
+                    <h3 style="color: var(--primary-light); margin: 0 0 10px 0;">Summary</h3>
+                    <p style="color: #e0e0e0; margin-bottom: 5px;"><strong>${changes.affected}</strong> of <strong>${totalSongs}</strong> songs will be changed</p>
+                    <div style="margin-top: 10px;">
+                        ${Object.keys(changes.byField).map(field => 
+                            `<div style="color: #999; font-size: 14px;">• <strong>${field}</strong>: ${changes.byField[field]} song(s)</div>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <h3 style="color: var(--primary-light); margin-bottom: 10px;">Changes Preview (showing first ${Math.min(changes.preview.length, 10)})</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    ${changes.preview.slice(0, 10).map(item => `
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; border: 1px solid var(--primary-border);">
+                            <div style="color: var(--primary-light); font-weight: bold; margin-bottom: 8px;">
+                                ${escapeHtml(item.song.artist)} - ${escapeHtml(item.song.song)}
+                            </div>
+                            ${item.changes.map(change => `
+                                <div style="margin-left: 15px; font-size: 13px; color: #999;">
+                                    <strong style="color: #e0e0e0;">${change.field}:</strong>
+                                    <span style="color: #ff6b6b; text-decoration: line-through;">${escapeHtml(change.oldValue || '(empty)')}</span>
+                                    →
+                                    <span style="color: #51cf66;">${escapeHtml(change.newValue)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                    ${changes.preview.length > 10 ? `<div style="color: #999; text-align: center; padding: 10px;">... and ${changes.preview.length - 10} more</div>` : ''}
+                </div>
+            `;
+            
+            document.getElementById('bulkEditPreviewContent').innerHTML = previewHtml;
+            document.getElementById('bulkEditPreviewModal').classList.add('active');
+        }
+
+        function closeBulkEditPreview() {
+            document.getElementById('bulkEditPreviewModal').classList.remove('active');
+            pendingBulkEdits = null;
+        }
+
+        async function confirmBulkEdit() {
+            if (!pendingBulkEdits) return;
+            
+            // Close preview
+            closeBulkEditPreview();
+            closeBulkEditModal();
+            
+            // Now apply the changes (original logic)
             const totalSongs = selectedSongIndices.size;
             showProgress('Updating Songs', `Preparing to update ${totalSongs} song(s)...`);
             
@@ -5067,6 +5290,128 @@ What would you like to do?
             return changes;
         }
 
+        // Paste Import Functions
+        function openPasteImportModal() {
+            document.getElementById('pasteImportModal').classList.add('active');
+            document.getElementById('pasteImportText').value = '';
+            document.getElementById('pasteImportText').focus();
+        }
+
+        function closePasteImportModal() {
+            document.getElementById('pasteImportModal').classList.remove('active');
+        }
+
+        function processPasteImport() {
+            const text = document.getElementById('pasteImportText').value.trim();
+            if (!text) {
+                showToast('Please paste some song data first!', 'error');
+                return;
+            }
+
+            // Auto-detect format and parse
+            const parsedSongs = parsePastedData(text);
+            
+            if (parsedSongs.length === 0) {
+                showToast('Could not parse the pasted data. Please check the format.', 'error');
+                return;
+            }
+
+            // Convert to CSV format and use existing CSV import logic
+            const csv = convertToCSV(parsedSongs);
+            closePasteImportModal();
+            parseCSV(csv);
+        }
+
+        function parsePastedData(text) {
+            const lines = text.split('\n').filter(line => line.trim());
+            const songs = [];
+
+            for (const line of lines) {
+                let artist = '';
+                let song = '';
+                let album = '';
+                let other = {};
+
+                // Try different delimiters and patterns
+                if (line.includes('\t')) {
+                    // Tab-separated (from spreadsheets)
+                    const parts = line.split('\t').map(p => p.trim());
+                    artist = parts[0] || '';
+                    song = parts[1] || '';
+                    album = parts[2] || '';
+                    // Additional columns if present
+                    if (parts[3]) other.tuning = parts[3];
+                    if (parts[4]) other.bands = parts[4];
+                    if (parts[5]) other.key = parts[5];
+                } else if (line.includes(' - ')) {
+                    // "Artist - Song" format
+                    const parts = line.split(' - ');
+                    artist = parts[0]?.trim() || '';
+                    song = parts.slice(1).join(' - ').trim();
+                } else if (line.includes(', ')) {
+                    // Comma-separated
+                    const parts = line.split(',').map(p => p.trim());
+                    artist = parts[0] || '';
+                    song = parts[1] || '';
+                    album = parts[2] || '';
+                    // Additional columns if present
+                    if (parts[3]) other.tuning = parts[3];
+                    if (parts[4]) other.bands = parts[4];
+                    if (parts[5]) other.key = parts[5];
+                } else {
+                    // Single value - assume it's the song name
+                    song = line.trim();
+                }
+
+                if (artist || song) {
+                    songs.push({
+                        artist: artist,
+                        song: song,
+                        album: album,
+                        ...other
+                    });
+                }
+            }
+
+            return songs;
+        }
+
+        function convertToCSV(songs) {
+            // Build CSV with all detected fields
+            const headers = ['Artist', 'Song', 'Album'];
+            const hasAdditionalFields = songs.some(s => s.tuning || s.bands || s.key);
+            if (hasAdditionalFields) {
+                if (songs.some(s => s.tuning)) headers.push('Tuning');
+                if (songs.some(s => s.bands)) headers.push('Bands');
+                if (songs.some(s => s.key)) headers.push('Key');
+            }
+
+            const csvLines = [headers.join(',')];
+            
+            songs.forEach(song => {
+                const row = [
+                    escapeCsvValue(song.artist || ''),
+                    escapeCsvValue(song.song || ''),
+                    escapeCsvValue(song.album || '')
+                ];
+                if (hasAdditionalFields) {
+                    if (headers.includes('Tuning')) row.push(escapeCsvValue(song.tuning || ''));
+                    if (headers.includes('Bands')) row.push(escapeCsvValue(song.bands || ''));
+                    if (headers.includes('Key')) row.push(escapeCsvValue(song.key || ''));
+                }
+                csvLines.push(row.join(','));
+            });
+
+            return csvLines.join('\n');
+        }
+
+        function escapeCsvValue(value) {
+            if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                return `"${value.replace(/"/g, '""')}"`;
+            }
+            return value;
+        }
+
         // Show import preview
         function showImportPreview() {
             const preview = document.getElementById('importPreview');
@@ -5304,10 +5649,26 @@ What would you like to do?
             menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
         }
 
+        // Import Modal Functions
+        function openImportModal() {
+            document.getElementById('importModal').classList.add('active');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('active');
+        }
+
+        // Toggle import menu dropdown (deprecated, keeping for compatibility)
+        function toggleImportMenu() {
+            // This function is now replaced by openImportModal but kept for any legacy calls
+            openImportModal();
+        }
+
         // Close export menu when clicking outside
         document.addEventListener('click', function(e) {
             const menu = document.getElementById('exportMenu');
             const btn = document.getElementById('exportMenuBtn');
+            
             if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
                 menu.style.display = 'none';
             }

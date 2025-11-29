@@ -1538,17 +1538,91 @@
         let draggedSetIndex = null;
         let draggedSongIndex = null;
 
+        // Auto-scroll variables
+        let autoScrollInterval = null;
+        let isDragging = false;
+        
+        // Enable mouse wheel scrolling during drag
+        document.addEventListener('wheel', function(e) {
+            if (isDragging) {
+                // Manually scroll the page
+                window.scrollBy({
+                    top: e.deltaY,
+                    behavior: 'auto'
+                });
+                // Update mouse position for auto-scroll detection
+                window.lastDragY = e.clientY;
+            }
+        }, { passive: true });
+        
+        // Also listen on document for better coverage
+        document.addEventListener('dragover', function(e) {
+            if (isDragging) {
+                // Store the mouse position
+                window.lastDragY = e.clientY;
+            }
+        });
+        
         function handleDragStart(event, setlistIndex, setIndex, songIndex) {
             draggedSetlistIndex = setlistIndex;
             draggedSetIndex = setIndex;
             draggedSongIndex = songIndex;
             event.target.classList.add('dragging');
             event.dataTransfer.effectAllowed = 'move';
+            isDragging = true;
+            
+            // Start auto-scroll detection
+            startAutoScroll();
+        }
+
+        function startAutoScroll() {
+            // Clear any existing interval
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+            }
+            
+            // Check scroll position more frequently for smoother scrolling
+            autoScrollInterval = setInterval(() => {
+                if (!isDragging) {
+                    clearInterval(autoScrollInterval);
+                    autoScrollInterval = null;
+                    return;
+                }
+                
+                // Get the mouse position from the last drag event
+                const mouseY = window.lastDragY || 0;
+                const scrollThreshold = 150; // Increased threshold for earlier trigger
+                const windowHeight = window.innerHeight;
+                
+                // Calculate scroll speed based on distance from edge (smoother acceleration)
+                let scrollSpeed = 0;
+                
+                // Scroll down if near bottom
+                if (mouseY > windowHeight - scrollThreshold) {
+                    const distanceFromEdge = windowHeight - mouseY;
+                    scrollSpeed = Math.max(5, (scrollThreshold - distanceFromEdge) / 5); // Smoother acceleration
+                    window.scrollBy({
+                        top: scrollSpeed,
+                        behavior: 'auto' // Instant, not smooth (for responsiveness)
+                    });
+                }
+                // Scroll up if near top
+                else if (mouseY < scrollThreshold) {
+                    scrollSpeed = Math.max(5, (scrollThreshold - mouseY) / 5); // Smoother acceleration
+                    window.scrollBy({
+                        top: -scrollSpeed,
+                        behavior: 'auto'
+                    });
+                }
+            }, 16); // ~60fps for smoother scrolling
         }
 
         function handleDragOver(event) {
             event.preventDefault();
             event.dataTransfer.dropEffect = 'move';
+            
+            // Store mouse position for auto-scroll
+            window.lastDragY = event.clientY;
             
             // Remove any existing preview
             const existingPreview = document.querySelector('.drop-preview');
@@ -1664,6 +1738,15 @@
         }
 
         function handleDragEnd(event) {
+            // Stop dragging
+            isDragging = false;
+            
+            // Clean up auto-scroll
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+            
             // Clean up
             document.querySelectorAll('.dragging').forEach(el => {
                 el.classList.remove('dragging');
