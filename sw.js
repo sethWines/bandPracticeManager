@@ -1,10 +1,17 @@
 // Band Practice Manager - Service Worker
 // Version: 1.0.0
 
-const CACHE_NAME = 'band-manager-v1.0.0';
+const CACHE_NAME = 'band-manager-v1.1.0';
 const urlsToCache = [
     './song-manager.html',
-    './setlist-manager.html'
+    './setlist-manager.html',
+    './css/themes.css',
+    './css/common.css',
+    './js/storage.js',
+    './js/theme.js',
+    './js/utils.js',
+    './js/icons.js',
+    './manifest.json'
 ];
 
 // Install event - cache assets
