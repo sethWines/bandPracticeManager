@@ -1433,6 +1433,8 @@
                     <option value="pink">Pink</option>
                     <option value="sunrise">Sunrise</option>
                     <option value="sunset">Sunset</option>
+                    <option value="synthwave">Synth Wave</option>
+                    <option value="prism">Dark Prism</option>
                 </select>
                 <button class="btn btn-primary" onclick="togglePrintModal()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
@@ -2433,8 +2435,12 @@
             const tile = document.querySelector(`.component-tile[data-index="${index}"]`);
             const textarea = tile.querySelector('.component-textarea');
             const gridEditor = tile.querySelector('.grid-editor');
+            const comp = chartData.components[index];
             
             if (gridEditor.style.display === 'none') {
+                // Save current textarea content to comp.lyrics before building grid
+                comp.lyrics = textarea.value;
+                
                 // Show grid editor, hide textarea
                 textarea.style.display = 'none';
                 gridEditor.style.display = 'block';
@@ -2675,11 +2681,13 @@
                 // Content cells
                 chars.forEach((char, charIndex) => {
                     const cellClass = 'grid-content-cell';
+                    // Only escape double quotes for the attribute value
+                    const escapedChar = char.replace(/"/g, '&quot;');
                     
                     html += `<td class="${cellClass}">
                         <input type="text" 
                                class="grid-cell-input" 
-                               value="${char}" 
+                               value="${escapedChar}" 
                                data-row="${rowIndex}" 
                                data-char="${charIndex}"
                                ${maxLengthAttr}
@@ -3350,6 +3358,35 @@
             } else {
                 document.body.setAttribute('data-theme', theme);
             }
+            updateFaviconForTheme(theme);
+        }
+        
+        function updateFaviconForTheme(theme) {
+            const link = document.querySelector("link[rel*='icon']");
+            if (!link) return;
+            
+            // Map themes to colors (hex codes need to be URL encoded with %23)
+            const themeColors = {
+                'grey': '%23d84315',
+                'red': '%23d84315',
+                'blue': '%231976d2',
+                'green': '%23388e3c',
+                'purple': '%237b1fa2',
+                'cyan': '%2300838f',
+                'amber': '%23f57c00',
+                'pink': '%23c2185b',
+                'teal': '%2314b8a6',
+                'copper': '%23b87333',
+                'sunrise': '%23ffb700',
+                'sunset': '%23ff8c00',
+                'synthwave': '%23a78bfa',
+                'prism': '%2314b8a6'
+            };
+            
+            const color = themeColors[theme] || '%23d84315';
+            
+            // Always use solid color favicon
+            link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='${color}' stroke-width='2.5' stroke-linecap='round'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>`;
         }
         
         // Change theme and save to localStorage

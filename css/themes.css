@@ -139,3 +139,277 @@
     --primary-bg: rgba(255, 140, 0, 0.15);
 }
 
+[data-theme="synthwave"] {
+    --primary-color: #a78bfa;
+    --primary-light: #ec4899;
+    --primary-lighter: #f59e0b;
+    --primary-dark: #6d28d9;
+    --primary-darker: #7c3aed;
+    --primary-glow: rgba(167, 139, 250, 0.3);
+    --primary-border: rgba(167, 139, 250, 0.3);
+    --primary-bg: rgba(167, 139, 250, 0.15);
+    
+    /* Gradient effects */
+    --gradient-text: linear-gradient(90deg, #a78bfa 0%, #ec4899 25%, #f59e0b 50%, #22c55e 75%, #06b6d4 100%);
+    --gradient-progress: linear-gradient(90deg, #7c3aed 0%, #a855f7 20%, #ec4899 40%, #f43f5e 60%, #f59e0b 80%, #fbbf24 100%);
+    --gradient-scrollbar: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #f59e0b 100%);
+    --gradient-scrollbar-hover: linear-gradient(135deg, #ec4899 0%, #f59e0b 50%, #22c55e 100%);
+}
+
+[data-theme="prism"] {
+    --primary-color: #14b8a6;
+    --primary-light: #2563eb;
+    --primary-lighter: #7c3aed;
+    --primary-dark: #0a4d45;
+    --primary-darker: #0d7570;
+    --primary-glow: rgba(20, 184, 166, 0.3);
+    --primary-border: rgba(20, 184, 166, 0.3);
+    --primary-bg: rgba(20, 184, 166, 0.15);
+    
+    /* Gradient effects - darker version */
+    --gradient-text: linear-gradient(90deg, #14b8a6 0%, #0891b2 15%, #2563eb 30%, #7c3aed 45%, #9333ea 60%, #c026d3 75%, #0d9488 90%, #14b8a6 100%);
+    --gradient-progress: linear-gradient(90deg, #065f46 0%, #0d9488 10%, #14b8a6 20%, #0891b2 30%, #2563eb 40%, #4f46e5 50%, #7c3aed 60%, #9333ea 70%, #c026d3 80%, #d946ef 90%, #14b8a6 100%);
+    --gradient-scrollbar: linear-gradient(135deg, #14b8a6 0%, #2563eb 33%, #7c3aed 66%, #c026d3 100%);
+    --gradient-scrollbar-hover: linear-gradient(135deg, #0891b2 0%, #4f46e5 33%, #9333ea 66%, #d946ef 100%);
+}
+
+/* Gradient-specific styling for Synth Wave and Dark Prism themes */
+
+/* Navigation links with gradient */
+[data-theme="synthwave"] .nav-link,
+[data-theme="prism"] .nav-link {
+    background: var(--gradient-scrollbar) !important;
+    border: 2px solid transparent !important;
+    color: #ffffff !important;
+}
+
+[data-theme="synthwave"] .nav-link:hover,
+[data-theme="prism"] .nav-link:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 4px 20px var(--primary-glow);
+    color: #ffffff !important;
+}
+
+/* Component items in left sidebar (Chart Editor) */
+[data-theme="synthwave"] .component-item,
+[data-theme="prism"] .component-item {
+    background: var(--gradient-scrollbar) !important;
+    border: 2px solid transparent !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="synthwave"] .component-item:hover,
+[data-theme="prism"] .component-item:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 0 20px var(--primary-glow);
+    color: #ffffff !important;
+}
+
+/* Band items in left sidebar (Setlist Manager) */
+[data-theme="synthwave"] .band-item,
+[data-theme="prism"] .band-item {
+    background: var(--gradient-scrollbar) !important;
+    border: 2px solid transparent !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="synthwave"] .band-item:hover,
+[data-theme="prism"] .band-item:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 0 20px var(--primary-glow);
+    color: #ffffff !important;
+}
+
+[data-theme="synthwave"] .band-item.selected,
+[data-theme="prism"] .band-item.selected {
+    background: var(--gradient-progress) !important;
+    filter: brightness(1.1);
+    box-shadow: 0 0 25px var(--primary-glow);
+}
+
+/* Setlist items under bands (nested in left sidebar) */
+[data-theme="synthwave"] .setlist-item,
+[data-theme="prism"] .setlist-item {
+    background: var(--gradient-scrollbar) !important;
+    border: 2px solid transparent !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="synthwave"] .setlist-item:hover,
+[data-theme="prism"] .setlist-item:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 0 15px var(--primary-glow);
+    color: #ffffff !important;
+}
+
+[data-theme="synthwave"] .setlist-item.active,
+[data-theme="prism"] .setlist-item.active {
+    background: var(--gradient-progress) !important;
+    filter: brightness(1.15);
+    box-shadow: 0 0 20px var(--primary-glow);
+    color: #ffffff !important;
+}
+
+/* Song items in working pane */
+[data-theme="synthwave"] .song-item,
+[data-theme="prism"] .song-item {
+    background: linear-gradient(90deg, var(--primary-dark) 0%, rgba(10, 10, 10, 0.7) 100%) !important;
+    border-left: 3px solid transparent;
+    border-image: var(--gradient-scrollbar) 1;
+}
+
+[data-theme="synthwave"] .song-item:hover,
+[data-theme="prism"] .song-item:hover {
+    background: linear-gradient(90deg, var(--primary-darker) 0%, rgba(20, 20, 20, 0.8) 100%) !important;
+    border-image: var(--gradient-scrollbar-hover) 1;
+    box-shadow: 0 2px 10px var(--primary-glow);
+}
+
+/* Cards and tiles with gradient borders and backgrounds */
+[data-theme="synthwave"] .card,
+[data-theme="synthwave"] .component-tile,
+[data-theme="synthwave"] .setlist-card,
+[data-theme="prism"] .card,
+[data-theme="prism"] .component-tile,
+[data-theme="prism"] .setlist-card {
+    border: 2px solid transparent;
+    background: linear-gradient(rgba(10, 10, 10, 0.95), rgba(10, 10, 10, 0.95)) padding-box,
+                var(--gradient-scrollbar) border-box;
+}
+
+[data-theme="synthwave"] .card:hover,
+[data-theme="synthwave"] .component-tile:hover,
+[data-theme="synthwave"] .setlist-card:hover,
+[data-theme="prism"] .card:hover,
+[data-theme="prism"] .component-tile:hover,
+[data-theme="prism"] .setlist-card:hover {
+    background: linear-gradient(rgba(15, 15, 15, 0.95), rgba(15, 15, 15, 0.95)) padding-box,
+                var(--gradient-scrollbar-hover) border-box;
+    box-shadow: 0 8px 30px var(--primary-glow);
+}
+
+/* Buttons with gradient backgrounds */
+[data-theme="synthwave"] .btn-primary,
+[data-theme="prism"] .btn-primary {
+    background: var(--gradient-progress) !important;
+    border: 2px solid transparent !important;
+    background-clip: padding-box;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="synthwave"] .btn-primary:hover,
+[data-theme="prism"] .btn-primary:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 4px 20px var(--primary-glow);
+}
+
+[data-theme="synthwave"] .btn-secondary,
+[data-theme="prism"] .btn-secondary {
+    background: var(--gradient-scrollbar) !important;
+    border: 2px solid transparent !important;
+    background-clip: padding-box;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="synthwave"] .btn-secondary:hover,
+[data-theme="prism"] .btn-secondary:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 4px 20px var(--primary-glow);
+}
+
+[data-theme="synthwave"] .btn,
+[data-theme="prism"] .btn {
+    background: var(--gradient-progress) !important;
+    border: 2px solid transparent !important;
+    background-clip: padding-box;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="synthwave"] .btn:hover,
+[data-theme="prism"] .btn:hover {
+    filter: brightness(1.2);
+}
+
+/* Success and danger buttons */
+[data-theme="synthwave"] .btn-success,
+[data-theme="prism"] .btn-success {
+    background: var(--gradient-progress) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="synthwave"] .btn-danger,
+[data-theme="prism"] .btn-danger {
+    background: var(--gradient-scrollbar) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Theme selector with gradient */
+[data-theme="synthwave"] .theme-selector,
+[data-theme="prism"] .theme-selector {
+    background: var(--gradient-scrollbar) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="synthwave"] .theme-selector:hover,
+[data-theme="prism"] .theme-selector:hover {
+    filter: brightness(1.2);
+}
+
+/* Text in buttons and links with shadow for readability */
+[data-theme="synthwave"] .btn-primary svg,
+[data-theme="synthwave"] .btn-secondary svg,
+[data-theme="synthwave"] .btn svg,
+[data-theme="synthwave"] .nav-link svg,
+[data-theme="synthwave"] .component-item svg,
+[data-theme="synthwave"] .band-item svg,
+[data-theme="prism"] .btn-primary svg,
+[data-theme="prism"] .btn-secondary svg,
+[data-theme="prism"] .btn svg,
+[data-theme="prism"] .nav-link svg,
+[data-theme="prism"] .component-item svg,
+[data-theme="prism"] .band-item svg {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+/* Modal headers and stat cards with gradient text */
+[data-theme="synthwave"] .modal-header h2,
+[data-theme="prism"] .modal-header h2 {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+[data-theme="synthwave"] .stat-card h3,
+[data-theme="prism"] .stat-card h3 {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Progress bars with gradient */
+[data-theme="synthwave"] .progress-bar,
+[data-theme="prism"] .progress-bar {
+    background: var(--gradient-progress) !important;
+}
+
+/* Scrollbars with gradient */
+[data-theme="synthwave"] ::-webkit-scrollbar-thumb,
+[data-theme="prism"] ::-webkit-scrollbar-thumb {
+    background: var(--gradient-scrollbar) !important;
+}
+
+[data-theme="synthwave"] ::-webkit-scrollbar-thumb:hover,
+[data-theme="prism"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--gradient-scrollbar-hover) !important;
+}
+
