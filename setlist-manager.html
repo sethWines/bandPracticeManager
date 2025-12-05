@@ -746,6 +746,45 @@
         let selectedSetlistIndex = -1;
         let expandedBands = new Set();
 
+        // Save state to sessionStorage (persists during tab session)
+        function saveSessionState() {
+            sessionStorage.setItem('setlistManager_selectedBand', selectedBand);
+            sessionStorage.setItem('setlistManager_selectedSetlistIndex', selectedSetlistIndex.toString());
+            sessionStorage.setItem('setlistManager_expandedBands', JSON.stringify(Array.from(expandedBands)));
+        }
+
+        // Load state from sessionStorage
+        function loadSessionState() {
+            // Check if this is a page reload (F5) vs navigation
+            const perfData = performance.getEntriesByType('navigation')[0];
+            const isReload = perfData && perfData.type === 'reload';
+            
+            // If it's a reload (F5), clear the state for a clean view
+            if (isReload) {
+                sessionStorage.removeItem('setlistManager_selectedBand');
+                sessionStorage.removeItem('setlistManager_selectedSetlistIndex');
+                sessionStorage.removeItem('setlistManager_expandedBands');
+                return;
+            }
+            
+            // Otherwise, restore the session state
+            const savedBand = sessionStorage.getItem('setlistManager_selectedBand');
+            const savedIndex = sessionStorage.getItem('setlistManager_selectedSetlistIndex');
+            const savedExpanded = sessionStorage.getItem('setlistManager_expandedBands');
+            
+            if (savedBand && savedBand !== 'null') {
+                selectedBand = savedBand;
+            }
+            
+            if (savedIndex && savedIndex !== '-1') {
+                selectedSetlistIndex = parseInt(savedIndex, 10);
+            }
+            
+            if (savedExpanded) {
+                expandedBands = new Set(JSON.parse(savedExpanded));
+            }
+        }
+
         // Theme Management
         // Utility functions (defined first so they can be used everywhere)
         // Optimized HTML escaping (faster than DOM method)
@@ -770,6 +809,7 @@
             loadWatermark(); // Load watermark preference from Song Manager
             loadSongs();
             loadSetlists();
+            loadSessionState(); // Restore session state (unless F5 pressed)
             renderBandSidebar();
             renderSetlistCenter();
             populateBandSuggestions();
@@ -890,12 +930,14 @@
                 expandedBands.add(bandName);
             }
             selectedBand = bandName;
+            saveSessionState();
             renderBandSidebar();
         }
 
         // Select a setlist to display in center pane
         function selectSetlist(index) {
             selectedSetlistIndex = index;
+            saveSessionState();
             renderBandSidebar();
             renderSetlistCenter();
         }
@@ -1272,6 +1314,7 @@
                     selectedSetlistIndex--;
                 }
                 
+                saveSessionState();
                 renderBandSidebar();
                 renderSetlistCenter();
             }
@@ -1285,6 +1328,7 @@
                 selectedBand = null;
                 expandedBands.clear();
                 saveSetlistsToStorage();
+                saveSessionState();
                 renderBandSidebar();
                 renderSetlistCenter();
             }
