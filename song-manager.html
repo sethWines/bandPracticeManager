@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Song Manager</title>
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="./manifest.json">
+    <!-- PWA Manifest (disabled for file:// protocol - only works on web server) -->
+    <!-- <link rel="manifest" href="./manifest.json"> -->
     <meta name="theme-color" content="#d84315">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -157,9 +157,6 @@
             margin: 2px 0;
             font-size: 1.3em;
             letter-spacing: 1px;
-        }
-            margin-bottom: 30px;
-            font-size: 2.5em;
         }
 
         .nav-links {
@@ -417,6 +414,8 @@
             position: sticky;
             top: 0;
             z-index: 10;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         th {
@@ -425,6 +424,7 @@
             font-weight: 600;
             color: var(--primary-color);
             text-shadow: 0 0 8px var(--primary-glow);
+            background: rgba(0, 0, 0, 0.95); /* Opaque background for readability */
         }
 
         tbody {
@@ -1241,6 +1241,53 @@
         label:has(input[type="checkbox"]):hover {
             color: var(--primary-light);
         }
+
+        /* Song Manager specific overrides */
+        .left-sidebar {
+            width: 220px !important; /* Wider to accommodate filters */
+        }
+
+        .left-sidebar.collapsed {
+            width: 45px !important; /* Just enough for collapse button */
+        }
+
+        .left-sidebar.collapsed .sidebar-content {
+            display: none;
+        }
+
+        .left-sidebar.collapsed .collapsed-label {
+            display: block;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            margin: 20px auto;
+            text-align: center;
+            color: var(--primary-light);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .left-sidebar .collapsed-label {
+            display: none;
+        }
+
+        /* Ensure dropdowns appear above other content */
+        .filter-select,
+        .filter-input {
+            position: relative;
+            z-index: 100;
+        }
+
+        datalist {
+            position: absolute;
+            z-index: 1000;
+        }
+
+        /* Center pane adjusts to left sidebar */
+        .center-pane {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -1343,6 +1390,9 @@
     <div class="main-layout">
         <!-- Left Sidebar: Control Panel -->
         <div class="left-sidebar">
+            <button class="collapse-btn" onclick="toggleLeftSidebar()">☰</button>
+            <div class="collapsed-label">Commands</div>
+            <div class="sidebar-content">
             <div class="sidebar-title">Actions</div>
             
             <button class="btn btn-success" onclick="openAddModal()" style="width: 100%; margin-bottom: 10px;">
@@ -1539,6 +1589,7 @@
             </div>
             
             <input type="file" id="csvFile" accept=".csv" onchange="handleCSVImport(event)" style="display: none;">
+            </div>
         </div>
 
         <!-- Center Pane: Song Table -->
@@ -3366,6 +3417,13 @@ What would you like to do?
             saveSongs();
         }
 
+        // Toggle left sidebar
+        function toggleLeftSidebar() {
+            const sidebar = document.querySelector('.left-sidebar');
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('leftSidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+
         // Load data on page load
         window.onload = function() {
             // Theme already loaded by inline script below
@@ -3382,6 +3440,12 @@ What would you like to do?
             updateBulkActionsFooter();
             initColumnResizing(); // Initialize column resizing
             initColumnCheckboxes(); // Populate column visibility checkboxes
+            
+            // Load left sidebar collapse state
+            const leftSidebarCollapsed = localStorage.getItem('leftSidebarCollapsed') === 'true';
+            if (leftSidebarCollapsed) {
+                document.querySelector('.left-sidebar').classList.add('collapsed');
+            }
             
             // Check if we need to search for a song from setlist manager
             const editSongSearch = localStorage.getItem('editSongSearch');
@@ -3412,18 +3476,20 @@ What would you like to do?
             
             // Performance: Smooth scrolling with requestAnimationFrame
             const tableContainer = document.querySelector('.table-container');
-            let ticking = false;
-            
-            tableContainer.addEventListener('scroll', () => {
-                if (!ticking) {
-                    window.requestAnimationFrame(() => {
-                        // Handle scroll-dependent updates here
-                        // Currently passive - just ensures smooth rendering
-                        ticking = false;
-                    });
-                    ticking = true;
-                }
-            }, { passive: true });
+            if (tableContainer) {
+                let ticking = false;
+                
+                tableContainer.addEventListener('scroll', () => {
+                    if (!ticking) {
+                        window.requestAnimationFrame(() => {
+                            // Handle scroll-dependent updates here
+                            // Currently passive - just ensures smooth rendering
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                }, { passive: true });
+            }
             
             // Performance: Register Service Worker for PWA capabilities
             // Only works on http/https protocols, not file://
@@ -3613,7 +3679,7 @@ What would you like to do?
                     <td class="col-key editable-cell ${colClasses.key}" ondblclick="startInlineEdit(this, ${originalIndex}, 'key')" title="Double-click to edit">${escapeHtml(song.key || '-')}</td>
                     <td class="col-firstNote editable-cell ${colClasses.firstNote}" ondblclick="startInlineEdit(this, ${originalIndex}, 'firstNote')" title="Double-click to edit">${escapeHtml(song.firstNote || '-')}</td>
                     <td class="col-lastNote editable-cell ${colClasses.lastNote}" ondblclick="startInlineEdit(this, ${originalIndex}, 'lastNote')" title="Double-click to edit">${escapeHtml(song.lastNote || '-')}</td>
-                    <td class="col-chordChart ${colClasses.chordChart}">${song.chordChart ? `<a href="chord-chart-editor.html?songId=${originalIndex}" target="_blank" title="Edit Chord Chart" style="color: var(--primary-light); text-decoration: none;">📊 Edit</a>` : `<a href="chord-chart-editor.html?songId=${originalIndex}" target="_blank" title="Create Chord Chart" style="color: var(--text-tertiary); text-decoration: none;">+ Add</a>`}</td>
+                    <td class="col-chordChart ${colClasses.chordChart}">${song.chordChart ? `<a href="chord-chart-editor.html?songId=${originalIndex}" target="_blank" title="Edit Chord Chart" style="color: var(--primary-light); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> Edit</a>` : `<a href="chord-chart-editor.html?songId=${originalIndex}" target="_blank" title="Create Chord Chart" style="color: var(--text-tertiary); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</a>`}</td>
                     <td class="col-playCount ${colClasses.playCount}">${song.playCount || 0}</td>
                 </tr>`);
             }
@@ -3920,7 +3986,9 @@ What would you like to do?
         // Search Help Toggle
         function toggleSearchHelp() {
             const panel = document.getElementById('searchHelp');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            if (panel) {
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            }
         }
 
         // Advanced Search Parser
@@ -4685,6 +4753,12 @@ What would you like to do?
             applyFilters();
         }
 
+        function clearFilters() {
+            activeFilters = [];
+            updateFilterTags();
+            applyFilters();
+        }
+
         // Clear all filters
         function clearAllFilters() {
             activeFilters = [];
@@ -4828,7 +4902,22 @@ What would you like to do?
                 filtered.flatMap(s => s.bands ? s.bands.split(',').map(b => b.trim()) : [])
             ).size;
 
-            // Update search results display (only if elements exist)
+            // Update compact header stats with filtered counts
+            const compactSongs = document.getElementById('compactTotalSongs');
+            const compactArtists = document.getElementById('compactTotalArtists');
+            const compactBands = document.getElementById('compactTotalBands');
+            
+            if (searchTerm || activeFilters.length > 0) {
+                // Show filtered counts
+                if (compactSongs) compactSongs.textContent = filtered.length;
+                if (compactArtists) compactArtists.textContent = uniqueArtists;
+                if (compactBands) compactBands.textContent = uniqueBands;
+            } else {
+                // Show total counts (call updateStats to get full counts)
+                updateStats();
+            }
+
+            // Update search results display (only if elements exist - legacy)
             const searchResultsEl = document.getElementById('searchResults');
             const artistResultsEl = document.getElementById('artistResults');
             const bandResultsEl = document.getElementById('bandResults');
@@ -4888,6 +4977,8 @@ What would you like to do?
             autocompleteSelectedIndex = -1;
             
             const dropdown = document.getElementById('autocompleteDropdown');
+            if (!dropdown) return; // Element doesn't exist in new layout
+            
             dropdown.innerHTML = suggestions.map((suggestion, index) => `
                 <div class="autocomplete-item" data-index="${index}" onclick="selectSuggestion(${index})">
                     <span class="autocomplete-type">${suggestion.type}</span>
@@ -4979,6 +5070,7 @@ What would you like to do?
 
         function handleSearchKeydown(event) {
             const dropdown = document.getElementById('autocompleteDropdown');
+            if (!dropdown) return; // Element doesn't exist in new layout
             
             if (dropdown.style.display === 'none') return;
             
@@ -5016,7 +5108,10 @@ What would you like to do?
         }
 
         function hideAutocomplete() {
-            document.getElementById('autocompleteDropdown').style.display = 'none';
+            const dropdown = document.getElementById('autocompleteDropdown');
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
             autocompleteSelectedIndex = -1;
         }
 
