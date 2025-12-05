@@ -106,8 +106,8 @@
 
         .controls {
             background: rgba(0, 0, 0, 0.15);
-            backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
             padding: 15px 20px;
             border-radius: 12px;
             margin-bottom: 20px;
@@ -197,8 +197,8 @@
 
         .setlist-card {
             background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 20px;
@@ -295,6 +295,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
+            -webkit-backdrop-filter: blur(5px);
             backdrop-filter: blur(5px);
             z-index: 1000;
             align-items: center;
@@ -592,7 +593,7 @@
                 <circle cx="12" cy="12" r="3"/>
                 <path d="M12 1v6m0 6v6M5.6 5.6l4.2 4.2m4.2 4.2l4.2 4.2M1 12h6m6 0h6M5.6 18.4l4.2-4.2m4.2-4.2l4.2-4.2"/>
             </svg>
-            <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 6px 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--primary-border); border-radius: 4px; color: var(--primary-light); cursor: pointer; font-size: 13px;">
+            <select id="themeSelector" onchange="changeTheme(this.value)" title="Select color theme" aria-label="Color theme selector" style="padding: 6px 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--primary-border); border-radius: 4px; color: var(--primary-light); cursor: pointer; font-size: 13px;">
                 <option value="grey">Grey</option>
                 <option value="red">Red</option>
                 <option value="blue">Blue</option>
@@ -1198,7 +1199,7 @@
                     <div class="song-selector-item ${isSelected ? 'selected' : ''} ${isInTargetSet ? 'disabled' : ''}" 
                          style="${isInTargetSet ? 'opacity: 0.4;' : ''}">
                         <div class="song-info-selector" onclick="${isInTargetSet ? '' : `toggleSongSelection('${escapeForAttribute(song.artist)}', '${escapeForAttribute(song.song)}')`}">
-                            ${!isInTargetSet ? `<input type="checkbox" ${isSelected ? 'checked' : ''} style="margin-right: 10px; pointer-events: none;">` : ''}
+                            ${!isInTargetSet ? `<input type="checkbox" ${isSelected ? 'checked' : ''} aria-label="Song selection indicator" title="Click row to toggle selection" style="margin-right: 10px; pointer-events: none;">` : ''}
                             <div style="flex: 1;">
                                 <strong>${escapeHtml(song.song)}</strong> - ${escapeHtml(song.artist)}
                                 ${song.key ? `<span style="color: #999;"> • Key: ${song.key}</span>` : ''}

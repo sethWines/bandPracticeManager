@@ -124,7 +124,7 @@
             background: rgba(0, 0, 0, 0.15);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
-            padding: 15px 20px;
+            padding: 10px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -135,21 +135,32 @@
             box-shadow: 0 2px 10px var(--primary-glow);
             border: 1px solid rgba(255, 255, 255, 0.1);
             overflow: visible;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .header h1 {
             color: var(--primary-light);
             text-shadow: 0 0 20px var(--primary-glow);
-            font-size: 24px;
+            font-size: 20px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .header h1 svg {
+            width: 20px;
+            height: 20px;
         }
 
         .header-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
+            flex-shrink: 0;
+            flex-wrap: wrap;
         }
 
         .nav-links {
@@ -158,15 +169,18 @@
         }
 
         .nav-link {
-            padding: 8px 16px;
+            padding: 6px 12px;
             background: var(--primary-dark);
             border: 2px solid var(--primary-light);
             color: var(--primary-light);
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 6px;
             transition: all 0.3s;
             font-weight: 600;
+            font-size: 13px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            display: inline-flex;
+            align-items: center;
         }
 
         .nav-link:hover {
@@ -194,16 +208,16 @@
         }
 
         .btn {
-            padding: 8px 16px;
+            padding: 6px 12px;
             border: 2px solid var(--primary-light);
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
@@ -1286,9 +1300,35 @@
         }
 
         /* Responsive */
+        @media (max-width: 1200px) {
+            .header h1 {
+                font-size: 18px;
+            }
+            .song-selector {
+                max-width: 300px;
+            }
+        }
+
         @media (max-width: 1024px) {
             .left-sidebar, .right-sidebar {
                 width: 180px;
+            }
+            .header {
+                padding: 8px 12px;
+            }
+            .header h1 {
+                font-size: 16px;
+            }
+            .header h1 svg {
+                width: 18px;
+                height: 18px;
+            }
+            .song-selector {
+                max-width: 250px;
+            }
+            .btn, .nav-link {
+                padding: 5px 10px;
+                font-size: 12px;
             }
         }
 
@@ -1299,6 +1339,23 @@
             .left-sidebar, .right-sidebar {
                 width: 100%;
                 max-height: 200px;
+            }
+            .header {
+                padding: 6px 10px;
+            }
+            .header h1 {
+                font-size: 14px;
+            }
+            .song-selector label {
+                display: none;
+            }
+            .song-selector {
+                min-width: 150px;
+                max-width: 200px;
+            }
+            .btn, .nav-link {
+                padding: 4px 8px;
+                font-size: 11px;
             }
         }
     </style>
@@ -1314,9 +1371,9 @@
             </svg>
             Chord Chart Editor
         </h1>
-        <div class="song-selector" style="display: flex; align-items: center; gap: 10px; margin: 0 20px; position: relative; z-index: 9999;">
-            <label for="songSearch" style="color: var(--text-primary); font-weight: 500;">Song:</label>
-            <div style="position: relative; min-width: 300px; z-index: 9999;">
+        <div class="song-selector" style="display: flex; align-items: center; gap: 8px; margin: 0 10px; position: relative; z-index: 9999; flex: 1; min-width: 200px; max-width: 400px;">
+            <label for="songSearch" style="color: var(--text-primary); font-weight: 500; font-size: 14px; flex-shrink: 0;">Song:</label>
+            <div style="position: relative; flex: 1; z-index: 9999;">
                 <input 
                     type="text" 
                     id="songSearch"
@@ -1329,7 +1386,7 @@
                     spellcheck="false"
                     value=""
                     aria-label="Search songs by artist or title"
-                    style="width: 100%; padding: 8px; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--primary-border); border-radius: 4px;"
+                    style="width: 100%; padding: 6px 8px; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--primary-border); border-radius: 4px; font-size: 14px;"
                     oninput="filterSongs()"
                     onfocus="showSongList()"
                 />
@@ -2277,7 +2334,11 @@
                     </div>
                 </div>
                 <div class="chord-format-hint">
-                    💡 Grid mode exports as chords above lyrics (or use inline [G]format)
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; cursor: help;" title="Grid mode exports as chords above lyrics (or use inline [G] format)">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
                 </div>
             `;
 
