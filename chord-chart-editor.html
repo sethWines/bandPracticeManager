@@ -1117,21 +1117,27 @@
         .performance-lyrics {
             line-height: 1.8;
             padding-left: 40px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
         }
 
         .print-lyrics {
             line-height: 1.8;
             padding-left: 40px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
         }
 
         .chord-line {
             font-weight: bold;
             letter-spacing: 1px;
             font-size: 1em;
+            white-space: pre-wrap;
         }
 
         .lyric-line {
             font-size: 1em;
+            white-space: pre-wrap;
         }
 
         .print-preview .chord-line {
@@ -1139,8 +1145,8 @@
         }
 
         .performance-view .chord-line {
-            color: rgba(255, 255, 255, 0.6);
-            opacity: 0.85;
+            color: rgba(255, 255, 255, 0.4);
+            opacity: 0.7;
         }
 
         .performance-view .lyric-line {
@@ -2948,7 +2954,7 @@
         let autoscrollActive = false;
         let autoscrollInterval = null;
         let scrollSpeed = 1.0;
-        const BASE_SCROLL_SPEED = 1;
+        const BASE_SCROLL_SPEED = 0.5;
         let accumulatedScroll = 0; // For fractional scrolling
 
         // Toggle autoscroll
