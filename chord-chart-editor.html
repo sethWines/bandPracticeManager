@@ -229,6 +229,26 @@
             transform: translateY(-2px);
         }
 
+        .btn-danger {
+            background: #5c1d0a;
+            color: #ff6b3d;
+            border: 2px solid #ff6b3d;
+        }
+
+        .btn-danger:hover {
+            background: #7a2710;
+            color: #ffa580;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger:disabled {
+            background: #2a1d1a;
+            color: #664d3d;
+            border-color: #664d3d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* Main Layout */
         .main-layout {
             display: flex;
@@ -678,6 +698,129 @@
             box-shadow: 0 0 10px var(--primary-glow);
         }
 
+        /* Grid Editor Styles */
+        .grid-editor {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--primary-border);
+            border-radius: 4px;
+            padding: 10px;
+            overflow-x: auto;
+        }
+
+        .grid-editor-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            font-family: 'Courier New', monospace;
+            min-width: 100%;
+        }
+
+        .grid-controls {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .grid-indicator-cell {
+            background: rgba(0, 0, 0, 0.5);
+            border-right: 2px solid var(--primary-border);
+            padding: 6px;
+            vertical-align: middle;
+            text-align: center;
+            width: 40px;
+            min-width: 40px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .grid-indicator-cell:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .grid-row-selected .grid-indicator-cell {
+            background: rgba(33, 150, 243, 0.4);
+        }
+
+        .row-indicator {
+            font-size: 14px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .row-indicator-generic {
+            background: rgba(100, 100, 100, 0.3);
+            color: #aaa;
+            border: 1px solid #666;
+        }
+
+        .row-indicator-chord {
+            background: rgba(33, 150, 243, 0.3);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-light);
+        }
+
+        .row-indicator-lyric {
+            background: rgba(0, 200, 100, 0.3);
+            border: 1px solid #00c864;
+            color: #00ff80;
+        }
+
+        .grid-content-cell {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(100, 100, 100, 0.3);
+            padding: 0;
+            width: 20px;
+            height: 24px;
+        }
+
+        .grid-cell-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            text-align: center;
+            padding: 4px 2px;
+            outline: none;
+        }
+
+        .grid-cell-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            outline: 2px solid var(--primary-color);
+            outline-offset: -2px;
+            box-shadow: 0 0 8px rgba(33, 150, 243, 0.5);
+        }
+
+        .grid-cell-input:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .grid-row-selected {
+            background: rgba(33, 150, 243, 0.15);
+        }
+
+        .grid-editor-table td {
+            border: 1px solid var(--primary-border);
+            padding: 0;
+            text-align: center;
+            vertical-align: middle;
+            min-width: 24px;
+            max-width: 24px;
+            height: 30px;
+        }
+
+        .grid-editor-table tr:first-child td {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Grid cells are now uniform - old chord/lyric specific styles removed */
+
         .chord-format-hint {
             margin-top: 5px;
             font-size: 12px;
@@ -799,9 +942,9 @@
 
         .modal.show {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            padding: 20px;
+            padding: 90px 20px 20px 20px;
         }
 
         .modal-content {
@@ -812,7 +955,7 @@
             border-radius: 8px;
             max-width: 1200px;
             width: 90%;
-            max-height: calc(100vh - 40px);
+            max-height: calc(100vh - 110px);
             overflow: hidden;
             border: 2px solid var(--primary-border);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
@@ -860,14 +1003,22 @@
 
         .print-controls {
             display: flex;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 12px 15px;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+            padding: 8px 10px;
             background: var(--primary-bg);
             border-radius: 8px;
             border: 2px solid var(--primary-border);
-            flex-wrap: wrap;
+        }
+        
+        .print-controls .btn {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        .print-controls .setting-item {
+            font-size: 12px;
         }
 
         .print-preview {
@@ -889,27 +1040,29 @@
 
         .view-tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--primary-border);
-            padding-bottom: 10px;
+            gap: 6px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--primary-border);
+            padding-bottom: 6px;
         }
 
         .tab-button {
-            padding: 8px 16px;
+            padding: 6px 12px;
             background: var(--primary-bg);
-            border: 2px solid var(--primary-border);
+            border: 1px solid var(--primary-border);
             color: var(--primary-light);
             cursor: pointer;
-            border-radius: 6px 6px 0 0;
+            border-radius: 4px 4px 0 0;
             transition: all 0.3s;
             font-weight: 600;
+            font-size: 13px;
         }
 
         .tab-button.active {
             background: var(--primary-color);
             color: white;
             border-bottom-color: transparent;
+            border-width: 1px;
         }
 
         .tab-button:hover:not(.active) {
@@ -963,6 +1116,12 @@
         .print-lyrics,
         .performance-lyrics {
             line-height: 1.8;
+            padding-left: 40px;
+        }
+
+        .print-lyrics {
+            line-height: 1.8;
+            padding-left: 40px;
         }
 
         .chord-line {
@@ -980,7 +1139,12 @@
         }
 
         .performance-view .chord-line {
-            color: var(--primary-light);
+            color: rgba(255, 255, 255, 0.6);
+            opacity: 0.85;
+        }
+
+        .performance-view .lyric-line {
+            color: var(--text-primary);
         }
 
         .print-preview .lyric-line {
@@ -1188,7 +1352,7 @@
                 </svg>
                 Clear
             </button>
-            <button class="btn btn-primary" onclick="openPrintModal()">
+            <button class="btn btn-primary" onclick="togglePrintModal()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
                     <polyline points="6 9 6 2 18 2 18 9"/>
                     <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
@@ -1308,25 +1472,26 @@
                 </div>
 
                 <div class="print-controls">
-                    <div class="setting-item" style="display: flex; align-items: center; gap: 10px;">
-                        <label for="fontSize" style="margin: 0;">Font Size:</label>
-                        <input type="range" id="fontSize" name="fontSize" min="10" max="20" value="14" title="Adjust font size for printing" aria-label="Font size slider" onchange="updatePrintPreview()" style="width: 120px;">
-                        <span id="fontSizeValue" style="min-width: 35px;">14px</span>
+                    <!-- Font Size Control -->
+                    <div class="setting-item" style="display: flex; align-items: center; gap: 8px;">
+                        <label for="fontSize" style="margin: 0; font-size: 12px; min-width: 65px;">Font Size:</label>
+                        <input type="range" id="fontSize" name="fontSize" min="10" max="20" value="14" title="Adjust font size for printing" aria-label="Font size slider" onchange="updatePrintPreview()" style="flex: 1;">
+                        <span id="fontSizeValue" style="min-width: 32px; font-size: 12px;">14px</span>
                     </div>
-                    <div class="setting-item" style="display: flex; align-items: center; margin: 0;">
-                        <label for="scaleToFit" style="display: flex; align-items: center; gap: 5px; margin: 0; cursor: pointer;">
+                    
+                    <!-- Scale to Fit & Save Speed Row -->
+                    <div style="display: flex; gap: 8px;">
+                        <label for="scaleToFit" style="display: flex; align-items: center; gap: 5px; margin: 0; cursor: pointer; font-size: 12px; flex: 1;">
                             <input type="checkbox" id="scaleToFit" name="scaleToFit" title="Scale chart to fit one page" onchange="updatePrintPreview()">
-                            Scale to fit page
+                            Scale to fit
                         </label>
+                        <button id="saveSpeedBtn" class="btn btn-secondary" onclick="savePreferredSpeed()" style="display: flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 12px;" title="Save current autoscroll speed for this song">
+                            <svg id="saveSpeedIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            <span id="saveSpeedText">Save Speed</span>
+                        </button>
                     </div>
-                    <button class="btn btn-primary" onclick="window.print()" style="margin-left: auto;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                            <polyline points="6 9 6 2 18 2 18 9"/>
-                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                            <rect x="6" y="14" width="12" height="8"/>
-                        </svg>
-                        Print
-                    </button>
                 </div>
 
                 <div id="performanceView" class="performance-view">
@@ -1516,19 +1681,49 @@
                     `;
                     
                     const lines = comp.lyrics.split('\n');
-                    lines.forEach(line => {
-                        if (line.trim()) {
-                            if (line.includes('[')) {
-                                const formatted = this.inlineToChordLine(line);
-                                if (formatted.chords) {
-                                    html += `<div class="chord-line">${formatted.chords}</div>`;
-                                }
-                                html += `<div class="lyric-line">${formatted.lyrics}</div>`;
-                            } else {
-                                html += `<div class="lyric-line">${line}</div>`;
-                            }
+                    
+                    // Helper to detect if a line is a chord line (contains chord-like patterns)
+                    const isChordLine = (line) => {
+                        const trimmed = line.trim();
+                        if (!trimmed) return false;
+                        
+                        // More flexible chord pattern: A-G (case insensitive), optional #/b, optional modifiers, optional numbers
+                        // Multiple chords separated by spaces
+                        const chordPattern = /^[\s]*([A-G](#|b)?(m|M|maj|min|sus|aug|dim|add)?[0-9]?([/-][A-G](#|b)?)?[\s]*)+$/i;
+                        
+                        // Also check if it contains mostly uppercase letters and spaces (typical chord format)
+                        const hasChordStructure = /[A-G]/.test(trimmed) && !/[a-z]{3,}/.test(trimmed);
+                        
+                        return chordPattern.test(trimmed) || hasChordStructure;
+                    };
+                    
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i];
+                        
+                        if (!line.trim()) {
+                            // Skip empty lines
+                            continue;
                         }
-                    });
+                        
+                        // Check if this is a chord line (standalone or above lyrics)
+                        if (isChordLine(line)) {
+                            // This line looks like chords
+                            html += `<div class="chord-line">${line}</div>`;
+                            continue;
+                        }
+                        
+                        // Check for inline chord format [Chord]
+                        if (line.includes('[')) {
+                            const formatted = this.inlineToChordLine(line);
+                            if (formatted.chords) {
+                                html += `<div class="chord-line">${formatted.chords}</div>`;
+                            }
+                            html += `<div class="lyric-line">${formatted.lyrics}</div>`;
+                        } else {
+                            // Regular lyric line
+                            html += `<div class="lyric-line">${line}</div>`;
+                        }
+                    }
                     
                     html += `
                             </div>
@@ -1571,19 +1766,49 @@
                     `;
                     
                     const lines = comp.lyrics.split('\n');
-                    lines.forEach(line => {
-                        if (line.trim()) {
-                            if (line.includes('[')) {
-                                const formatted = this.inlineToChordLine(line);
-                                if (formatted.chords) {
-                                    html += `<div class="chord-line">${formatted.chords}</div>`;
-                                }
-                                html += `<div class="lyric-line">${formatted.lyrics}</div>`;
-                            } else {
-                                html += `<div class="lyric-line">${line}</div>`;
-                            }
+                    
+                    // Helper to detect if a line is a chord line (contains chord-like patterns)
+                    const isChordLine = (line) => {
+                        const trimmed = line.trim();
+                        if (!trimmed) return false;
+                        
+                        // More flexible chord pattern: A-G (case insensitive), optional #/b, optional modifiers, optional numbers
+                        // Multiple chords separated by spaces
+                        const chordPattern = /^[\s]*([A-G](#|b)?(m|M|maj|min|sus|aug|dim|add)?[0-9]?([/-][A-G](#|b)?)?[\s]*)+$/i;
+                        
+                        // Also check if it contains mostly uppercase letters and spaces (typical chord format)
+                        const hasChordStructure = /[A-G]/.test(trimmed) && !/[a-z]{3,}/.test(trimmed);
+                        
+                        return chordPattern.test(trimmed) || hasChordStructure;
+                    };
+                    
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i];
+                        
+                        if (!line.trim()) {
+                            // Skip empty lines
+                            continue;
                         }
-                    });
+                        
+                        // Check if this is a chord line (standalone or above lyrics)
+                        if (isChordLine(line)) {
+                            // This line looks like chords
+                            html += `<div class="chord-line">${line}</div>`;
+                            continue;
+                        }
+                        
+                        // Check for inline chord format [Chord]
+                        if (line.includes('[')) {
+                            const formatted = this.inlineToChordLine(line);
+                            if (formatted.chords) {
+                                html += `<div class="chord-line">${formatted.chords}</div>`;
+                            }
+                            html += `<div class="lyric-line">${formatted.lyrics}</div>`;
+                        } else {
+                            // Regular lyric line
+                            html += `<div class="lyric-line">${line}</div>`;
+                        }
+                    }
                     
                     html += `
                             </div>
@@ -1616,7 +1841,8 @@
                         defaultChordFormat: 'inline',
                         showChordDiagrams: false,
                         fontSize: 14
-                    }
+                    },
+                    preferredScrollSpeed: null // Store preferred autoscroll speed for this song
                 };
             }
         };
@@ -1957,6 +2183,14 @@
                     </div>
                     <div class="component-title">${comp.displayName}</div>
                     <div class="component-actions">
+                        <button class="icon-btn" onclick="toggleGridEditor(${index})" title="Toggle Grid Editor">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7"/>
+                                <rect x="14" y="3" width="7" height="7"/>
+                                <rect x="3" y="14" width="7" height="7"/>
+                                <rect x="14" y="14" width="7" height="7"/>
+                            </svg>
+                        </button>
                         <button class="icon-btn" onclick="moveComponentUp(${index})" title="Move Up">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="18 15 12 9 6 15"/>
@@ -1974,13 +2208,18 @@
                         </button>
                     </div>
                 </div>
-                <textarea 
-                    class="component-textarea" 
-                    placeholder="Enter lyrics here. Use [C], [G], [Em] for inline chords or write chords on separate line above lyrics."
-                    oninput="updateComponentLyrics(${index}, this.value)"
-                >${comp.lyrics}</textarea>
+                <div class="component-editor">
+                    <textarea 
+                        class="component-textarea" 
+                        placeholder="Enter lyrics here. Use [C], [G], [Em] for inline chords or write chords on separate line above lyrics."
+                        oninput="updateComponentLyrics(${index}, this.value)"
+                    >${comp.lyrics}</textarea>
+                    <div class="grid-editor" style="display: none;" data-index="${index}">
+                        <!-- Grid editor will be populated dynamically -->
+                    </div>
+                </div>
                 <div class="chord-format-hint">
-                    💡 Inline: "Amazing [G]grace" or separate lines
+                    💡 Grid mode exports as chords above lyrics (or use inline [G]format)
                 </div>
             `;
 
@@ -2061,6 +2300,558 @@
             }
         };
 
+        // ============================================================================
+        // GRID CHORD EDITOR
+        // ============================================================================
+
+        // Toggle between text editor and grid editor
+        window.toggleGridEditor = function(index) {
+            const tile = document.querySelector(`.component-tile[data-index="${index}"]`);
+            const textarea = tile.querySelector('.component-textarea');
+            const gridEditor = tile.querySelector('.grid-editor');
+            
+            if (gridEditor.style.display === 'none') {
+                // Show grid editor, hide textarea
+                textarea.style.display = 'none';
+                gridEditor.style.display = 'block';
+                
+                // Build grid from current lyrics
+                buildGridFromLyrics(index);
+            } else {
+                // Show textarea, hide grid editor
+                gridEditor.style.display = 'none';
+                textarea.style.display = 'block';
+                
+                // Update lyrics from grid
+                updateLyricsFromGrid(index);
+            }
+        };
+
+        // Parse lyrics text into lines and characters (handles both inline and chords-above format)
+        function parseLyricsToCharacters(lyrics) {
+            const lines = lyrics.split('\n');
+            const lyricLines = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmedLine = line.trim();
+                
+                // Check if this is a chord-only line
+                const isChordLine = trimmedLine.length > 0 && 
+                                   /^[A-G#b\/m0-9\s\-+dim aug sus maj min]+$/i.test(trimmedLine) &&
+                                   trimmedLine.match(/[A-G]/);
+                
+                if (isChordLine && i + 1 < lines.length) {
+                    // Skip chord line, process the lyrics line below
+                    i++;
+                    lyricLines.push(lines[i].split(''));
+                } else if (line.includes('[')) {
+                    // Inline format - remove chords
+                    const cleanLine = line.replace(/\[([^\]]+)\]/g, '');
+                    lyricLines.push(cleanLine.split(''));
+                } else if (trimmedLine.length > 0) {
+                    // Regular lyric line
+                    lyricLines.push(line.split(''));
+                } else {
+                    // Empty line
+                    lyricLines.push([]);
+                }
+            }
+            
+            return lyricLines;
+        }
+
+        // Parse existing chords from lyrics (supports both inline [G] and chords-above format)
+        function parseExistingChords(lyrics) {
+            const lines = lyrics.split('\n');
+            const chordMap = []; // Array of arrays: chordMap[lyricLineIndex][charIndex] = chord
+            let currentLyricLine = 0;
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmedLine = line.trim();
+                
+                // Check if this is a chord-only line (contains only chords, spaces, and common chord characters)
+                const isChordLine = trimmedLine.length > 0 && 
+                                   /^[A-G#b\/m0-9\s\-+dim aug sus maj min]+$/i.test(trimmedLine) &&
+                                   trimmedLine.match(/[A-G]/); // Must have at least one note letter
+                
+                if (isChordLine && i + 1 < lines.length) {
+                    // This is a chord line, next line should be lyrics
+                    const nextLine = lines[i + 1];
+                    chordMap[currentLyricLine] = [];
+                    
+                    // Map chord positions to character positions - USE ORIGINAL LINE, NOT TRIMMED!
+                    const chordPattern = /[A-G][#b]?(?:maj|min|m|dim|aug|sus)?[0-9]?(?:\/[A-G][#b]?)?/g;
+                    let match;
+                    
+                    while ((match = chordPattern.exec(line)) !== null) {
+                        const chord = match[0];
+                        const chordPos = match.index;
+                        chordMap[currentLyricLine][chordPos] = chord;
+                    }
+                    
+                    i++; // Skip the lyrics line since we've paired it
+                    currentLyricLine++;
+                } else if (line.includes('[')) {
+                    // Inline chord format [G]lyrics
+                    chordMap[currentLyricLine] = [];
+                    let charIndex = 0;
+                    let j = 0;
+                    
+                    while (j < line.length) {
+                        if (line[j] === '[') {
+                            const endIndex = line.indexOf(']', j);
+                            if (endIndex !== -1) {
+                                const chord = line.substring(j + 1, endIndex);
+                                chordMap[currentLyricLine][charIndex] = chord;
+                                j = endIndex + 1;
+                            } else {
+                                j++;
+                            }
+                        } else {
+                            charIndex++;
+                            j++;
+                        }
+                    }
+                    currentLyricLine++;
+                } else if (trimmedLine.length > 0) {
+                    // Regular lyric line with no chords
+                    chordMap[currentLyricLine] = [];
+                    currentLyricLine++;
+                }
+            }
+            
+            return chordMap;
+        }
+
+        // Build grid editor UI - Simple character-by-character system
+        function buildGridFromLyrics(index) {
+            const comp = chartData.components[index];
+            const gridEditor = document.querySelector(`.grid-editor[data-index="${index}"]`);
+            
+            // Parse lyrics into individual lines, preserving exact spacing
+            const lines = comp.lyrics.split('\n');
+            
+            // Initialize row data structure if not exists
+            if (!comp.gridRows) {
+                comp.gridRows = [];
+                lines.forEach((line) => {
+                    const chars = line.split(''); // Split into characters, preserving spaces
+                    comp.gridRows.push({
+                        type: 'generic', // All rows start as generic
+                        chars: chars.length > 0 ? chars : [' ']
+                        // Note: selected property intentionally omitted (defaults to falsy)
+                    });
+                });
+            }
+            
+            if (comp.gridRows.length === 0) {
+                // Add one empty row if none exist
+                comp.gridRows.push({
+                    type: 'generic',
+                    chars: [' ']
+                    // Note: selected property intentionally omitted (defaults to falsy)
+                });
+            }
+            
+            // Find the longest line and add 10 extra cells for padding
+            const maxLength = Math.max(...comp.gridRows.map(row => row.chars.length), 10) + 10;
+            
+            // Build controls
+            let html = `
+                <div class="grid-controls">
+                    <button class="btn btn-secondary btn-sm" onclick="addGridRow(${index})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Row
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="toggleChordBtn${index}" onclick="setSelectedRowsType(${index}, 'chord')" disabled>
+                        Set as Chord (C)
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="toggleLyricBtn${index}" onclick="setSelectedRowsType(${index}, 'lyric')" disabled>
+                        Set as Lyric (L)
+                    </button>
+                    <button class="btn btn-danger btn-sm" id="deleteRowBtn${index}" onclick="deleteSelectedRows(${index})" disabled>
+                        Delete Selected
+                    </button>
+                </div>
+                <table class="grid-editor-table">
+            `;
+            
+            comp.gridRows.forEach((row, rowIndex) => {
+                const rowType = row.type || 'generic';
+                let chars = [...row.chars];
+                
+                // Pad to maxLength
+                while (chars.length < maxLength) {
+                    chars.push(' ');
+                }
+                
+                // Determine input behavior based on type
+                const maxLengthAttr = rowType === 'lyric' ? 'maxlength="1"' : '';
+                const rowClass = row.selected ? 'grid-row-selected' : '';
+                
+                // Indicator label
+                let indicator = '−'; // Generic
+                if (rowType === 'chord') indicator = 'C';
+                if (rowType === 'lyric') indicator = 'L';
+                
+                html += `<tr class="${rowClass}">`;
+                
+                // Indicator cell (clickable for selection)
+                html += `<td class="grid-indicator-cell" onclick="toggleRowSelection(${index}, ${rowIndex})">
+                    <div class="row-indicator row-indicator-${rowType}">${indicator}</div>
+                </td>`;
+                
+                // Content cells
+                chars.forEach((char, charIndex) => {
+                    const cellClass = 'grid-content-cell';
+                    
+                    html += `<td class="${cellClass}">
+                        <input type="text" 
+                               class="grid-cell-input" 
+                               value="${char}" 
+                               data-row="${rowIndex}" 
+                               data-char="${charIndex}"
+                               ${maxLengthAttr}
+                               onchange="updateGridCell(${index}, ${rowIndex}, ${charIndex}, this.value)"
+                               onfocus="updateControlButtonStates(${index})"
+                               placeholder="·">
+                    </td>`;
+                });
+                
+                html += '</tr>';
+            });
+            
+            html += '</table>';
+            gridEditor.innerHTML = html;
+            
+            // Add keyboard navigation and copy/paste support
+            setupGridKeyboardNavigation(index);
+            updateControlButtonStates(index);
+        }
+
+        // Setup keyboard navigation for grid
+        function setupGridKeyboardNavigation(compIndex) {
+            const gridEditor = document.querySelector(`.grid-editor[data-index="${compIndex}"]`);
+            if (!gridEditor) return;
+            
+            const allInputs = gridEditor.querySelectorAll('.grid-chord-input, .grid-lyric-input');
+            
+            allInputs.forEach(input => {
+                // Arrow key navigation
+                input.addEventListener('keydown', (e) => {
+                    const currentRow = parseInt(input.dataset.row);
+                    const currentChar = parseInt(input.dataset.char);
+                    
+                    let targetInput = null;
+                    
+                    switch(e.key) {
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            // Move to next cell in same row
+                            targetInput = gridEditor.querySelector(
+                                `input[data-row="${currentRow}"][data-char="${currentChar + 1}"]`
+                            );
+                            break;
+                            
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            // Move to previous cell in same row
+                            targetInput = gridEditor.querySelector(
+                                `input[data-row="${currentRow}"][data-char="${currentChar - 1}"]`
+                            );
+                            break;
+                            
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            // Move to next row, same column
+                            targetInput = gridEditor.querySelector(
+                                `input[data-row="${currentRow + 1}"][data-char="${currentChar}"]`
+                            );
+                            break;
+                            
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            // Move to previous row, same column
+                            targetInput = gridEditor.querySelector(
+                                `input[data-row="${currentRow - 1}"][data-char="${currentChar}"]`
+                            );
+                            break;
+                            
+                        case 'Tab':
+                            e.preventDefault();
+                            // Move to next cell (wrap to next row if needed)
+                            const nextCharInput = gridEditor.querySelector(
+                                `input[data-row="${currentRow}"][data-char="${currentChar + 1}"]`
+                            );
+                            if (nextCharInput) {
+                                targetInput = nextCharInput;
+                            } else {
+                                // Wrap to next row
+                                targetInput = gridEditor.querySelector(
+                                    `input[data-row="${currentRow + 1}"][data-char="0"]`
+                                );
+                            }
+                            break;
+                            
+                        case 'Enter':
+                            e.preventDefault();
+                            // Move down one row, same column
+                            targetInput = gridEditor.querySelector(
+                                `input[data-row="${currentRow + 1}"][data-char="${currentChar}"]`
+                            );
+                            break;
+                    }
+                    
+                    if (targetInput) {
+                        targetInput.focus();
+                        targetInput.select();
+                    }
+                });
+                
+                // Copy/Paste support
+                input.addEventListener('copy', (e) => {
+                    const selection = getGridSelection(gridEditor);
+                    if (selection.length > 1) {
+                        e.preventDefault();
+                        const tsv = selectionToTSV(selection);
+                        e.clipboardData.setData('text/plain', tsv);
+                    }
+                });
+                
+                input.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const text = e.clipboardData.getData('text/plain');
+                    pasteIntoGrid(gridEditor, input, text, compIndex);
+                });
+            });
+        }
+
+        // Get selected grid cells (for copy)
+        function getGridSelection(gridEditor) {
+            const selection = [];
+            const selectedInputs = gridEditor.querySelectorAll('.grid-chord-input:focus, .grid-lyric-input:focus');
+            // For now, just return single cell (multi-select would need additional UI)
+            selectedInputs.forEach(input => {
+                selection.push({
+                    line: parseInt(input.dataset.line),
+                    char: parseInt(input.dataset.char),
+                    value: input.value,
+                    isChord: input.classList.contains('grid-chord-input')
+                });
+            });
+            return selection;
+        }
+
+        // Convert selection to TSV (Tab-Separated Values)
+        function selectionToTSV(selection) {
+            // For now, just return single value
+            return selection.length > 0 ? selection[0].value : '';
+        }
+
+        // Paste data into grid
+        function pasteIntoGrid(gridEditor, startInput, text, compIndex) {
+            const startRow = parseInt(startInput.dataset.row);
+            const startChar = parseInt(startInput.dataset.char);
+            
+            // Split by lines (rows)
+            const rows = text.split(/\r?\n/);
+            
+            rows.forEach((row, rowOffset) => {
+                const cells = row.split('\t'); // Split by tabs (columns)
+                
+                cells.forEach((cellValue, colOffset) => {
+                    const targetRow = startRow + rowOffset;
+                    const targetChar = startChar + colOffset;
+                    
+                    const targetInput = gridEditor.querySelector(
+                        `input[data-row="${targetRow}"][data-char="${targetChar}"]`
+                    );
+                    
+                    if (targetInput) {
+                        const maxLength = targetInput.getAttribute('maxlength');
+                        targetInput.value = maxLength ? cellValue.slice(0, 1) : cellValue;
+                        
+                        // Trigger change event
+                        updateGridCell(compIndex, targetRow, targetChar, targetInput.value);
+                    }
+                });
+            });
+        }
+
+        // Update cell in grid
+        window.updateGridCell = function(compIndex, rowIndex, charIndex, value) {
+            const comp = chartData.components[compIndex];
+            if (!comp.gridRows[rowIndex]) return;
+            
+            // Update the character in the row
+            if (!comp.gridRows[rowIndex].chars) {
+                comp.gridRows[rowIndex].chars = [];
+            }
+            comp.gridRows[rowIndex].chars[charIndex] = value || ' ';
+        };
+
+        // Toggle row selection
+        window.toggleRowSelection = function(compIndex, rowIndex) {
+            const comp = chartData.components[compIndex];
+            if (!comp.gridRows[rowIndex]) return;
+            
+            comp.gridRows[rowIndex].selected = !comp.gridRows[rowIndex].selected;
+            
+            // Rebuild to show selection
+            buildGridFromLyrics(compIndex);
+        };
+
+        // Set selected rows to a specific type
+        window.setSelectedRowsType = function(compIndex, type) {
+            const comp = chartData.components[compIndex];
+            let hasSelection = false;
+            
+            comp.gridRows.forEach(row => {
+                if (row.selected) {
+                    row.type = type;
+                    hasSelection = true;
+                }
+            });
+            
+            if (hasSelection) {
+                // Rebuild grid
+                buildGridFromLyrics(compIndex);
+            }
+        };
+
+        // Delete selected rows
+        window.deleteSelectedRows = function(compIndex) {
+            const comp = chartData.components[compIndex];
+            const selectedCount = comp.gridRows.filter(r => r.selected).length;
+            
+            if (selectedCount === 0) return;
+            
+            if (comp.gridRows.length <= selectedCount) {
+                alert('Cannot delete all rows. At least one row must remain.');
+                return;
+            }
+            
+            // Remove selected rows
+            comp.gridRows = comp.gridRows.filter(row => !row.selected);
+            
+            // Rebuild grid
+            buildGridFromLyrics(compIndex);
+        };
+
+        // Add new row
+        window.addGridRow = function(compIndex) {
+            const comp = chartData.components[compIndex];
+            if (!comp.gridRows) {
+                comp.gridRows = [];
+            }
+            
+            comp.gridRows.push({
+                type: 'generic',
+                chars: [' '],
+                selected: false
+            });
+            
+            // Rebuild grid
+            buildGridFromLyrics(compIndex);
+        };
+
+        // Update control button states based on selection
+        window.updateControlButtonStates = function(compIndex) {
+            const comp = chartData.components[compIndex];
+            if (!comp || !comp.gridRows) return;
+            
+            const hasSelection = comp.gridRows.some(row => row.selected);
+            
+            // Enable/disable buttons
+            const chordBtn = document.getElementById(`toggleChordBtn${compIndex}`);
+            const lyricBtn = document.getElementById(`toggleLyricBtn${compIndex}`);
+            const deleteBtn = document.getElementById(`deleteRowBtn${compIndex}`);
+            
+            if (chordBtn) chordBtn.disabled = !hasSelection;
+            if (lyricBtn) lyricBtn.disabled = !hasSelection;
+            if (deleteBtn) deleteBtn.disabled = !hasSelection;
+        };
+
+        // Legacy functions (redirects)
+        window.toggleGridRowType = function(compIndex, rowIndex) {
+            toggleRowSelection(compIndex, rowIndex);
+        };
+
+        window.deleteGridRow = function(compIndex, rowIndex) {
+            const comp = chartData.components[compIndex];
+            comp.gridRows[rowIndex].selected = true;
+            deleteSelectedRows(compIndex);
+        };
+
+        window.updateChordInGrid = function(compIndex, lineIndex, charIndex, chord) {
+            updateGridCell(compIndex, lineIndex, charIndex, chord);
+        };
+
+        window.updateLyricInGrid = function(compIndex, lineIndex, charIndex, newChar) {
+            updateGridCell(compIndex, lineIndex, charIndex, newChar);
+        };
+
+        // Convert grid back to chords-above-lyrics format (DEFAULT)
+        // Convert grid back to text format
+        function updateLyricsFromGrid(index) {
+            const comp = chartData.components[index];
+            const gridEditor = document.querySelector(`.grid-editor[data-index="${index}"]`);
+            
+            if (!comp.gridRows) return;
+            
+            const newLines = [];
+            
+            // Read all inputs from the grid
+            comp.gridRows.forEach((row, rowIndex) => {
+                const inputs = gridEditor.querySelectorAll(`input[data-row="${rowIndex}"]`);
+                
+                if (inputs.length === 0) return;
+                
+                // Build line content character by character
+                let lineContent = '';
+                inputs.forEach(input => {
+                    const val = input.value;
+                    // If empty input, treat as space
+                    lineContent += val || ' ';
+                });
+                
+                // Find the last non-space character position
+                let lastNonSpace = -1;
+                for (let i = lineContent.length - 1; i >= 0; i--) {
+                    if (lineContent[i] !== ' ') {
+                        lastNonSpace = i;
+                        break;
+                    }
+                }
+                
+                // Trim to last non-space character (preserve all spaces before that point)
+                // If entire line is spaces, keep just one space
+                const trimmedContent = lastNonSpace >= 0 
+                    ? lineContent.substring(0, lastNonSpace + 1)
+                    : (lineContent.length > 0 ? ' ' : '');
+                
+                // Update row chars array with trimmed content
+                row.chars = trimmedContent.split('');
+                
+                // Add to output
+                newLines.push(trimmedContent);
+            });
+            
+            // Update component lyrics
+            comp.lyrics = newLines.join('\n');
+            const textarea = document.querySelector(`.component-tile[data-index="${index}"] .component-textarea`);
+            if (textarea) {
+                textarea.value = comp.lyrics;
+            }
+            
+            scheduleAutoSave();
+        }
+
         // Clear chart
         window.clearChart = function() {
             if (confirm('Clear entire chart? This cannot be undone.')) {
@@ -2120,6 +2911,17 @@
         };
 
         // Open print modal
+        // Toggle print modal (open/close)
+        window.togglePrintModal = function() {
+            const modal = document.getElementById('printModal');
+            if (modal.classList.contains('show')) {
+                closePrintModal();
+            } else {
+                openPrintModal();
+            }
+        };
+
+        // Open print modal
         window.openPrintModal = function() {
             if (chartData.components.length === 0) {
                 alert('Add components to your chord chart before printing.');
@@ -2128,6 +2930,7 @@
 
             document.getElementById('printModal').classList.add('show');
             document.getElementById('autoscrollControls').classList.add('show');
+            loadPreferredSpeed(); // Load saved speed for this song
             updatePrintPreview();
         };
 
@@ -2146,6 +2949,7 @@
         let autoscrollInterval = null;
         let scrollSpeed = 1.0;
         const BASE_SCROLL_SPEED = 1;
+        let accumulatedScroll = 0; // For fractional scrolling
 
         // Toggle autoscroll
         window.toggleAutoscroll = function() {
@@ -2158,6 +2962,7 @@
 
         function startAutoscroll() {
             autoscrollActive = true;
+            accumulatedScroll = 0; // Reset accumulator
             const playBtn = document.getElementById('autoscrollPlayBtn');
             
             playBtn.classList.add('playing');
@@ -2167,7 +2972,15 @@
             
             autoscrollInterval = setInterval(() => {
                 if (modalBody) {
-                    modalBody.scrollTop += BASE_SCROLL_SPEED * scrollSpeed;
+                    // Accumulate fractional scroll amounts
+                    accumulatedScroll += BASE_SCROLL_SPEED * scrollSpeed;
+                    
+                    // Only scroll whole pixels
+                    const scrollAmount = Math.floor(accumulatedScroll);
+                    if (scrollAmount > 0) {
+                        modalBody.scrollTop += scrollAmount;
+                        accumulatedScroll -= scrollAmount; // Keep the fractional remainder
+                    }
                     
                     // Auto-stop at bottom
                     if (modalBody.scrollTop >= modalBody.scrollHeight - modalBody.clientHeight) {
@@ -2193,8 +3006,9 @@
         }
 
         // Adjust scroll speed
+        // Adjust speed (called by +/- buttons)
         window.adjustSpeed = function(delta) {
-            const newSpeed = Math.max(0.5, Math.min(3, scrollSpeed + delta));
+            const newSpeed = Math.max(0.1, Math.min(3, scrollSpeed + delta));
             setScrollSpeed(parseFloat(newSpeed.toFixed(1)));
         };
 
@@ -2203,6 +3017,62 @@
             scrollSpeed = speed;
             document.getElementById('speedValue').textContent = speed.toFixed(1) + 'x';
         };
+
+        // Save preferred scroll speed for current song
+        window.savePreferredSpeed = function() {
+            if (!chartData || !currentSong) {
+                alert('Please load a song first.');
+                return;
+            }
+
+            // Save speed to chartData
+            chartData.preferredScrollSpeed = scrollSpeed;
+            
+            // Save to localStorage
+            saveChart();
+            
+            // Update button visual
+            const btn = document.getElementById('saveSpeedBtn');
+            const icon = document.getElementById('saveSpeedIcon');
+            const text = document.getElementById('saveSpeedText');
+            
+            // Fill the bookmark icon
+            icon.setAttribute('fill', 'var(--primary-light)');
+            text.textContent = `Saved (${scrollSpeed.toFixed(1)}x)`;
+            btn.style.borderColor = 'var(--primary-light)';
+            
+            // Show temporary feedback
+            const originalBg = btn.style.background;
+            btn.style.background = 'var(--primary-color)';
+            setTimeout(() => {
+                btn.style.background = originalBg;
+            }, 500);
+        };
+
+        // Load preferred scroll speed when opening Performance View
+        function loadPreferredSpeed() {
+            if (chartData && chartData.preferredScrollSpeed) {
+                setScrollSpeed(chartData.preferredScrollSpeed);
+                
+                // Update button visual to show saved state
+                const btn = document.getElementById('saveSpeedBtn');
+                const icon = document.getElementById('saveSpeedIcon');
+                const text = document.getElementById('saveSpeedText');
+                
+                icon.setAttribute('fill', 'var(--primary-light)');
+                text.textContent = `Saved (${chartData.preferredScrollSpeed.toFixed(1)}x)`;
+                btn.style.borderColor = 'var(--primary-light)';
+            } else {
+                // Reset button to default state
+                const btn = document.getElementById('saveSpeedBtn');
+                const icon = document.getElementById('saveSpeedIcon');
+                const text = document.getElementById('saveSpeedText');
+                
+                icon.setAttribute('fill', 'none');
+                text.textContent = 'Save Speed';
+                btn.style.borderColor = '';
+            }
+        }
 
         // Keyboard controls for autoscroll
         document.addEventListener('keydown', (e) => {
