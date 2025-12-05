@@ -193,14 +193,17 @@
         }
 
         .theme-selector {
-            padding: 8px 12px;
+            padding: 6px 8px;
             background: var(--primary-dark);
             border: 2px solid var(--primary-light);
             color: var(--primary-light);
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 13px;
             transition: all 0.3s;
+            min-width: 70px;
+            max-width: 90px;
         }
 
         .theme-selector:hover {
@@ -1416,36 +1419,29 @@
                         Setlists
                     </a>
                 </div>
-            <label for="themeSelector" class="visually-hidden">Select theme color</label>
-            <select id="themeSelector" name="themeSelector" class="theme-selector" title="Choose theme color" aria-label="Theme color selector" onchange="changeTheme(this.value)">
-                <option value="grey">Grey</option>
-                <option value="red">Red</option>
-                <option value="blue">Blue</option>
-                <option value="green">Green</option>
-                <option value="purple">Purple</option>
-                <option value="cyan">Cyan</option>
-                <option value="teal">Teal</option>
-                <option value="copper">Copper</option>
-                <option value="amber">Amber</option>
-                <option value="pink">Pink</option>
-                <option value="sunrise">Sunrise</option>
-                <option value="sunset">Sunset</option>
-            </select>
-            <button class="btn btn-secondary" onclick="clearChart()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                </svg>
-                Clear
-            </button>
-            <button class="btn btn-primary" onclick="togglePrintModal()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
-                    <polyline points="6 9 6 2 18 2 18 9"/>
-                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                    <rect x="6" y="14" width="12" height="8"/>
-                </svg>
-                View/Print
-            </button>
+                <label for="themeSelector" class="visually-hidden">Select theme color</label>
+                <select id="themeSelector" name="themeSelector" class="theme-selector" title="Choose theme color" aria-label="Theme color selector" onchange="changeTheme(this.value)">
+                    <option value="grey">Grey</option>
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="purple">Purple</option>
+                    <option value="cyan">Cyan</option>
+                    <option value="teal">Teal</option>
+                    <option value="copper">Copper</option>
+                    <option value="amber">Amber</option>
+                    <option value="pink">Pink</option>
+                    <option value="sunrise">Sunrise</option>
+                    <option value="sunset">Sunset</option>
+                </select>
+                <button class="btn btn-primary" onclick="togglePrintModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                        <polyline points="6 9 6 2 18 2 18 9"/>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                        <rect x="6" y="14" width="12" height="8"/>
+                    </svg>
+                    View/Print
+                </button>
         </div>
     </div>
 
@@ -1496,7 +1492,8 @@
                     <polyline points="15 18 9 12 15 6"/>
                 </svg>
             </button>
-            <div class="collapsed-label">Chord Help</div>
+            <div class="collapsed-label">Help & Actions</div>
+            
             <div class="settings-section">
                 <div class="settings-title">Chord Format Help</div>
                 <div class="setting-item">
@@ -1528,6 +1525,13 @@
                     </svg>
                     Export
                 </button>
+                <button class="btn btn-danger" onclick="clearChart()" style="width: 100%;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    Clear Chart
+                </button>
             </div>
 
             <div class="settings-section">
@@ -1555,37 +1559,37 @@
                 <div class="view-tabs">
                     <button class="tab-button active" onclick="switchViewTab('performance')">Performance View</button>
                     <button class="tab-button" onclick="switchViewTab('print')">Print Preview</button>
-                </div>
+            </div>
 
-                <div class="print-controls">
+            <div class="print-controls">
                     <!-- Font Size Control -->
                     <div class="setting-item" style="display: flex; align-items: center; gap: 8px;">
                         <label for="fontSize" style="margin: 0; font-size: 12px; min-width: 65px;">Font Size:</label>
                         <input type="range" id="fontSize" name="fontSize" min="10" max="20" value="14" title="Adjust font size for printing" aria-label="Font size slider" onchange="updatePrintPreview()" style="flex: 1;">
                         <span id="fontSizeValue" style="min-width: 32px; font-size: 12px;">14px</span>
-                    </div>
+                </div>
                     
                     <!-- Scale to Fit & Save Speed Row -->
                     <div style="display: flex; gap: 8px;">
                         <label for="scaleToFit" style="display: flex; align-items: center; gap: 5px; margin: 0; cursor: pointer; font-size: 12px; flex: 1;">
-                            <input type="checkbox" id="scaleToFit" name="scaleToFit" title="Scale chart to fit one page" onchange="updatePrintPreview()">
+                        <input type="checkbox" id="scaleToFit" name="scaleToFit" title="Scale chart to fit one page" onchange="updatePrintPreview()">
                             Scale to fit
-                        </label>
+                    </label>
                         <button id="saveSpeedBtn" class="btn btn-secondary" onclick="savePreferredSpeed()" style="display: flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 12px;" title="Save current autoscroll speed for this song">
                             <svg id="saveSpeedIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-                            </svg>
+                    </svg>
                             <span id="saveSpeedText">Save Speed</span>
-                        </button>
+                </button>
                     </div>
-                </div>
+            </div>
 
                 <div id="performanceView" class="performance-view">
                     <!-- Performance content will be generated here -->
                 </div>
 
                 <div id="printPreview" class="print-preview" style="display: none;">
-                    <!-- Print content will be generated here -->
+                <!-- Print content will be generated here -->
                 </div>
             </div>
 
@@ -1905,14 +1909,14 @@
                         }
                         
                         // Priority 2: Check for inline chord format [Chord]
-                        if (line.includes('[')) {
-                            const formatted = this.inlineToChordLine(line);
-                            if (formatted.chords) {
+                            if (line.includes('[')) {
+                                const formatted = this.inlineToChordLine(line);
+                                if (formatted.chords) {
                                 contentHtml += `<div class="chord-line">${formatted.chords}</div>`;
-                            }
+                                }
                             contentHtml += `<div class="lyric-line">${formatted.lyrics}</div>`;
                             continue;
-                        }
+                            }
                         
                         // Priority 3: Fallback to regex detection
                         if (isChordLine(line)) {
@@ -2325,11 +2329,11 @@
                     </div>
                 </div>
                 <div class="component-editor">
-                    <textarea 
-                        class="component-textarea" 
-                        placeholder="Enter lyrics here. Use [C], [G], [Em] for inline chords or write chords on separate line above lyrics."
-                        oninput="updateComponentLyrics(${index}, this.value)"
-                    >${comp.lyrics}</textarea>
+                <textarea 
+                    class="component-textarea" 
+                    placeholder="Enter lyrics here. Use [C], [G], [Em] for inline chords or write chords on separate line above lyrics."
+                    oninput="updateComponentLyrics(${index}, this.value)"
+                >${comp.lyrics}</textarea>
                     <div class="grid-editor" style="display: none;" data-index="${index}">
                         <!-- Grid editor will be populated dynamically -->
                     </div>

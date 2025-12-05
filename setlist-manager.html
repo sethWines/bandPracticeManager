@@ -100,34 +100,31 @@
             box-shadow: 0 0 20px var(--primary-glow);
         }
 
-        .band-setlists {
-            display: none;
-            margin-top: 8px;
-            margin-left: 10px;
-            border-left: 2px solid var(--primary-border);
-            padding-left: 8px;
-        }
-
-        .band-item.expanded .band-setlists {
-            display: block;
+        .band-item.expanded {
+            margin-bottom: 4px;
         }
 
         .setlist-item {
-            padding: 6px 8px;
-            margin-bottom: 4px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--primary-border);
-            border-radius: 4px;
+            padding: 8px 10px;
+            margin-left: 16px;
+            margin-bottom: 6px;
+            background: var(--primary-dark);
+            border: 2px solid var(--primary-border);
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
             font-size: 12px;
+            font-weight: 500;
             color: var(--text-secondary);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .setlist-item:hover {
-            background: var(--primary-bg);
+            background: var(--primary-darker);
             border-color: var(--primary-light);
             color: var(--primary-light);
+            transform: translateX(4px);
+            box-shadow: 0 0 12px var(--primary-glow);
         }
 
         .setlist-item.active {
@@ -135,6 +132,7 @@
             border-color: var(--primary-lighter);
             color: white;
             font-weight: 600;
+            box-shadow: 0 0 15px var(--primary-glow);
         }
 
         /* Setlist Display in Center Pane */
@@ -582,14 +580,6 @@
                 </a>
             </div>
             
-            <button class="btn btn-primary" onclick="openCreateSetlistModal()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <line x1="12" y1="5" x2="12" y2="19"/>
-                    <line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-                Create
-            </button>
-            
             <select id="themeSelector" class="theme-selector" onchange="changeTheme(this.value)" title="Select color theme" aria-label="Color theme selector">
                 <option value="grey">Grey</option>
                 <option value="red">Red</option>
@@ -624,6 +614,13 @@
         <div class="right-sidebar">
             <button class="collapse-btn" onclick="toggleRightSidebar()">☰</button>
             <div class="sidebar-title">Commands</div>
+            <button class="btn btn-primary" onclick="openCreateSetlistModal()" style="width: 100%; margin-bottom: 10px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Create Setlist
+            </button>
             <button class="btn btn-secondary" onclick="exportAllSetlists()" style="width: 100%; margin-bottom: 10px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
@@ -857,6 +854,7 @@
                 const isExpanded = expandedBands.has(bandName);
                 const isSelected = selectedBand === bandName;
                 
+                // Band tile
                 html += `
                     <div class="band-item ${isExpanded ? 'expanded' : ''} ${isSelected ? 'selected' : ''}" 
                          onclick="toggleBand('${escapeHtml(bandName).replace(/'/g, "\\'")}')">
@@ -864,23 +862,21 @@
                             <span>${escapeHtml(bandName)}</span>
                             <span style="font-size: 10px; opacity: 0.7;">${isExpanded ? '▼' : '▶'}</span>
                         </div>
-                        <div class="band-setlists">
-                `;
-                
-                bandSetlists.forEach(({ name, index }) => {
-                    const isActive = selectedSetlistIndex === index;
-                    html += `
-                        <div class="setlist-item ${isActive ? 'active' : ''}" 
-                             onclick="event.stopPropagation(); selectSetlist(${index})">
-                            ${escapeHtml(name)}
-                        </div>
-                    `;
-                });
-                
-                html += `
-                        </div>
                     </div>
                 `;
+                
+                // Setlist tiles (appear below band tile when expanded)
+                if (isExpanded) {
+                    bandSetlists.forEach(({ name, index }) => {
+                        const isActive = selectedSetlistIndex === index;
+                        html += `
+                            <div class="setlist-item ${isActive ? 'active' : ''}" 
+                                 onclick="selectSetlist(${index})">
+                                ${escapeHtml(name)}
+                            </div>
+                        `;
+                    });
+                }
             });
             
             bandList.innerHTML = html;
@@ -937,6 +933,23 @@
             sidebar.classList.toggle('collapsed');
             localStorage.setItem('rightSidebarCollapsed', 
                 sidebar.classList.contains('collapsed'));
+        }
+
+        // Toggle set expansion
+        function toggleSet(setlistIndex, setIndex) {
+            const container = document.querySelector(`#setlistsContainer .set-container:nth-child(${setIndex + 2})`);
+            if (!container) return;
+            
+            const songList = container.querySelector('.set-song-list');
+            const arrow = container.querySelector('.set-header .set-title span:first-child');
+            
+            if (songList.style.display === 'none') {
+                songList.style.display = 'block';
+                if (arrow) arrow.textContent = '▼';
+            } else {
+                songList.style.display = 'none';
+                if (arrow) arrow.textContent = '▶';
+            }
         }
 
         // Save setlists
@@ -1042,8 +1055,9 @@
                     
                     ${setlist.sets.map((set, setIndex) => `
                         <div class="set-container">
-                            <div class="set-header">
+                            <div class="set-header" style="cursor: pointer;" onclick="toggleSet(${setlistIndex}, ${setIndex})">
                                 <div class="set-title">
+                                    <span style="font-size: 12px; opacity: 0.7; margin-right: 8px;">▶</span>
                                     ${escapeHtml(set.name)} (${set.songs.length} songs${(() => {
                                         const totalSeconds = calculateSetDuration(set);
                                         if (totalSeconds > 0) {
@@ -1056,7 +1070,7 @@
                                     })()})
                                     ${set.songs.length > 20 ? `<span style="color: #ff6b3d; font-size: 0.85em; margin-left: 10px;">⚠️ May exceed one page when printed</span>` : ''}
                                 </div>
-                                <div class="set-actions">
+                                <div class="set-actions" onclick="event.stopPropagation()">
                                     <button class="icon-btn" onclick="openAddSongsModal(${setlistIndex}, ${setIndex})" title="Add Songs">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                             <line x1="12" y1="5" x2="12" y2="19"/>
@@ -1065,7 +1079,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="set-song-list" 
+                            <div class="set-song-list" style="display: none;"
                                  ondragover="handleSetDragOver(event, ${setlistIndex}, ${setIndex})"
                                  ondrop="handleDropOnSet(event, ${setlistIndex}, ${setIndex})">
                                 ${set.songs.length === 0 ? `<div class="empty-set-dropzone" 
