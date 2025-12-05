@@ -543,11 +543,16 @@
             z-index: 1000;
             display: none;
             justify-content: flex-end;
-            align-items: center;
+            align-items: flex-end;
             gap: 15px;
             pointer-events: none;
-            margin-top: 20px;
             padding-right: 30px;
+            /* Take no space - orbs overlay content */
+            background: transparent;
+            border: none;
+            margin: 0;
+            height: 0;
+            overflow: visible;
         }
 
         #printModal.show .autoscroll-controls.show {
@@ -563,9 +568,9 @@
             width: 45px;
             height: 45px;
             border-radius: 50%;
-            background: rgba(26, 26, 26, 0.9);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
+            background: rgba(26, 26, 26, 0.95);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
             border: 2px solid var(--primary-border);
             cursor: pointer;
             display: flex;
@@ -575,7 +580,7 @@
             font-weight: bold;
             color: var(--text-secondary);
             transition: all 0.3s;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
         }
 
         .speed-orb:hover {
@@ -594,9 +599,9 @@
             width: 75px;
             height: 75px;
             border-radius: 50%;
-            background: rgba(26, 26, 26, 0.9);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
+            background: rgba(26, 26, 26, 0.95);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
             border: 3px solid var(--primary-color);
             cursor: pointer;
             display: flex;
