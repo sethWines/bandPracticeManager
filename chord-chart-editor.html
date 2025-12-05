@@ -534,132 +534,6 @@
             box-shadow: 0 0 10px var(--primary-glow);
         }
 
-        // Switch between performance and print view tabs
-        window.switchViewTab = function(view) {
-            const performanceView = document.getElementById('performanceView');
-            const printPreview = document.getElementById('printPreview');
-            const autoscrollControls = document.getElementById('autoscrollControls');
-            const tabs = document.querySelectorAll('.tab-button');
-
-            if (view === 'performance') {
-                performanceView.style.display = 'block';
-                printPreview.style.display = 'none';
-                autoscrollControls.classList.add('show');
-                tabs[0].classList.add('active');
-                tabs[1].classList.remove('active');
-            } else {
-                performanceView.style.display = 'none';
-                printPreview.style.display = 'block';
-                autoscrollControls.classList.remove('show');
-                stopAutoscroll(); // Stop scrolling when switching away
-                tabs[0].classList.remove('active');
-                tabs[1].classList.add('active');
-            }
-        };
-
-        // Autoscroll State
-        let autoscrollActive = false;
-        let autoscrollInterval = null;
-        let scrollSpeed = 1.0; // pixels per interval (multiplier)
-        const BASE_SCROLL_SPEED = 1; // base pixels per 20ms
-
-        // Toggle autoscroll
-        window.toggleAutoscroll = function() {
-            if (autoscrollActive) {
-                stopAutoscroll();
-            } else {
-                startAutoscroll();
-            }
-        };
-
-        function startAutoscroll() {
-            autoscrollActive = true;
-            const playBtn = document.getElementById('autoscrollPlayBtn');
-            
-            playBtn.classList.add('playing');
-            playBtn.querySelector('svg').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
-            
-            const modalBody = document.querySelector('#printModal .modal-body');
-            
-            autoscrollInterval = setInterval(() => {
-                if (modalBody) {
-                    modalBody.scrollTop += BASE_SCROLL_SPEED * scrollSpeed;
-                    
-                    // Auto-stop at bottom
-                    if (modalBody.scrollTop >= modalBody.scrollHeight - modalBody.clientHeight) {
-                        stopAutoscroll();
-                    }
-                }
-            }, 20);
-        }
-
-        function stopAutoscroll() {
-            autoscrollActive = false;
-            const playBtn = document.getElementById('autoscrollPlayBtn');
-            
-            if (playBtn) {
-                playBtn.classList.remove('playing');
-                playBtn.querySelector('svg').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
-            }
-            
-            if (autoscrollInterval) {
-                clearInterval(autoscrollInterval);
-                autoscrollInterval = null;
-            }
-        }
-
-        // Adjust scroll speed
-        window.adjustSpeed = function(delta) {
-            const newSpeed = Math.max(0.5, Math.min(3, scrollSpeed + delta));
-            setScrollSpeed(parseFloat(newSpeed.toFixed(1)));
-        };
-
-        // Set scroll speed
-        window.setScrollSpeed = function(speed) {
-            scrollSpeed = speed;
-            document.getElementById('speedValue').textContent = speed.toFixed(1) + 'x';
-        };
-
-        // Keyboard controls for autoscroll
-        document.addEventListener('keydown', (e) => {
-            // Only work when print modal is open and on performance view
-            const modal = document.getElementById('printModal');
-            const performanceView = document.getElementById('performanceView');
-            
-            if (!modal.classList.contains('show') || performanceView.style.display === 'none') {
-                return;
-            }
-            
-            // Prevent default if we're handling the key
-            const handled = ['Space', 'ArrowLeft', 'ArrowRight'].includes(e.code);
-            
-            // Don't interfere if user is typing in an input/textarea
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                return;
-            }
-            
-            if (handled) {
-                e.preventDefault();
-            }
-            
-            // Spacebar: Toggle play/stop
-            if (e.code === 'Space') {
-                toggleAutoscroll();
-            }
-            
-            // Left Arrow: Decrease speed
-            if (e.code === 'ArrowLeft') {
-                const newSpeed = Math.max(0.5, scrollSpeed - 0.1);
-                setScrollSpeed(parseFloat(newSpeed.toFixed(1)));
-            }
-            
-            // Right Arrow: Increase speed
-            if (e.code === 'ArrowRight') {
-                const newSpeed = Math.min(3, scrollSpeed + 0.1);
-                setScrollSpeed(parseFloat(newSpeed.toFixed(1)));
-            }
-        });
-
         /* Autoscroll Controls (Inside Modal, Scrolls with content) */
         #printModal .autoscroll-controls {
             position: sticky;
@@ -668,11 +542,12 @@
             right: 0;
             z-index: 1000;
             display: none;
-            justify-content: center;
+            justify-content: flex-end;
             align-items: center;
             gap: 15px;
             pointer-events: none;
             margin-top: 20px;
+            padding-right: 30px;
         }
 
         #printModal.show .autoscroll-controls.show {
@@ -2257,6 +2132,116 @@
             document.getElementById('autoscrollControls').classList.remove('show');
             stopAutoscroll();
         };
+
+        // ============================================================================
+        // AUTOSCROLL FUNCTIONALITY
+        // ============================================================================
+        
+        let autoscrollActive = false;
+        let autoscrollInterval = null;
+        let scrollSpeed = 1.0;
+        const BASE_SCROLL_SPEED = 1;
+
+        // Toggle autoscroll
+        window.toggleAutoscroll = function() {
+            if (autoscrollActive) {
+                stopAutoscroll();
+            } else {
+                startAutoscroll();
+            }
+        };
+
+        function startAutoscroll() {
+            autoscrollActive = true;
+            const playBtn = document.getElementById('autoscrollPlayBtn');
+            
+            playBtn.classList.add('playing');
+            playBtn.querySelector('svg').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+            
+            const modalBody = document.querySelector('#printModal .modal-body');
+            
+            autoscrollInterval = setInterval(() => {
+                if (modalBody) {
+                    modalBody.scrollTop += BASE_SCROLL_SPEED * scrollSpeed;
+                    
+                    // Auto-stop at bottom
+                    if (modalBody.scrollTop >= modalBody.scrollHeight - modalBody.clientHeight) {
+                        stopAutoscroll();
+                    }
+                }
+            }, 20);
+        }
+
+        function stopAutoscroll() {
+            autoscrollActive = false;
+            const playBtn = document.getElementById('autoscrollPlayBtn');
+            
+            if (playBtn) {
+                playBtn.classList.remove('playing');
+                playBtn.querySelector('svg').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+            }
+            
+            if (autoscrollInterval) {
+                clearInterval(autoscrollInterval);
+                autoscrollInterval = null;
+            }
+        }
+
+        // Adjust scroll speed
+        window.adjustSpeed = function(delta) {
+            const newSpeed = Math.max(0.5, Math.min(3, scrollSpeed + delta));
+            setScrollSpeed(parseFloat(newSpeed.toFixed(1)));
+        };
+
+        // Set scroll speed
+        window.setScrollSpeed = function(speed) {
+            scrollSpeed = speed;
+            document.getElementById('speedValue').textContent = speed.toFixed(1) + 'x';
+        };
+
+        // Keyboard controls for autoscroll
+        document.addEventListener('keydown', (e) => {
+            // Only work when print modal is open and on performance view
+            const modal = document.getElementById('printModal');
+            const performanceView = document.getElementById('performanceView');
+            
+            if (!modal.classList.contains('show') || performanceView.style.display === 'none') {
+                return;
+            }
+            
+            // Prevent default if we're handling the key
+            const handled = ['Space', 'ArrowLeft', 'ArrowRight'].includes(e.code);
+            
+            // Don't interfere if user is typing in an input/textarea
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            if (handled) {
+                e.preventDefault();
+            }
+            
+            // Spacebar: Toggle play/stop
+            if (e.code === 'Space') {
+                toggleAutoscroll();
+            }
+            
+            // Left Arrow: Decrease speed
+            if (e.code === 'ArrowLeft') {
+                const newSpeed = Math.max(0.5, scrollSpeed - 0.1);
+                setScrollSpeed(parseFloat(newSpeed.toFixed(1)));
+            }
+            
+            // Right Arrow: Increase speed
+            if (e.code === 'ArrowRight') {
+                const newSpeed = Math.min(3, scrollSpeed + 0.1);
+                setScrollSpeed(parseFloat(newSpeed.toFixed(1)));
+            }
+        });
+
+        // ============================================================================
+        // UPDATE PRINT PREVIEW
+        // ============================================================================
 
         // Update print preview
         window.updatePrintPreview = function() {
