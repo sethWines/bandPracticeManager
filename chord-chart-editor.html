@@ -209,12 +209,12 @@
 
         /* Left Sidebar - Component Palette */
         .left-sidebar {
-            width: 200px;
+            width: 140px;
             background: rgba(0, 0, 0, 0.15);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border-right: 2px solid var(--primary-border);
-            padding: 20px 10px;
+            padding: 15px 8px;
             overflow-y: auto;
             flex-shrink: 0;
             box-shadow: 2px 0 10px var(--primary-glow);
@@ -222,15 +222,15 @@
 
         .palette-title {
             color: var(--primary-light);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             text-align: center;
         }
 
         .component-item {
-            padding: 12px;
-            margin-bottom: 8px;
+            padding: 8px;
+            margin-bottom: 5px;
             background: var(--primary-dark);
             border: 2px solid var(--primary-light);
             border-radius: 8px;
@@ -240,6 +240,7 @@
             -webkit-user-select: none;
             user-select: none;
             font-weight: 600;
+            font-size: 13px;
             color: var(--primary-light);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
@@ -333,7 +334,6 @@
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 15px;
-            cursor: move;
             box-shadow: 0 4px 15px var(--primary-glow);
             transition: all 0.3s;
         }
@@ -350,7 +350,6 @@
 
         .component-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
             padding-bottom: 10px;
@@ -362,6 +361,7 @@
             text-shadow: 0 0 10px var(--primary-glow);
             font-weight: bold;
             font-size: 16px;
+            flex: 1;
         }
 
         .component-actions {
@@ -384,6 +384,30 @@
             background: var(--primary-darker);
             border-color: var(--primary-light);
             transform: scale(1.1);
+        }
+
+        .drag-handle {
+            cursor: grab;
+            padding: 4px 8px;
+            margin-right: 10px;
+            color: var(--primary-light);
+            border: 2px solid var(--primary-border);
+            border-radius: 4px;
+            background: var(--primary-bg);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .drag-handle:hover {
+            background: var(--primary-darker);
+            border-color: var(--primary-light);
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
         }
 
         .component-textarea {
@@ -422,6 +446,58 @@
             overflow-y: auto;
             flex-shrink: 0;
             box-shadow: -2px 0 10px var(--primary-glow);
+            transition: width 0.3s ease, padding 0.3s ease;
+            position: relative;
+        }
+
+        .right-sidebar.collapsed {
+            width: 40px;
+            padding: 20px 5px;
+            overflow: hidden;
+        }
+
+        .right-sidebar.collapsed .settings-section {
+            display: none;
+        }
+
+        .collapse-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-bg);
+            border: 2px solid var(--primary-border);
+            color: var(--primary-light);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .right-sidebar.collapsed .collapse-toggle {
+            right: 5px;
+        }
+
+        .collapse-toggle:hover {
+            color: var(--primary-lighter);
+            background: var(--primary-darker);
+            border-color: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        .collapsed-label {
+            display: none;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            color: var(--primary-light);
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .right-sidebar.collapsed .collapsed-label {
+            display: block;
         }
 
         .settings-section {
@@ -482,22 +558,30 @@
             background: rgba(26, 26, 26, 0.95);
             -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
-            padding: 30px;
+            padding: 0;
             border-radius: 8px;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
+            max-width: 95vw;
+            max-height: 95vh;
+            overflow: hidden;
             border: 2px solid var(--primary-border);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            padding: 20px 30px;
             border-bottom: 2px solid var(--primary-border);
+            position: sticky;
+            top: 0;
+            background: rgba(26, 26, 26, 0.98);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            flex-shrink: 0;
         }
 
         .modal-header h2 {
@@ -515,6 +599,12 @@
 
         .close:hover {
             color: var(--primary-light);
+        }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
         }
 
         .print-controls {
@@ -774,7 +864,13 @@
         </div>
 
         <!-- Right Sidebar - Settings -->
-        <div class="right-sidebar">
+        <div class="right-sidebar" id="rightSidebar">
+            <button class="collapse-toggle" onclick="toggleRightPanel()" title="Toggle panel">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </button>
+            <div class="collapsed-label">Chord Help</div>
             <div class="settings-section">
                 <div class="settings-title">Chord Format Help</div>
                 <div class="setting-item">
@@ -829,30 +925,32 @@
                 <span class="close" onclick="closePrintModal()">&times;</span>
             </div>
 
-            <div class="print-controls">
-                <div class="setting-item">
-                    <label for="fontSize">Font Size:</label>
-                    <input type="range" id="fontSize" name="fontSize" min="10" max="20" value="14" title="Adjust font size for printing" aria-label="Font size slider" onchange="updatePrintPreview()" style="width: 150px;">
-                    <span id="fontSizeValue">14px</span>
+            <div class="modal-body">
+                <div class="print-controls">
+                    <div class="setting-item">
+                        <label for="fontSize">Font Size:</label>
+                        <input type="range" id="fontSize" name="fontSize" min="10" max="20" value="14" title="Adjust font size for printing" aria-label="Font size slider" onchange="updatePrintPreview()" style="width: 150px;">
+                        <span id="fontSizeValue">14px</span>
+                    </div>
+                    <div class="setting-item">
+                        <label for="scaleToFit">
+                            <input type="checkbox" id="scaleToFit" name="scaleToFit" title="Scale chart to fit one page" onchange="updatePrintPreview()">
+                            Scale to fit one page
+                        </label>
+                    </div>
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                            <polyline points="6 9 6 2 18 2 18 9"/>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                            <rect x="6" y="14" width="12" height="8"/>
+                        </svg>
+                        Print
+                    </button>
                 </div>
-                <div class="setting-item">
-                    <label for="scaleToFit">
-                        <input type="checkbox" id="scaleToFit" name="scaleToFit" title="Scale chart to fit one page" onchange="updatePrintPreview()">
-                        Scale to fit one page
-                    </label>
-                </div>
-                <button class="btn btn-primary" onclick="window.print()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                        <polyline points="6 9 6 2 18 2 18 9"/>
-                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                        <rect x="6" y="14" width="12" height="8"/>
-                    </svg>
-                    Print
-                </button>
-            </div>
 
-            <div class="print-preview" id="printPreview">
-                <!-- Print content will be generated here -->
+                <div class="print-preview" id="printPreview">
+                    <!-- Print content will be generated here -->
+                </div>
             </div>
         </div>
     </div>
@@ -1086,6 +1184,9 @@
             // Load watermark preference
             loadWatermark();
 
+            // Load right panel collapsed state
+            loadRightPanelState();
+
             // Load all songs
             allSongs = Storage.get(STORAGE_KEYS.SONGS) || Storage.get(STORAGE_KEYS.SONGS_LEGACY) || [];
 
@@ -1241,6 +1342,38 @@
             }
         }
 
+        // Toggle right panel collapsed state
+        function toggleRightPanel() {
+            const rightSidebar = document.getElementById('rightSidebar');
+            const isCollapsed = rightSidebar.classList.toggle('collapsed');
+            
+            // Update toggle button icon
+            const toggleBtn = rightSidebar.querySelector('.collapse-toggle svg');
+            if (isCollapsed) {
+                toggleBtn.innerHTML = '<polyline points="9 18 15 12 9 6"/>';
+            } else {
+                toggleBtn.innerHTML = '<polyline points="15 18 9 12 15 6"/>';
+            }
+            
+            // Save state to localStorage
+            localStorage.setItem('rightPanelCollapsed', isCollapsed);
+        }
+
+        // Load right panel state from localStorage
+        function loadRightPanelState() {
+            const isCollapsed = localStorage.getItem('rightPanelCollapsed') === 'true';
+            const rightSidebar = document.getElementById('rightSidebar');
+            
+            if (isCollapsed) {
+                rightSidebar.classList.add('collapsed');
+                const toggleBtn = rightSidebar.querySelector('.collapse-toggle svg');
+                toggleBtn.innerHTML = '<polyline points="9 18 15 12 9 6"/>';
+            }
+        }
+
+        // Make toggleRightPanel available globally
+        window.toggleRightPanel = toggleRightPanel;
+
         // Load song data
         function loadSongData() {
             if (currentSongId === null || currentSongId === '') {
@@ -1352,11 +1485,17 @@
         function createComponentTile(comp, index) {
             const tile = document.createElement('div');
             tile.className = 'component-tile';
-            tile.draggable = true;
             tile.dataset.index = index;
 
             tile.innerHTML = `
                 <div class="component-header">
+                    <div class="drag-handle" title="Drag to reorder">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <line x1="3" y1="12" x2="21" y2="12"/>
+                            <line x1="3" y1="18" x2="21" y2="18"/>
+                        </svg>
+                    </div>
                     <div class="component-title">${comp.displayName}</div>
                     <div class="component-actions">
                         <button class="icon-btn" onclick="moveComponentUp(${index})" title="Move Up">
@@ -1386,6 +1525,18 @@
                 </div>
             `;
 
+            // Get the drag handle element
+            const dragHandle = tile.querySelector('.drag-handle');
+            
+            // Only allow dragging from the drag handle
+            dragHandle.addEventListener('mousedown', () => {
+                tile.draggable = true;
+            });
+            
+            tile.addEventListener('mouseup', () => {
+                tile.draggable = false;
+            });
+
             // Drag and drop for reordering
             tile.addEventListener('dragstart', (e) => {
                 e.dataTransfer.setData('moveIndex', index);
@@ -1394,6 +1545,7 @@
 
             tile.addEventListener('dragend', () => {
                 tile.classList.remove('dragging');
+                tile.draggable = false;
             });
 
             tile.addEventListener('dragover', (e) => {
