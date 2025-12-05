@@ -644,11 +644,13 @@
         .print-controls {
             display: flex;
             gap: 15px;
+            align-items: center;
             margin-bottom: 20px;
-            padding: 15px;
+            padding: 12px 15px;
             background: var(--primary-bg);
             border-radius: 8px;
             border: 2px solid var(--primary-border);
+            flex-wrap: wrap;
         }
 
         .print-preview {
@@ -659,56 +661,176 @@
             font-family: 'Courier New', monospace;
         }
 
+        .performance-view {
+            background: rgba(26, 26, 26, 0.95);
+            color: var(--text-primary);
+            padding: 30px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            border: 2px solid var(--primary-border);
+        }
+
+        .view-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-border);
+            padding-bottom: 10px;
+        }
+
+        .tab-button {
+            padding: 8px 16px;
+            background: var(--primary-bg);
+            border: 2px solid var(--primary-border);
+            color: var(--primary-light);
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .tab-button.active {
+            background: var(--primary-color);
+            color: white;
+            border-bottom-color: transparent;
+        }
+
+        .tab-button:hover:not(.active) {
+            background: var(--primary-darker);
+            border-color: var(--primary-light);
+        }
+
         .print-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             border-bottom: 2px solid black;
-            padding-bottom: 15px;
+            padding-bottom: 10px;
+        }
+
+        .performance-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .print-header h1,
+        .performance-header h1 {
+            font-size: 20px;
+            margin-bottom: 3px;
         }
 
         .print-header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
             color: #000;
         }
 
-        .print-header h2 {
-            font-size: 18px;
-            color: #555;
-            margin-bottom: 10px;
+        .performance-header h1 {
+            color: var(--primary-light);
+            text-shadow: 0 0 10px var(--primary-glow);
         }
 
-        .print-meta {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            font-size: 14px;
-        }
-
-        .print-component {
-            margin-bottom: 25px;
-            page-break-inside: avoid;
-        }
-
-        .print-component h3 {
+        .print-header h2,
+        .performance-header h2 {
             font-size: 16px;
-            margin-bottom: 10px;
-            color: #333;
+            margin-bottom: 8px;
         }
 
-        .print-lyrics {
-            font-size: 14px;
+        .print-header h2 {
+            color: #555;
+        }
+
+        .performance-header h2 {
+            color: var(--text-secondary);
+        }
+
+        .print-lyrics,
+        .performance-lyrics {
             line-height: 1.8;
         }
 
         .chord-line {
-            color: #d84315;
             font-weight: bold;
             letter-spacing: 1px;
+            font-size: 1em;
         }
 
         .lyric-line {
+            font-size: 1em;
+        }
+
+        .print-preview .chord-line {
+            color: #d84315;
+        }
+
+        .performance-view .chord-line {
+            color: var(--primary-light);
+        }
+
+        .print-preview .lyric-line {
             color: #000;
+        }
+
+        .performance-view .lyric-line {
+            color: var(--text-primary);
+        }
+
+        .print-component h3,
+        .performance-component h3 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .print-component h3 {
+            color: #333;
+        }
+
+        .performance-component h3 {
+            color: var(--primary-light);
+            text-shadow: 0 0 5px var(--primary-glow);
+        }
+
+        .print-header h1,
+        .performance-header h1 {
+            font-size: 1.5em;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+
+        .print-header h1 {
+            color: #000;
+        }
+
+        .performance-header h1 {
+            color: var(--primary-light);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .print-header h2,
+        .performance-header h2 {
+            font-size: 1.2em;
+            margin-bottom: 8px;
+        }
+
+        .print-header h2 {
+            color: #555;
+        }
+
+        .performance-header h2 {
+            color: var(--text-secondary);
+        }
+
+        .print-meta,
+        .performance-meta {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            font-size: 0.95em;
+            flex-wrap: wrap;
+        }
+
+        .performance-meta {
+            color: var(--text-tertiary);
         }
 
         /* Print Styles */
@@ -716,15 +838,18 @@
             body * {
                 visibility: hidden;
             }
-            .print-preview, .print-preview * {
+            #printPreview, #printPreview * {
                 visibility: visible;
             }
-            .print-preview {
+            #printPreview {
                 position: absolute;
                 left: 0;
                 top: 0;
                 width: 100%;
                 padding: 0.5in;
+            }
+            #performanceView {
+                display: none !important;
             }
             .modal, .print-controls {
                 display: none !important;
@@ -960,19 +1085,24 @@
             </div>
 
             <div class="modal-body">
+                <div class="view-tabs">
+                    <button class="tab-button active" onclick="switchViewTab('performance')">Performance View</button>
+                    <button class="tab-button" onclick="switchViewTab('print')">Print Preview</button>
+                </div>
+
                 <div class="print-controls">
-                    <div class="setting-item">
-                        <label for="fontSize">Font Size:</label>
-                        <input type="range" id="fontSize" name="fontSize" min="10" max="20" value="14" title="Adjust font size for printing" aria-label="Font size slider" onchange="updatePrintPreview()" style="width: 150px;">
-                        <span id="fontSizeValue">14px</span>
+                    <div class="setting-item" style="display: flex; align-items: center; gap: 10px;">
+                        <label for="fontSize" style="margin: 0;">Font Size:</label>
+                        <input type="range" id="fontSize" name="fontSize" min="10" max="20" value="14" title="Adjust font size for printing" aria-label="Font size slider" onchange="updatePrintPreview()" style="width: 120px;">
+                        <span id="fontSizeValue" style="min-width: 35px;">14px</span>
                     </div>
-                    <div class="setting-item">
-                        <label for="scaleToFit">
+                    <div class="setting-item" style="display: flex; align-items: center; margin: 0;">
+                        <label for="scaleToFit" style="display: flex; align-items: center; gap: 5px; margin: 0; cursor: pointer;">
                             <input type="checkbox" id="scaleToFit" name="scaleToFit" title="Scale chart to fit one page" onchange="updatePrintPreview()">
-                            Scale to fit one page
+                            Scale to fit page
                         </label>
                     </div>
-                    <button class="btn btn-primary" onclick="window.print()">
+                    <button class="btn btn-primary" onclick="window.print()" style="margin-left: auto;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
                             <polyline points="6 9 6 2 18 2 18 9"/>
                             <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
@@ -982,7 +1112,11 @@
                     </button>
                 </div>
 
-                <div class="print-preview" id="printPreview">
+                <div id="performanceView" class="performance-view">
+                    <!-- Performance content will be generated here -->
+                </div>
+
+                <div id="printPreview" class="print-preview" style="display: none;">
                     <!-- Print content will be generated here -->
                 </div>
             </div>
@@ -1124,8 +1258,10 @@
             generatePrintView(chart, song, options = {}) {
                 const { fontSize = 14, scaleToFit = false } = options;
                 
+                const scaleStyle = scaleToFit ? 'transform: scale(0.85); transform-origin: top left;' : '';
+                
                 let html = `
-                    <div class="print-container" style="font-size: ${fontSize}px;">
+                    <div class="print-container" style="font-size: ${fontSize}px; ${scaleStyle}">
                         <div class="print-header">
                             <h1>${song.song}</h1>
                             <h2>${song.artist}</h2>
@@ -1143,6 +1279,61 @@
                         <div class="print-component">
                             <h3>${comp.displayName}</h3>
                             <div class="print-lyrics">
+                    `;
+                    
+                    const lines = comp.lyrics.split('\n');
+                    lines.forEach(line => {
+                        if (line.trim()) {
+                            if (line.includes('[')) {
+                                const formatted = this.inlineToChordLine(line);
+                                if (formatted.chords) {
+                                    html += `<div class="chord-line">${formatted.chords}</div>`;
+                                }
+                                html += `<div class="lyric-line">${formatted.lyrics}</div>`;
+                            } else {
+                                html += `<div class="lyric-line">${line}</div>`;
+                            }
+                        }
+                    });
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+                
+                return html;
+            },
+
+            generatePerformanceView(chart, song, options = {}) {
+                const { fontSize = 14, scaleToFit = false } = options;
+                
+                const scaleStyle = scaleToFit ? 'transform: scale(0.85); transform-origin: top left;' : '';
+                
+                let html = `
+                    <div class="performance-container" style="font-size: ${fontSize}px; ${scaleStyle}">
+                        <div class="performance-header">
+                            <h1>${song.song}</h1>
+                            <h2>${song.artist}</h2>
+                            <div class="performance-meta">
+                                ${song.key ? `<span>Key: ${song.key}</span>` : ''}
+                                ${song.tuning ? `<span>Tuning: ${song.tuning}</span>` : ''}
+                                ${song.duration ? `<span>Duration: ${song.duration}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="performance-body">
+                `;
+                
+                chart.components.forEach(comp => {
+                    html += `
+                        <div class="performance-component">
+                            <h3>${comp.displayName}</h3>
+                            <div class="performance-lyrics">
                     `;
                     
                     const lines = comp.lyrics.split('\n');
@@ -1716,12 +1907,36 @@
             const scaleToFit = document.getElementById('scaleToFit').checked;
             document.getElementById('fontSizeValue').textContent = fontSize + 'px';
 
-            const html = ChordChartManager.generatePrintView(chartData, currentSong, {
+            const options = {
                 fontSize: parseInt(fontSize),
                 scaleToFit
-            });
+            };
 
-            document.getElementById('printPreview').innerHTML = html;
+            // Update both views
+            const performanceHtml = ChordChartManager.generatePerformanceView(chartData, currentSong, options);
+            document.getElementById('performanceView').innerHTML = performanceHtml;
+
+            const printHtml = ChordChartManager.generatePrintView(chartData, currentSong, options);
+            document.getElementById('printPreview').innerHTML = printHtml;
+        };
+
+        // Switch between performance and print view tabs
+        window.switchViewTab = function(view) {
+            const performanceView = document.getElementById('performanceView');
+            const printPreview = document.getElementById('printPreview');
+            const tabs = document.querySelectorAll('.tab-button');
+
+            if (view === 'performance') {
+                performanceView.style.display = 'block';
+                printPreview.style.display = 'none';
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+            } else {
+                performanceView.style.display = 'none';
+                printPreview.style.display = 'block';
+                tabs[0].classList.remove('active');
+                tabs[1].classList.add('active');
+            }
         };
     </script>
 
