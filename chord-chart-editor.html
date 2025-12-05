@@ -441,6 +441,344 @@
             cursor: grabbing;
         }
 
+        /* Custom Range Slider (Theme-matched) */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        /* Slider Track */
+        input[type="range"]::-webkit-slider-track {
+            background: rgba(0, 0, 0, 0.5);
+            height: 6px;
+            border-radius: 3px;
+            border: 1px solid var(--primary-border);
+        }
+
+        input[type="range"]::-moz-range-track {
+            background: rgba(0, 0, 0, 0.5);
+            height: 6px;
+            border-radius: 3px;
+            border: 1px solid var(--primary-border);
+        }
+
+        /* Slider Thumb */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 2px solid var(--primary-light);
+            margin-top: -6px;
+            box-shadow: 0 0 8px var(--primary-glow);
+            transition: all 0.3s;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 2px solid var(--primary-light);
+            box-shadow: 0 0 8px var(--primary-glow);
+            transition: all 0.3s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--primary-light);
+            transform: scale(1.15);
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: var(--primary-light);
+            transform: scale(1.15);
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:active {
+            background: var(--primary-lighter);
+        }
+
+        input[type="range"]::-moz-range-thumb:active {
+            background: var(--primary-lighter);
+        }
+
+        /* Custom Checkbox (Theme-matched) */
+        input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--primary-border);
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        input[type="checkbox"]:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        input[type="checkbox"]:checked {
+            background: var(--primary-color);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        // Switch between performance and print view tabs
+        window.switchViewTab = function(view) {
+            const performanceView = document.getElementById('performanceView');
+            const printPreview = document.getElementById('printPreview');
+            const autoscrollControls = document.getElementById('autoscrollControls');
+            const tabs = document.querySelectorAll('.tab-button');
+
+            if (view === 'performance') {
+                performanceView.style.display = 'block';
+                printPreview.style.display = 'none';
+                autoscrollControls.classList.add('show');
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+            } else {
+                performanceView.style.display = 'none';
+                printPreview.style.display = 'block';
+                autoscrollControls.classList.remove('show');
+                stopAutoscroll(); // Stop scrolling when switching away
+                tabs[0].classList.remove('active');
+                tabs[1].classList.add('active');
+            }
+        };
+
+        // Autoscroll State
+        let autoscrollActive = false;
+        let autoscrollInterval = null;
+        let scrollSpeed = 1.0; // pixels per interval (multiplier)
+        const BASE_SCROLL_SPEED = 1; // base pixels per 20ms
+
+        // Toggle autoscroll
+        window.toggleAutoscroll = function() {
+            if (autoscrollActive) {
+                stopAutoscroll();
+            } else {
+                startAutoscroll();
+            }
+        };
+
+        function startAutoscroll() {
+            autoscrollActive = true;
+            const playBtn = document.getElementById('autoscrollPlayBtn');
+            
+            playBtn.classList.add('playing');
+            playBtn.querySelector('svg').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+            
+            const modalBody = document.querySelector('#printModal .modal-body');
+            
+            autoscrollInterval = setInterval(() => {
+                if (modalBody) {
+                    modalBody.scrollTop += BASE_SCROLL_SPEED * scrollSpeed;
+                    
+                    // Auto-stop at bottom
+                    if (modalBody.scrollTop >= modalBody.scrollHeight - modalBody.clientHeight) {
+                        stopAutoscroll();
+                    }
+                }
+            }, 20);
+        }
+
+        function stopAutoscroll() {
+            autoscrollActive = false;
+            const playBtn = document.getElementById('autoscrollPlayBtn');
+            
+            if (playBtn) {
+                playBtn.classList.remove('playing');
+                playBtn.querySelector('svg').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+            }
+            
+            if (autoscrollInterval) {
+                clearInterval(autoscrollInterval);
+                autoscrollInterval = null;
+            }
+        }
+
+        // Adjust scroll speed
+        window.adjustSpeed = function(delta) {
+            const newSpeed = Math.max(0.5, Math.min(3, scrollSpeed + delta));
+            setScrollSpeed(parseFloat(newSpeed.toFixed(1)));
+        };
+
+        // Set scroll speed
+        window.setScrollSpeed = function(speed) {
+            scrollSpeed = speed;
+            document.getElementById('speedValue').textContent = speed.toFixed(1) + 'x';
+        };
+
+        // Keyboard controls for autoscroll
+        document.addEventListener('keydown', (e) => {
+            // Only work when print modal is open and on performance view
+            const modal = document.getElementById('printModal');
+            const performanceView = document.getElementById('performanceView');
+            
+            if (!modal.classList.contains('show') || performanceView.style.display === 'none') {
+                return;
+            }
+            
+            // Prevent default if we're handling the key
+            const handled = ['Space', 'ArrowLeft', 'ArrowRight'].includes(e.code);
+            
+            // Don't interfere if user is typing in an input/textarea
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            if (handled) {
+                e.preventDefault();
+            }
+            
+            // Spacebar: Toggle play/stop
+            if (e.code === 'Space') {
+                toggleAutoscroll();
+            }
+            
+            // Left Arrow: Decrease speed
+            if (e.code === 'ArrowLeft') {
+                const newSpeed = Math.max(0.5, scrollSpeed - 0.1);
+                setScrollSpeed(parseFloat(newSpeed.toFixed(1)));
+            }
+            
+            // Right Arrow: Increase speed
+            if (e.code === 'ArrowRight') {
+                const newSpeed = Math.min(3, scrollSpeed + 0.1);
+                setScrollSpeed(parseFloat(newSpeed.toFixed(1)));
+            }
+        });
+
+        /* Autoscroll Controls (Inside Modal, Scrolls with content) */
+        #printModal .autoscroll-controls {
+            position: sticky;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            pointer-events: none;
+            margin-top: 20px;
+        }
+
+        #printModal.show .autoscroll-controls.show {
+            display: flex;
+        }
+
+        .autoscroll-controls > * {
+            pointer-events: auto;
+        }
+
+        /* Speed Adjustment Orbs */
+        .speed-orb {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(26, 26, 26, 0.9);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--primary-border);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        .speed-orb:hover {
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+            transform: scale(1.15);
+            box-shadow: 0 6px 25px var(--primary-glow);
+        }
+
+        .speed-orb:active {
+            transform: scale(0.95);
+        }
+
+        /* Combined Play/Speed Display Orb */
+        .autoscroll-play-btn {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: rgba(26, 26, 26, 0.9);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 3px solid var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            transition: all 0.3s;
+            box-shadow: 0 6px 30px var(--primary-glow);
+            position: relative;
+        }
+
+        .autoscroll-play-btn:hover {
+            transform: scale(1.1);
+            border-color: var(--primary-light);
+            box-shadow: 0 8px 40px var(--primary-glow);
+        }
+
+        .autoscroll-play-btn:active {
+            transform: scale(0.95);
+        }
+
+        .autoscroll-play-btn.playing {
+            background: var(--primary-color);
+            border-color: var(--primary-light);
+        }
+
+        .autoscroll-play-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: var(--primary-light);
+            flex-shrink: 0;
+        }
+
+        .autoscroll-play-btn.playing svg {
+            fill: white;
+        }
+
+        .speed-display-text {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--primary-light);
+            margin-top: -2px;
+        }
+
+        .autoscroll-play-btn.playing .speed-display-text {
+            color: white;
+        }
+
+        /* Modal body to allow sticky positioning */
+        #printModal .modal-body {
+            position: relative;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
         .component-textarea {
             width: 100%;
             min-height: 100px;
@@ -581,10 +919,9 @@
 
         .modal.show {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
-            padding-top: 80px;
-            padding-bottom: 20px;
+            padding: 20px;
         }
 
         .modal-content {
@@ -595,7 +932,7 @@
             border-radius: 8px;
             max-width: 1200px;
             width: 90%;
-            max-height: 95vh;
+            max-height: calc(100vh - 40px);
             overflow: hidden;
             border: 2px solid var(--primary-border);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
@@ -1119,6 +1456,23 @@
                 <div id="printPreview" class="print-preview" style="display: none;">
                     <!-- Print content will be generated here -->
                 </div>
+            </div>
+
+            <!-- Autoscroll Controls (Centered, scrolls with content) -->
+            <div class="autoscroll-controls" id="autoscrollControls">
+                <!-- Slow button -->
+                <button class="speed-orb" onclick="adjustSpeed(-0.1)" title="Slower (←)">−</button>
+                
+                <!-- Combined Play/Speed Display -->
+                <button class="autoscroll-play-btn" id="autoscrollPlayBtn" onclick="toggleAutoscroll()" title="Play/Stop (Space)">
+                    <svg viewBox="0 0 24 24">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    <span class="speed-display-text" id="speedValue">1.0x</span>
+                </button>
+                
+                <!-- Fast button -->
+                <button class="speed-orb" onclick="adjustSpeed(0.1)" title="Faster (→)">+</button>
             </div>
         </div>
     </div>
@@ -1893,12 +2247,15 @@
             }
 
             document.getElementById('printModal').classList.add('show');
+            document.getElementById('autoscrollControls').classList.add('show');
             updatePrintPreview();
         };
 
         // Close print modal
         window.closePrintModal = function() {
             document.getElementById('printModal').classList.remove('show');
+            document.getElementById('autoscrollControls').classList.remove('show');
+            stopAutoscroll();
         };
 
         // Update print preview
@@ -1924,16 +2281,20 @@
         window.switchViewTab = function(view) {
             const performanceView = document.getElementById('performanceView');
             const printPreview = document.getElementById('printPreview');
+            const autoscrollControls = document.getElementById('autoscrollControls');
             const tabs = document.querySelectorAll('.tab-button');
 
             if (view === 'performance') {
                 performanceView.style.display = 'block';
                 printPreview.style.display = 'none';
+                autoscrollControls.classList.add('show');
                 tabs[0].classList.add('active');
                 tabs[1].classList.remove('active');
             } else {
                 performanceView.style.display = 'none';
                 printPreview.style.display = 'block';
+                autoscrollControls.classList.remove('show');
+                stopAutoscroll(); // Stop scrolling when switching away
                 tabs[0].classList.remove('active');
                 tabs[1].classList.add('active');
             }
