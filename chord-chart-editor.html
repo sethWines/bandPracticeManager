@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chord Chart Editor</title>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#d84315">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Band Manager">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d84315' stroke-width='2'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>">
+    <link rel="stylesheet" href="./css/themes.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Background watermark - Guitar */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0%;
+            right: -20%;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1' opacity='0.15'%3E%3Ccircle cx='12' cy='17' r='4.5'/%3E%3Cline x1='12' y1='12.5' x2='12' y2='2'/%3E%3Cline x1='9' y1='5' x2='15' y2='5'/%3E%3Cline x1='9' y1='8' x2='15' y2='8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            pointer-events: none;
+            z-index: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Background watermark - Drum (hidden by default) */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0%;
+            right: -20%;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24' fill='none' stroke='%23ffffff' stroke-width='1.5' opacity='0.15'%3E%3Ccircle cx='23' cy='17' r='4.5'/%3E%3Cline x1='16' y1='21.5' x2='16' y2='2'/%3E%3Cline x1='11' y1='5' x2='21' y2='5'/%3E%3Cline x1='18' y1='8' x2='28' y2='8'/%3E%3Cline x1='21' y1='10' x2='26' y2='10'/%3E%3Cline x1='7' y1='12.5' x2='18' y2='12.5'/%3E%3Cline x1='30' y1='12.5' x2='30' y2='2'/%3E%3Cline x1='25' y1='5' x2='35' y2='5'/%3E%3Cline x1='27' y1='8' x2='33' y2='8'/%3E%3Cline x1='26' y1='14' x2='31' y2='14'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Show drum watermark when active */
+        body.drum-watermark::before {
+            opacity: 0;
+        }
+
+        body.drum-watermark::after {
+            opacity: 1;
+        }
+
+        /* Header */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.15);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-color);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 9998;
+            box-shadow: 0 2px 10px var(--primary-glow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: visible;
+        }
+
+        .header h1 {
+            color: var(--primary-light);
+            text-shadow: 0 0 20px var(--primary-glow);
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            background: var(--primary-dark);
+            border: 2px solid var(--primary-light);
+            color: var(--primary-light);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-link:hover {
+            background: var(--primary-darker);
+            border-color: var(--primary-lighter);
+            color: var(--primary-lighter);
+            box-shadow: 0 0 10px var(--primary-glow);
+            transform: translateY(-2px);
+        }
+
+        .theme-selector {
+            padding: 8px 12px;
+            background: var(--primary-dark);
+            border: 2px solid var(--primary-light);
+            color: var(--primary-light);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .theme-selector:hover {
+            background: var(--primary-darker);
+            border-color: var(--primary-lighter);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 2px solid var(--primary-light);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-primary {
+            background: var(--primary-dark);
+            color: var(--primary-light);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-darker);
+            color: var(--primary-lighter);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #2a2d33;
+            color: #c1c7d0;
+        }
+
+        .btn-secondary:hover {
+            background: #3a3e47;
+            color: #e5e9f0;
+            transform: translateY(-2px);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Left Sidebar - Component Palette */
+        .left-sidebar {
+            width: 200px;
+            background: rgba(0, 0, 0, 0.15);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-right: 2px solid var(--primary-border);
+            padding: 20px 10px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            box-shadow: 2px 0 10px var(--primary-glow);
+        }
+
+        .palette-title {
+            color: var(--primary-light);
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .component-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: var(--primary-dark);
+            border: 2px solid var(--primary-light);
+            border-radius: 8px;
+            text-align: center;
+            cursor: grab;
+            transition: all 0.3s;
+            -webkit-user-select: none;
+            user-select: none;
+            font-weight: 600;
+            color: var(--primary-light);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .component-item:hover {
+            background: var(--primary-darker);
+            border-color: var(--primary-lighter);
+            color: var(--primary-lighter);
+            transform: translateX(5px);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .component-item:active {
+            cursor: grabbing;
+        }
+
+        /* Center - Drop Zone */
+        .center-pane {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.15);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .song-info {
+            background: rgba(26, 26, 26, 0.9);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid var(--primary-border);
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px var(--primary-glow);
+        }
+
+        .song-info h2 {
+            color: var(--primary-light);
+            text-shadow: 0 0 10px var(--primary-glow);
+            margin-bottom: 5px;
+        }
+
+        .song-info .artist {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .song-info .meta {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: var(--text-tertiary);
+        }
+
+        .drop-zone {
+            min-height: 400px;
+            border: 2px dashed var(--primary-border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--primary-light);
+            background: var(--primary-bg);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .drop-zone-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .drop-zone-empty svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+            stroke: var(--primary-color);
+        }
+
+        /* Component Tiles */
+        .component-tile {
+            background: rgba(26, 26, 26, 0.9);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: move;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            transition: all 0.3s;
+        }
+
+        .component-tile:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 6px 20px var(--primary-glow);
+            transform: translateY(-2px);
+        }
+
+        .component-tile.dragging {
+            opacity: 0.5;
+        }
+
+        .component-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--primary-border);
+        }
+
+        .component-title {
+            color: var(--primary-light);
+            text-shadow: 0 0 10px var(--primary-glow);
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .component-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .icon-btn {
+            background: var(--primary-bg);
+            border: 2px solid var(--primary-border);
+            color: var(--primary-light);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .icon-btn:hover {
+            color: var(--primary-lighter);
+            background: var(--primary-darker);
+            border-color: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        .component-textarea {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--primary-border);
+            border-radius: 4px;
+            padding: 10px;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .component-textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .chord-format-hint {
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* Right Sidebar - Settings */
+        .right-sidebar {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.15);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-left: 2px solid var(--primary-border);
+            padding: 20px 10px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            box-shadow: -2px 0 10px var(--primary-glow);
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-title {
+            color: var(--primary-light);
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .setting-item {
+            margin-bottom: 15px;
+        }
+
+        .setting-item label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .setting-item input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        .setting-item select {
+            width: 100%;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--primary-border);
+            color: var(--text-primary);
+            border-radius: 4px;
+        }
+
+        /* Print Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            overflow: auto;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: rgba(26, 26, 26, 0.95);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 2px solid var(--primary-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-border);
+        }
+
+        .modal-header h2 {
+            color: var(--primary-light);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .close {
+            color: var(--text-tertiary);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: var(--primary-light);
+        }
+
+        .print-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--primary-bg);
+            border-radius: 8px;
+            border: 2px solid var(--primary-border);
+        }
+
+        .print-preview {
+            background: white;
+            color: black;
+            padding: 30px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .print-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid black;
+            padding-bottom: 15px;
+        }
+
+        .print-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: #000;
+        }
+
+        .print-header h2 {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .print-meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+        .print-component {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+
+        .print-component h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .print-lyrics {
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .chord-line {
+            color: #d84315;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .lyric-line {
+            color: #000;
+        }
+
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-preview, .print-preview * {
+                visibility: visible;
+            }
+            .print-preview {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 0.5in;
+            }
+            .modal, .print-controls {
+                display: none !important;
+            }
+        }
+
+        /* Auto-save Indicator */
+        .save-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--primary-light);
+        }
+
+        .save-indicator.show {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .left-sidebar, .right-sidebar {
+                width: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            .left-sidebar, .right-sidebar {
+                width: 100%;
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+            </svg>
+            Chord Chart Editor
+        </h1>
+        <div class="song-selector" style="display: flex; align-items: center; gap: 10px; margin: 0 20px; position: relative; z-index: 9999;">
+            <label for="songSearch" style="color: var(--text-primary); font-weight: 500;">Song:</label>
+            <div style="position: relative; min-width: 300px; z-index: 9999;">
+                <input 
+                    type="text" 
+                    id="songSearch"
+                    name="songSearch"
+                    title="Search for a song by artist or title"
+                    placeholder="Type to search songs..."
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    value=""
+                    aria-label="Search songs by artist or title"
+                    style="width: 100%; padding: 8px; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--primary-border); border-radius: 4px;"
+                    oninput="filterSongs()"
+                    onfocus="showSongList()"
+                />
+                <div id="songList" class="song-list-dropdown" role="listbox" aria-label="Song search results" style="display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 400px; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--primary-border); border-radius: 4px; margin-top: 4px; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                </div>
+            </div>
+        </div>
+            <div class="header-controls">
+                <div class="nav-links">
+                    <a href="song-manager.html" class="nav-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        </svg>
+                        Songs
+                    </a>
+                    <a href="setlist-manager.html" class="nav-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                            <line x1="8" y1="6" x2="21" y2="6"/>
+                            <line x1="8" y1="12" x2="21" y2="12"/>
+                            <line x1="8" y1="18" x2="21" y2="18"/>
+                            <line x1="3" y1="6" x2="3.01" y2="6"/>
+                            <line x1="3" y1="12" x2="3.01" y2="12"/>
+                            <line x1="3" y1="18" x2="3.01" y2="18"/>
+                        </svg>
+                        Setlists
+                    </a>
+                </div>
+            <label for="themeSelector" class="visually-hidden">Select theme color</label>
+            <select id="themeSelector" name="themeSelector" class="theme-selector" title="Choose theme color" aria-label="Theme color selector" onchange="changeTheme(this.value)">
+                <option value="grey">Grey</option>
+                <option value="red">Red</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+                <option value="purple">Purple</option>
+                <option value="cyan">Cyan</option>
+                <option value="teal">Teal</option>
+                <option value="copper">Copper</option>
+                <option value="amber">Amber</option>
+                <option value="pink">Pink</option>
+                <option value="sunrise">Sunrise</option>
+                <option value="sunset">Sunset</option>
+            </select>
+            <button class="btn btn-secondary" onclick="clearChart()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                Clear
+            </button>
+            <button class="btn btn-primary" onclick="openPrintModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                    <polyline points="6 9 6 2 18 2 18 9"/>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                    <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                View/Print
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Left Sidebar - Component Palette -->
+        <div class="left-sidebar">
+            <div class="palette-title">Drag Components</div>
+            <div class="component-item" draggable="true" data-type="Intro">Intro</div>
+            <div class="component-item" draggable="true" data-type="Verse">Verse</div>
+            <div class="component-item" draggable="true" data-type="Chorus">Chorus</div>
+            <div class="component-item" draggable="true" data-type="Pre-Chorus">Pre-Chorus</div>
+            <div class="component-item" draggable="true" data-type="Bridge">Bridge</div>
+            <div class="component-item" draggable="true" data-type="Solo">Solo</div>
+            <div class="component-item" draggable="true" data-type="Interlude">Interlude</div>
+            <div class="component-item" draggable="true" data-type="Outro">Outro</div>
+            <div class="component-item" draggable="true" data-type="Tag/Coda">Tag/Coda</div>
+        </div>
+
+        <!-- Center Pane - Drop Zone -->
+        <div class="center-pane">
+            <div class="song-info" id="songInfo">
+                <h2 id="songTitle">Loading...</h2>
+                <div class="artist" id="songArtist"></div>
+                <div class="meta">
+                    <span id="songKey"></span>
+                    <span id="songTuning"></span>
+                    <span id="songDuration"></span>
+                </div>
+            </div>
+
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-empty" id="emptyMessage">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    <p>Drag components here to build your chord chart</p>
+                    <p style="font-size: 12px; margin-top: 10px;">Components will auto-number as you add them</p>
+                </div>
+                <div id="componentsContainer"></div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Settings -->
+        <div class="right-sidebar">
+            <div class="settings-section">
+                <div class="settings-title">Chord Format Help</div>
+                <div class="setting-item">
+                    <p style="font-size: 12px; color: var(--text-tertiary); line-height: 1.6;">
+                        <strong style="color: var(--primary-light);">Inline:</strong><br>
+                        Amazing [G]grace how [C]sweet the [G]sound<br><br>
+                        <strong style="color: var(--primary-light);">Separate Lines:</strong><br>
+                        G&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G<br>
+                        Amazing grace how sweet the sound
+                    </p>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">Quick Actions</div>
+                <button class="btn btn-secondary" onclick="saveChart()" style="width: 100%; margin-bottom: 10px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Save Now
+                </button>
+                <button class="btn btn-secondary" onclick="exportChart()" style="width: 100%; margin-bottom: 10px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Export
+                </button>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">Tips</div>
+                <p style="font-size: 11px; color: var(--text-tertiary); line-height: 1.5;">
+                    • Charts auto-save as you edit<br>
+                    • Drag components to reorder<br>
+                    • Numbering updates automatically<br>
+                    • Use brackets [C] for inline chords<br>
+                    • Print view formats for performance
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Modal -->
+    <div id="printModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Performance View</h2>
+                <span class="close" onclick="closePrintModal()">&times;</span>
+            </div>
+
+            <div class="print-controls">
+                <div class="setting-item">
+                    <label for="fontSize">Font Size:</label>
+                    <input type="range" id="fontSize" name="fontSize" min="10" max="20" value="14" title="Adjust font size for printing" aria-label="Font size slider" onchange="updatePrintPreview()" style="width: 150px;">
+                    <span id="fontSizeValue">14px</span>
+                </div>
+                <div class="setting-item">
+                    <label for="scaleToFit">
+                        <input type="checkbox" id="scaleToFit" name="scaleToFit" title="Scale chart to fit one page" onchange="updatePrintPreview()">
+                        Scale to fit one page
+                    </label>
+                </div>
+                <button class="btn btn-primary" onclick="window.print()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                        <polyline points="6 9 6 2 18 2 18 9"/>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                        <rect x="6" y="14" width="12" height="8"/>
+                    </svg>
+                    Print
+                </button>
+            </div>
+
+            <div class="print-preview" id="printPreview">
+                <!-- Print content will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-save Indicator -->
+    <div class="save-indicator" id="saveIndicator">✓ Saved</div>
+
+    <script>
+        // ============================================================================
+        // STORAGE UTILITIES (Inline for compatibility)
+        // ============================================================================
+        
+        const STORAGE_KEYS = {
+            SONGS: 'songDatabase',
+            SONGS_LEGACY: 'bandSongs',
+            THEME: 'bandOrganizerTheme'
+        };
+
+        const Storage = {
+            get(key, defaultValue = null) {
+                try {
+                    const item = localStorage.getItem(key);
+                    if (item === null) return defaultValue;
+                    
+                    // Try to parse as JSON
+                    try {
+                        return JSON.parse(item);
+                    } catch (parseError) {
+                        // If parse fails, return the raw string (for legacy data)
+                        return item;
+                    }
+                } catch (error) {
+                    console.error(`Error reading from localStorage (${key}):`, error);
+                    return defaultValue;
+                }
+            },
+            set(key, value) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                    return true;
+                } catch (error) {
+                    console.error(`Error writing to localStorage (${key}):`, error);
+                    return false;
+                }
+            }
+        };
+
+        // ============================================================================
+        // CHORD CHART UTILITIES
+        // ============================================================================
+        
+        const COMPONENT_TYPES = {
+            INTRO: 'Intro',
+            VERSE: 'Verse',
+            CHORUS: 'Chorus',
+            PRE_CHORUS: 'Pre-Chorus',
+            BRIDGE: 'Bridge',
+            SOLO: 'Solo',
+            INTERLUDE: 'Interlude',
+            OUTRO: 'Outro',
+            TAG: 'Tag/Coda'
+        };
+
+        const ChordChartManager = {
+            parseChords(text) {
+                const chords = [];
+                const regex = /\[([^\]]+)\]/g;
+                let match;
+                
+                while ((match = regex.exec(text)) !== null) {
+                    chords.push({
+                        chord: match[1],
+                        position: match.index,
+                        length: match[0].length
+                    });
+                }
+                
+                return chords;
+            },
+
+            extractLyrics(text) {
+                return text.replace(/\[([^\]]+)\]/g, '');
+            },
+
+            inlineToChordLine(text) {
+                const chords = this.parseChords(text);
+                const lyrics = this.extractLyrics(text);
+                
+                if (chords.length === 0) {
+                    return { chords: '', lyrics: lyrics };
+                }
+                
+                let chordLine = '';
+                let lastPos = 0;
+                
+                chords.forEach(chord => {
+                    const lyricsPos = chord.position - (chordLine.length);
+                    const spaces = Math.max(0, lyricsPos - lastPos);
+                    chordLine += ' '.repeat(spaces) + chord.chord;
+                    lastPos = lyricsPos + chord.chord.length;
+                });
+                
+                return {
+                    chords: chordLine,
+                    lyrics: lyrics
+                };
+            },
+
+            autoNumber(components) {
+                const counts = {};
+                
+                components.forEach(comp => {
+                    counts[comp.type] = (counts[comp.type] || 0) + 1;
+                });
+                
+                const currentCounts = {};
+                
+                return components.map(comp => {
+                    const type = comp.type;
+                    const totalOfType = counts[type];
+                    
+                    currentCounts[type] = (currentCounts[type] || 0) + 1;
+                    const number = currentCounts[type];
+                    
+                    const displayName = totalOfType > 1 
+                        ? `${type} ${number}` 
+                        : type;
+                    
+                    return {
+                        ...comp,
+                        displayName,
+                        number: totalOfType > 1 ? number : null
+                    };
+                });
+            },
+
+            generatePrintView(chart, song, options = {}) {
+                const { fontSize = 14, scaleToFit = false } = options;
+                
+                let html = `
+                    <div class="print-container" style="font-size: ${fontSize}px;">
+                        <div class="print-header">
+                            <h1>${song.song}</h1>
+                            <h2>${song.artist}</h2>
+                            <div class="print-meta">
+                                ${song.key ? `<span>Key: ${song.key}</span>` : ''}
+                                ${song.tuning ? `<span>Tuning: ${song.tuning}</span>` : ''}
+                                ${song.duration ? `<span>Duration: ${song.duration}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="print-body">
+                `;
+                
+                chart.components.forEach(comp => {
+                    html += `
+                        <div class="print-component">
+                            <h3>${comp.displayName}</h3>
+                            <div class="print-lyrics">
+                    `;
+                    
+                    const lines = comp.lyrics.split('\n');
+                    lines.forEach(line => {
+                        if (line.trim()) {
+                            if (line.includes('[')) {
+                                const formatted = this.inlineToChordLine(line);
+                                if (formatted.chords) {
+                                    html += `<div class="chord-line">${formatted.chords}</div>`;
+                                }
+                                html += `<div class="lyric-line">${formatted.lyrics}</div>`;
+                            } else {
+                                html += `<div class="lyric-line">${line}</div>`;
+                            }
+                        }
+                    });
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+                
+                return html;
+            },
+
+            createComponent(type) {
+                return {
+                    id: Date.now() + Math.random(),
+                    type: type,
+                    displayName: type,
+                    lyrics: '',
+                    number: null
+                };
+            },
+
+            createEmptyChart() {
+                return {
+                    components: [],
+                    settings: {
+                        defaultChordFormat: 'inline',
+                        showChordDiagrams: false,
+                        fontSize: 14
+                    }
+                };
+            }
+        };
+
+        // ============================================================================
+        // MAIN APPLICATION
+        // ============================================================================
+        
+        // Global state
+        let currentSongId = null;
+        let currentSong = null;
+        let chartData = null;
+        let autoSaveTimer = null;
+        let allSongs = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Immediately clear the search box (before anything else)
+            const searchBox = document.getElementById('songSearch');
+            searchBox.value = '';
+            
+            // Theme will be loaded by the module script below
+
+            // Load watermark preference
+            loadWatermark();
+
+            // Load all songs
+            allSongs = Storage.get(STORAGE_KEYS.SONGS) || Storage.get(STORAGE_KEYS.SONGS_LEGACY) || [];
+
+            // Get song ID from URL
+            const params = new URLSearchParams(window.location.search);
+            const songIdParam = params.get('songId');
+
+            if (songIdParam !== null && songIdParam !== '') {
+                // Load the specific song from URL parameter
+                currentSongId = songIdParam;
+                loadSongData();
+                setupDragAndDrop();
+                updateSearchBox();
+            } else {
+                // No song selected - show empty state
+                currentSongId = null;
+                currentSong = null;
+                chartData = null;
+                showEmptyState();
+                
+                // Force clear search box again after a brief delay (to override any browser autocomplete)
+                setTimeout(() => {
+                    searchBox.value = '';
+                }, 50);
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.song-selector')) {
+                    document.getElementById('songList').style.display = 'none';
+                }
+            });
+        });
+
+        // Update search box with current song
+        function updateSearchBox() {
+            if (currentSong) {
+                document.getElementById('songSearch').value = `${currentSong.artist} - ${currentSong.song}`;
+            } else {
+                document.getElementById('songSearch').value = '';
+            }
+        }
+
+        // Show song list dropdown
+        window.showSongList = function() {
+            filterSongs();
+        };
+
+        // Filter songs based on search input
+        window.filterSongs = function() {
+            const searchTerm = document.getElementById('songSearch').value.toLowerCase();
+            const songList = document.getElementById('songList');
+            
+            const filteredSongs = allSongs.filter(song => {
+                const searchText = `${song.artist} ${song.song}`.toLowerCase();
+                return searchText.includes(searchTerm);
+            });
+
+            if (filteredSongs.length === 0) {
+                songList.innerHTML = '<div style="padding: 12px; color: var(--text-secondary); text-align: center;">No songs found</div>';
+                songList.style.display = 'block';
+                return;
+            }
+
+            songList.innerHTML = filteredSongs.map((song, index) => {
+                const actualIndex = allSongs.findIndex(s => s === song);
+                return `
+                    <div class="song-list-item" 
+                         data-index="${actualIndex}"
+                         onclick="selectSong(${actualIndex})"
+                         style="padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--primary-border); color: var(--text-primary); transition: background 0.2s;"
+                         onmouseover="this.style.background='var(--primary-bg)'"
+                         onmouseout="this.style.background='transparent'">
+                        <div style="font-weight: 500;">${song.song}</div>
+                        <div style="font-size: 0.9em; color: var(--text-secondary);">${song.artist}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            songList.style.display = 'block';
+        };
+
+        // Select a song from the dropdown
+        window.selectSong = function(index) {
+            currentSongId = index.toString();
+            
+            // Update URL without reloading page
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('songId', currentSongId);
+            window.history.pushState({}, '', newUrl);
+            
+            // Hide dropdown
+            document.getElementById('songList').style.display = 'none';
+            
+            // Load the song
+            loadSongData();
+            setupDragAndDrop();
+            updateSearchBox();
+        };
+
+        // Load selected song from dropdown (legacy support)
+        window.loadSelectedSong = function() {
+            const select = document.getElementById('songSelect');
+            if (!select) return;
+            
+            const selectedIndex = select.value;
+            
+            if (selectedIndex === '') {
+                showEmptyState();
+                return;
+            }
+            
+            selectSong(parseInt(selectedIndex));
+        };
+
+        // Show empty state when no song is selected
+        function showEmptyState() {
+            currentSongId = null;
+            currentSong = null;
+            chartData = null;
+            
+            // Clear the search box
+            document.getElementById('songSearch').value = '';
+            
+            // Recreate the drop zone with proper structure
+            document.getElementById('dropZone').innerHTML = `
+                <div class="drop-zone-empty" id="emptyMessage" style="display: block;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.5;">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                    <p style="margin-top: 20px; font-size: 18px; font-weight: 500;">No Song Selected</p>
+                    <p style="font-size: 14px; color: var(--text-secondary);">Please select a song from the search box above to start editing its chord chart.</p>
+                </div>
+                <div id="componentsContainer"></div>
+            `;
+            
+            document.getElementById('songInfo').innerHTML = `
+                <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                    Select a song to get started
+                </div>
+            `;
+        }
+
+        // Load and apply watermark preference
+        function loadWatermark() {
+            const watermark = localStorage.getItem('watermark') || 'guitar';
+            if (watermark === 'drum') {
+                document.body.classList.add('drum-watermark');
+            } else {
+                document.body.classList.remove('drum-watermark');
+            }
+        }
+
+        // Load song data
+        function loadSongData() {
+            if (currentSongId === null || currentSongId === '') {
+                showEmptyState();
+                return;
+            }
+
+            const songs = Storage.get(STORAGE_KEYS.SONGS) || Storage.get(STORAGE_KEYS.SONGS_LEGACY) || [];
+            const songIndex = parseInt(currentSongId);
+
+            if (isNaN(songIndex) || songIndex < 0 || songIndex >= songs.length) {
+                alert('Song not found.');
+                showEmptyState();
+                return;
+            }
+
+            currentSong = songs[songIndex];
+
+            // Recreate song info structure (in case showEmptyState destroyed it)
+            document.getElementById('songInfo').innerHTML = `
+                <h2 id="songTitle">${currentSong.song}</h2>
+                <div class="artist" id="songArtist">${currentSong.artist}</div>
+                <div class="meta">
+                    <span id="songKey">${currentSong.key ? `Key: ${currentSong.key}` : ''}</span>
+                    <span id="songTuning">${currentSong.tuning ? `Tuning: ${currentSong.tuning}` : ''}</span>
+                    <span id="songDuration">${currentSong.duration ? `Duration: ${currentSong.duration}` : ''}</span>
+                </div>
+            `;
+
+            // Load or create chart
+            if (currentSong.chordChart) {
+                chartData = currentSong.chordChart;
+            } else {
+                chartData = ChordChartManager.createEmptyChart();
+            }
+
+            renderComponents();
+        }
+
+        // Setup drag and drop
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            const componentItems = document.querySelectorAll('.component-item');
+
+            // Palette items
+            componentItems.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('componentType', item.dataset.type);
+                    e.dataTransfer.effectAllowed = 'copy';
+                });
+            });
+
+            // Drop zone
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+
+                const componentType = e.dataTransfer.getData('componentType');
+                if (componentType) {
+                    addComponent(componentType);
+                }
+            });
+        }
+
+        // Add component
+        function addComponent(type) {
+            const newComponent = ChordChartManager.createComponent(type);
+            chartData.components.push(newComponent);
+            renderComponents();
+            scheduleAutoSave();
+        }
+
+        // Render components
+        function renderComponents() {
+            const container = document.getElementById('componentsContainer');
+            const emptyMessage = document.getElementById('emptyMessage');
+
+            if (chartData.components.length === 0) {
+                emptyMessage.style.display = 'block';
+                container.innerHTML = '';
+                return;
+            }
+
+            emptyMessage.style.display = 'none';
+
+            // Auto-number components
+            const numberedComponents = ChordChartManager.autoNumber(chartData.components);
+            chartData.components = numberedComponents;
+
+            container.innerHTML = '';
+
+            numberedComponents.forEach((comp, index) => {
+                const tile = createComponentTile(comp, index);
+                container.appendChild(tile);
+            });
+        }
+
+        // Create component tile
+        function createComponentTile(comp, index) {
+            const tile = document.createElement('div');
+            tile.className = 'component-tile';
+            tile.draggable = true;
+            tile.dataset.index = index;
+
+            tile.innerHTML = `
+                <div class="component-header">
+                    <div class="component-title">${comp.displayName}</div>
+                    <div class="component-actions">
+                        <button class="icon-btn" onclick="moveComponentUp(${index})" title="Move Up">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="18 15 12 9 6 15"/>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" onclick="moveComponentDown(${index})" title="Move Down">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" onclick="deleteComponent(${index})" title="Delete">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <textarea 
+                    class="component-textarea" 
+                    placeholder="Enter lyrics here. Use [C], [G], [Em] for inline chords or write chords on separate line above lyrics."
+                    oninput="updateComponentLyrics(${index}, this.value)"
+                >${comp.lyrics}</textarea>
+                <div class="chord-format-hint">
+                    💡 Inline: "Amazing [G]grace" or separate lines
+                </div>
+            `;
+
+            // Drag and drop for reordering
+            tile.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('moveIndex', index);
+                tile.classList.add('dragging');
+            });
+
+            tile.addEventListener('dragend', () => {
+                tile.classList.remove('dragging');
+            });
+
+            tile.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            tile.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const moveFromIndex = parseInt(e.dataTransfer.getData('moveIndex'));
+                const moveToIndex = parseInt(tile.dataset.index);
+
+                if (moveFromIndex !== moveToIndex) {
+                    moveComponent(moveFromIndex, moveToIndex);
+                }
+            });
+
+            return tile;
+        }
+
+        // Update component lyrics
+        window.updateComponentLyrics = function(index, lyrics) {
+            chartData.components[index].lyrics = lyrics;
+            scheduleAutoSave();
+        };
+
+        // Move component up
+        window.moveComponentUp = function(index) {
+            if (index > 0) {
+                moveComponent(index, index - 1);
+            }
+        };
+
+        // Move component down
+        window.moveComponentDown = function(index) {
+            if (index < chartData.components.length - 1) {
+                moveComponent(index, index + 1);
+            }
+        };
+
+        // Move component
+        function moveComponent(fromIndex, toIndex) {
+            const [moved] = chartData.components.splice(fromIndex, 1);
+            chartData.components.splice(toIndex, 0, moved);
+            renderComponents();
+            scheduleAutoSave();
+        }
+
+        // Delete component
+        window.deleteComponent = function(index) {
+            if (confirm('Delete this component?')) {
+                chartData.components.splice(index, 1);
+                renderComponents();
+                scheduleAutoSave();
+            }
+        };
+
+        // Clear chart
+        window.clearChart = function() {
+            if (confirm('Clear entire chart? This cannot be undone.')) {
+                chartData = ChordChartManager.createEmptyChart();
+                renderComponents();
+                saveChart();
+            }
+        };
+
+        // Schedule auto-save
+        function scheduleAutoSave() {
+            if (autoSaveTimer) {
+                clearTimeout(autoSaveTimer);
+            }
+            autoSaveTimer = setTimeout(() => {
+                saveChart();
+            }, 2000); // Auto-save after 2 seconds of inactivity
+        }
+
+        // Save chart
+        window.saveChart = function() {
+            const songs = Storage.get(STORAGE_KEYS.SONGS) || Storage.get(STORAGE_KEYS.SONGS_LEGACY) || [];
+            const songIndex = parseInt(currentSongId);
+
+            if (songIndex >= 0 && songIndex < songs.length) {
+                songs[songIndex].chordChart = chartData;
+                Storage.set(STORAGE_KEYS.SONGS, songs);
+                Storage.set(STORAGE_KEYS.SONGS_LEGACY, songs); // Backup
+
+                // Show save indicator
+                const indicator = document.getElementById('saveIndicator');
+                indicator.classList.add('show');
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 2000);
+            }
+        };
+
+        // Export chart
+        window.exportChart = function() {
+            const exportData = {
+                song: currentSong.song,
+                artist: currentSong.artist,
+                key: currentSong.key,
+                tuning: currentSong.tuning,
+                chart: chartData
+            };
+
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${currentSong.artist} - ${currentSong.song} - Chord Chart.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        };
+
+        // Open print modal
+        window.openPrintModal = function() {
+            if (chartData.components.length === 0) {
+                alert('Add components to your chord chart before printing.');
+                return;
+            }
+
+            document.getElementById('printModal').classList.add('show');
+            updatePrintPreview();
+        };
+
+        // Close print modal
+        window.closePrintModal = function() {
+            document.getElementById('printModal').classList.remove('show');
+        };
+
+        // Update print preview
+        window.updatePrintPreview = function() {
+            const fontSize = document.getElementById('fontSize').value;
+            const scaleToFit = document.getElementById('scaleToFit').checked;
+            document.getElementById('fontSizeValue').textContent = fontSize + 'px';
+
+            const html = ChordChartManager.generatePrintView(chartData, currentSong, {
+                fontSize: parseInt(fontSize),
+                scaleToFit
+            });
+
+            document.getElementById('printPreview').innerHTML = html;
+        };
+    </script>
+
+    <!-- Theme Management Script (Inline for file:// compatibility) -->
+    <script>
+        // Synchronized theme management using localStorage
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'grey';
+            applyTheme(savedTheme);
+            const themeSelector = document.getElementById('themeSelector');
+            if (themeSelector) {
+                themeSelector.value = savedTheme;
+            }
+            return savedTheme;
+        }
+        
+        function applyTheme(theme) {
+            if (theme === 'grey') {
+                document.body.removeAttribute('data-theme');
+            } else {
+                document.body.setAttribute('data-theme', theme);
+            }
+        }
+        
+        // Change theme and save to localStorage
+        window.changeTheme = function(theme) {
+            console.log('Changing theme to:', theme);
+            localStorage.setItem('bandOrganizerTheme', theme);
+            applyTheme(theme);
+            console.log('Body data-theme attribute:', document.body.getAttribute('data-theme'));
+        };
+        
+        // Load theme immediately
+        loadTheme();
+    </script>
+</body>
+</html>
+

@@ -13,7 +13,10 @@ export const THEMES = {
     CYAN: 'cyan',
     AMBER: 'amber',
     PINK: 'pink',
-    TEAL: 'teal'
+    TEAL: 'teal',
+    COPPER: 'copper',
+    SUNRISE: 'sunrise',
+    SUNSET: 'sunset'
 };
 
 export const THEME_COLORS = {
@@ -25,7 +28,10 @@ export const THEME_COLORS = {
     cyan: '#00838f',
     amber: '#f57c00',
     pink: '#c2185b',
-    teal: '#14b8a6'
+    teal: '#14b8a6',
+    copper: '#b87333',
+    sunrise: '#ffb700',
+    sunset: '#ff8c00'
 };
 
 /**

@@ -14,151 +14,12 @@
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="preconnect" href="//fonts.googleapis.com">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d84315' stroke-width='2'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>">
+    <link rel="stylesheet" href="./css/themes.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        :root {
-            --primary-color: #6b7280;
-            --primary-light: #9ca3af;
-            --primary-lighter: #d1d5db;
-            --primary-dark: #374151;
-            --primary-darker: #4b5563;
-            --primary-glow: rgba(107, 114, 128, 0.3);
-            --primary-border: rgba(107, 114, 128, 0.3);
-            --primary-bg: rgba(107, 114, 128, 0.15);
-            
-            /* Text colors */
-            --text-primary: #ffffff;
-            --text-secondary: #d1d5db;
-            --text-tertiary: #9ca3af;
-            
-            /* Card background */
-            --card-bg: #1a1a1a;
-        }
-
-        [data-theme="red"] {
-            --primary-color: #d84315;
-            --primary-light: #ff6b3d;
-            --primary-lighter: #ffa580;
-            --primary-dark: #5c1d0a;
-            --primary-darker: #7a2710;
-            --primary-glow: rgba(216, 67, 21, 0.3);
-            --primary-border: rgba(216, 67, 21, 0.3);
-            --primary-bg: rgba(216, 67, 21, 0.15);
-        }
-
-        [data-theme="blue"] {
-            --primary-color: #1976d2;
-            --primary-light: #42a5f5;
-            --primary-lighter: #90caf9;
-            --primary-dark: #0d3d6b;
-            --primary-darker: #1565c0;
-            --primary-glow: rgba(25, 118, 210, 0.3);
-            --primary-border: rgba(25, 118, 210, 0.3);
-            --primary-bg: rgba(25, 118, 210, 0.15);
-        }
-
-        [data-theme="green"] {
-            --primary-color: #388e3c;
-            --primary-light: #66bb6a;
-            --primary-lighter: #a5d6a7;
-            --primary-dark: #1b4d1e;
-            --primary-darker: #2e7d32;
-            --primary-glow: rgba(56, 142, 60, 0.3);
-            --primary-border: rgba(56, 142, 60, 0.3);
-            --primary-bg: rgba(56, 142, 60, 0.15);
-        }
-
-        [data-theme="purple"] {
-            --primary-color: #7b1fa2;
-            --primary-light: #ab47bc;
-            --primary-lighter: #ce93d8;
-            --primary-dark: #3d0f51;
-            --primary-darker: #6a1b9a;
-            --primary-glow: rgba(123, 31, 162, 0.3);
-            --primary-border: rgba(123, 31, 162, 0.3);
-            --primary-bg: rgba(123, 31, 162, 0.15);
-        }
-
-        [data-theme="cyan"] {
-            --primary-color: #00838f;
-            --primary-light: #00acc1;
-            --primary-lighter: #4dd0e1;
-            --primary-dark: #004247;
-            --primary-darker: #00697c;
-            --primary-glow: rgba(0, 131, 143, 0.3);
-            --primary-border: rgba(0, 131, 143, 0.3);
-            --primary-bg: rgba(0, 131, 143, 0.15);
-        }
-
-        [data-theme="amber"] {
-            --primary-color: #f57c00;
-            --primary-light: #ff9800;
-            --primary-lighter: #ffb74d;
-            --primary-dark: #7a3e00;
-            --primary-darker: #ef6c00;
-            --primary-glow: rgba(245, 124, 0, 0.3);
-            --primary-border: rgba(245, 124, 0, 0.3);
-            --primary-bg: rgba(245, 124, 0, 0.15);
-        }
-
-        [data-theme="pink"] {
-            --primary-color: #c2185b;
-            --primary-light: #e91e63;
-            --primary-lighter: #f06292;
-            --primary-dark: #610c2d;
-            --primary-darker: #ad1457;
-            --primary-glow: rgba(194, 24, 91, 0.3);
-            --primary-border: rgba(194, 24, 91, 0.3);
-            --primary-bg: rgba(194, 24, 91, 0.15);
-        }
-
-        [data-theme="teal"] {
-            --primary-color: #00897b;
-            --primary-light: #26a69a;
-            --primary-lighter: #80cbc4;
-            --primary-dark: #00443d;
-            --primary-darker: #00695c;
-            --primary-glow: rgba(0, 137, 123, 0.3);
-            --primary-border: rgba(0, 137, 123, 0.3);
-            --primary-bg: rgba(0, 137, 123, 0.15);
-        }
-
-        [data-theme="copper"] {
-            --primary-color: #b87333;
-            --primary-light: #d4944e;
-            --primary-lighter: #e8b67a;
-            --primary-dark: #7a4d22;
-            --primary-darker: #8b5a2b;
-            --primary-glow: rgba(184, 115, 51, 0.3);
-            --primary-border: rgba(184, 115, 51, 0.3);
-            --primary-bg: rgba(184, 115, 51, 0.15);
-        }
-
-        [data-theme="sunrise"] {
-            --primary-color: #ffb700;
-            --primary-light: #ffcc33;
-            --primary-lighter: #ffdd66;
-            --primary-dark: #cc8800;
-            --primary-darker: #e69900;
-            --primary-glow: rgba(255, 183, 0, 0.3);
-            --primary-border: rgba(255, 183, 0, 0.3);
-            --primary-bg: rgba(255, 183, 0, 0.15);
-        }
-
-        [data-theme="sunset"] {
-            --primary-color: #ff8c00;
-            --primary-light: #ffa533;
-            --primary-lighter: #ffb84d;
-            --primary-dark: #b36200;
-            --primary-darker: #cc7000;
-            --primary-glow: rgba(255, 140, 0, 0.3);
-            --primary-border: rgba(255, 140, 0, 0.3);
-            --primary-bg: rgba(255, 140, 0, 0.15);
         }
 
         body {
@@ -1381,6 +1242,14 @@
                 </svg>
                 Setlist Manager
             </a>
+            <a href="chord-chart-editor.html" style="margin-left: 10px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                    <path d="M9 18V5l12-2v13"/>
+                    <circle cx="6" cy="18" r="3"/>
+                    <circle cx="18" cy="16" r="3"/>
+                </svg>
+                Chord Charts
+            </a>
         </div>
 
         <!-- Compact Theme Selector (Top Right) -->
@@ -1758,6 +1627,7 @@
                         <th class="sortable col-key" onclick="sortTable('key')">Key</th>
                         <th class="sortable col-firstNote" onclick="sortTable('firstNote')">First Note</th>
                         <th class="sortable col-lastNote" onclick="sortTable('lastNote')">Last Note</th>
+                        <th class="col-chordChart">Chord Chart</th>
                         <th class="sortable col-playCount" onclick="sortTable('playCount')">Plays</th>
                     </tr>
                 </thead>
@@ -3214,31 +3084,6 @@ What would you like to do?
             }).join('');
         }
 
-        // Theme Management
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'grey';
-            applyTheme(savedTheme);
-            const themeSelector = document.getElementById('themeSelector');
-            if (themeSelector) {
-                themeSelector.value = savedTheme;
-            }
-        }
-
-        function applyTheme(theme) {
-            // Remove all theme data attributes
-            document.body.removeAttribute('data-theme');
-            
-            // Apply new theme (only if not default grey)
-            if (theme !== 'grey') {
-                document.body.setAttribute('data-theme', theme);
-            }
-        }
-
-        function changeTheme(theme) {
-            localStorage.setItem('bandOrganizerTheme', theme);
-            applyTheme(theme);
-        }
-
         // Column Visibility Management
         function toggleColumnVisibilityPanel() {
             const panel = document.getElementById('columnVisibilityPanel');
@@ -3530,7 +3375,7 @@ What would you like to do?
 
         // Load data on page load
         window.onload = function() {
-            loadTheme(); // Load theme first
+            // Theme already loaded by inline script below
             loadWatermark(); // Load watermark preference
             loadColumnVisibility(); // Load column visibility preferences
             loadDensity(); // Load table density preference
@@ -3586,7 +3431,8 @@ What would you like to do?
             }, { passive: true });
             
             // Performance: Register Service Worker for PWA capabilities
-            if ('serviceWorker' in navigator) {
+            // Only works on http/https protocols, not file://
+            if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
                 navigator.serviceWorker.register('./sw.js')
                     .then((registration) => {
                         console.log('[PWA] Service Worker registered:', registration.scope);
@@ -3599,6 +3445,8 @@ What would you like to do?
                     .catch((error) => {
                         console.error('[PWA] Service Worker registration failed:', error);
                     });
+            } else if (window.location.protocol === 'file:') {
+                console.log('[PWA] Service Worker not available on file:// protocol. App will work but won\'t be available offline.');
             }
         };
 
@@ -3663,6 +3511,21 @@ What would you like to do?
             if (stored) {
                 songs = JSON.parse(stored);
                 console.log('Loaded', songs.length, 'songs from localStorage');
+                
+                // Migration: Add chordChart field if it doesn't exist
+                let migrated = false;
+                songs = songs.map(song => {
+                    if (!song.hasOwnProperty('chordChart')) {
+                        migrated = true;
+                        return { ...song, chordChart: null };
+                    }
+                    return song;
+                });
+                
+                if (migrated) {
+                    console.log('Migrated songs to include chordChart field');
+                    saveSongs();
+                }
             } else {
                 console.log('No songs found in localStorage');
             }
@@ -3689,7 +3552,7 @@ What would you like to do?
             const displaySongs = filteredSongs || songs;
 
             // Update column visibility in headers (cache the lookup)
-            const columns = ['checkbox', 'actions', 'link', 'artist', 'song', 'album', 'duration', 'practiceStatus', 'tuning', 'bands', 'tags', 'key', 'firstNote', 'lastNote', 'playCount'];
+            const columns = ['checkbox', 'actions', 'link', 'artist', 'song', 'album', 'duration', 'practiceStatus', 'tuning', 'bands', 'tags', 'key', 'firstNote', 'lastNote', 'chordChart', 'playCount'];
             columns.forEach(col => {
                 const headers = document.querySelectorAll(`.col-${col}`);
                 const shouldHide = hiddenColumns.has(col);
@@ -3755,6 +3618,7 @@ What would you like to do?
                     <td class="col-key editable-cell ${colClasses.key}" ondblclick="startInlineEdit(this, ${originalIndex}, 'key')" title="Double-click to edit">${escapeHtml(song.key || '-')}</td>
                     <td class="col-firstNote editable-cell ${colClasses.firstNote}" ondblclick="startInlineEdit(this, ${originalIndex}, 'firstNote')" title="Double-click to edit">${escapeHtml(song.firstNote || '-')}</td>
                     <td class="col-lastNote editable-cell ${colClasses.lastNote}" ondblclick="startInlineEdit(this, ${originalIndex}, 'lastNote')" title="Double-click to edit">${escapeHtml(song.lastNote || '-')}</td>
+                    <td class="col-chordChart ${colClasses.chordChart}">${song.chordChart ? `<a href="chord-chart-editor.html?songId=${originalIndex}" target="_blank" title="Edit Chord Chart" style="color: var(--primary-light); text-decoration: none;">📊 Edit</a>` : `<a href="chord-chart-editor.html?songId=${originalIndex}" target="_blank" title="Create Chord Chart" style="color: var(--text-tertiary); text-decoration: none;">+ Add</a>`}</td>
                     <td class="col-playCount ${colClasses.playCount}">${song.playCount || 0}</td>
                 </tr>`);
             }
@@ -4341,7 +4205,8 @@ What would you like to do?
                 lastNote: document.getElementById('lastNote').value.trim(),
                 playCount: editIndex >= 0 ? songs[editIndex].playCount || 0 : 0,
                 lastPlayed: editIndex >= 0 ? songs[editIndex].lastPlayed : null,
-                createdAt: editIndex >= 0 ? songs[editIndex].createdAt : new Date().toISOString()
+                createdAt: editIndex >= 0 ? songs[editIndex].createdAt : new Date().toISOString(),
+                chordChart: editIndex >= 0 ? songs[editIndex].chordChart : null
             };
 
             // Check for duplicates before saving
@@ -6116,6 +5981,36 @@ What would you like to do?
             ⚡ Perf
         </a>
     </div>
+
+    <!-- Theme Management Script (Inline for file:// compatibility) -->
+    <script>
+        // Synchronized theme management using localStorage
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'grey';
+            applyTheme(savedTheme);
+            const themeSelector = document.getElementById('themeSelector');
+            if (themeSelector) {
+                themeSelector.value = savedTheme;
+            }
+            return savedTheme;
+        }
+        
+        function applyTheme(theme) {
+            if (theme === 'grey') {
+                document.body.removeAttribute('data-theme');
+            } else {
+                document.body.setAttribute('data-theme', theme);
+            }
+        }
+        
+        function changeTheme(theme) {
+            localStorage.setItem('bandOrganizerTheme', theme);
+            applyTheme(theme);
+        }
+        
+        // Load theme immediately
+        loadTheme();
+    </script>
 </body>
 </html>
 

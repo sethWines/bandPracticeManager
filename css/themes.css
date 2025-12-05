@@ -106,3 +106,36 @@
     --primary-bg: rgba(20, 184, 166, 0.15);
 }
 
+[data-theme="copper"] {
+    --primary-color: #b87333;
+    --primary-light: #d4944e;
+    --primary-lighter: #e8b67a;
+    --primary-dark: #7a4d22;
+    --primary-darker: #8b5a2b;
+    --primary-glow: rgba(184, 115, 51, 0.3);
+    --primary-border: rgba(184, 115, 51, 0.3);
+    --primary-bg: rgba(184, 115, 51, 0.15);
+}
+
+[data-theme="sunrise"] {
+    --primary-color: #ffb700;
+    --primary-light: #ffcc33;
+    --primary-lighter: #ffdd66;
+    --primary-dark: #cc8800;
+    --primary-darker: #e69900;
+    --primary-glow: rgba(255, 183, 0, 0.3);
+    --primary-border: rgba(255, 183, 0, 0.3);
+    --primary-bg: rgba(255, 183, 0, 0.15);
+}
+
+[data-theme="sunset"] {
+    --primary-color: #ff8c00;
+    --primary-light: #ffa533;
+    --primary-lighter: #ffb84d;
+    --primary-dark: #b36200;
+    --primary-darker: #cc7000;
+    --primary-glow: rgba(255, 140, 0, 0.3);
+    --primary-border: rgba(255, 140, 0, 0.3);
+    --primary-bg: rgba(255, 140, 0, 0.15);
+}
+

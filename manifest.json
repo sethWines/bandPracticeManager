@@ -37,6 +37,13 @@
       "description": "Manage performance setlists",
       "url": "./setlist-manager.html",
       "icons": []
+    },
+    {
+      "name": "Chord Chart Editor",
+      "short_name": "Chords",
+      "description": "Create and edit chord charts",
+      "url": "./chord-chart-editor.html",
+      "icons": []
     }
   ]
 }

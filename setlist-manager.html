@@ -5,143 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Setlist Manager</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d84315' stroke-width='2'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>">
+    <link rel="stylesheet" href="./css/themes.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        :root {
-            --primary-color: #6b7280;
-            --primary-light: #9ca3af;
-            --primary-lighter: #d1d5db;
-            --primary-dark: #374151;
-            --primary-darker: #4b5563;
-            --primary-glow: rgba(107, 114, 128, 0.3);
-            --primary-border: rgba(107, 114, 128, 0.3);
-            --primary-bg: rgba(107, 114, 128, 0.15);
-        }
-
-        [data-theme="red"] {
-            --primary-color: #d84315;
-            --primary-light: #ff6b3d;
-            --primary-lighter: #ffa580;
-            --primary-dark: #5c1d0a;
-            --primary-darker: #7a2710;
-            --primary-glow: rgba(216, 67, 21, 0.3);
-            --primary-border: rgba(216, 67, 21, 0.3);
-            --primary-bg: rgba(216, 67, 21, 0.15);
-        }
-
-        [data-theme="blue"] {
-            --primary-color: #1976d2;
-            --primary-light: #42a5f5;
-            --primary-lighter: #90caf9;
-            --primary-dark: #0d3d6b;
-            --primary-darker: #1565c0;
-            --primary-glow: rgba(25, 118, 210, 0.3);
-            --primary-border: rgba(25, 118, 210, 0.3);
-            --primary-bg: rgba(25, 118, 210, 0.15);
-        }
-
-        [data-theme="green"] {
-            --primary-color: #388e3c;
-            --primary-light: #66bb6a;
-            --primary-lighter: #a5d6a7;
-            --primary-dark: #1b4d1e;
-            --primary-darker: #2e7d32;
-            --primary-glow: rgba(56, 142, 60, 0.3);
-            --primary-border: rgba(56, 142, 60, 0.3);
-            --primary-bg: rgba(56, 142, 60, 0.15);
-        }
-
-        [data-theme="purple"] {
-            --primary-color: #7b1fa2;
-            --primary-light: #ab47bc;
-            --primary-lighter: #ce93d8;
-            --primary-dark: #3d0f51;
-            --primary-darker: #6a1b9a;
-            --primary-glow: rgba(123, 31, 162, 0.3);
-            --primary-border: rgba(123, 31, 162, 0.3);
-            --primary-bg: rgba(123, 31, 162, 0.15);
-        }
-
-        [data-theme="cyan"] {
-            --primary-color: #00838f;
-            --primary-light: #00acc1;
-            --primary-lighter: #4dd0e1;
-            --primary-dark: #004247;
-            --primary-darker: #00697c;
-            --primary-glow: rgba(0, 131, 143, 0.3);
-            --primary-border: rgba(0, 131, 143, 0.3);
-            --primary-bg: rgba(0, 131, 143, 0.15);
-        }
-
-        [data-theme="amber"] {
-            --primary-color: #f57c00;
-            --primary-light: #ff9800;
-            --primary-lighter: #ffb74d;
-            --primary-dark: #7a3e00;
-            --primary-darker: #ef6c00;
-            --primary-glow: rgba(245, 124, 0, 0.3);
-            --primary-border: rgba(245, 124, 0, 0.3);
-            --primary-bg: rgba(245, 124, 0, 0.15);
-        }
-
-        [data-theme="pink"] {
-            --primary-color: #c2185b;
-            --primary-light: #e91e63;
-            --primary-lighter: #f06292;
-            --primary-dark: #610c2d;
-            --primary-darker: #ad1457;
-            --primary-glow: rgba(194, 24, 91, 0.3);
-            --primary-border: rgba(194, 24, 91, 0.3);
-            --primary-bg: rgba(194, 24, 91, 0.15);
-        }
-
-        [data-theme="teal"] {
-            --primary-color: #00897b;
-            --primary-light: #26a69a;
-            --primary-lighter: #80cbc4;
-            --primary-dark: #00443d;
-            --primary-darker: #00695c;
-            --primary-glow: rgba(0, 137, 123, 0.3);
-            --primary-border: rgba(0, 137, 123, 0.3);
-            --primary-bg: rgba(0, 137, 123, 0.15);
-        }
-
-        [data-theme="copper"] {
-            --primary-color: #b87333;
-            --primary-light: #d4944e;
-            --primary-lighter: #e8b67a;
-            --primary-dark: #7a4d22;
-            --primary-darker: #8b5a2b;
-            --primary-glow: rgba(184, 115, 51, 0.3);
-            --primary-border: rgba(184, 115, 51, 0.3);
-            --primary-bg: rgba(184, 115, 51, 0.15);
-        }
-
-        [data-theme="sunrise"] {
-            --primary-color: #ffb700;
-            --primary-light: #ffcc33;
-            --primary-lighter: #ffdd66;
-            --primary-dark: #cc8800;
-            --primary-darker: #e69900;
-            --primary-glow: rgba(255, 183, 0, 0.3);
-            --primary-border: rgba(255, 183, 0, 0.3);
-            --primary-bg: rgba(255, 183, 0, 0.15);
-        }
-
-        [data-theme="sunset"] {
-            --primary-color: #ff8c00;
-            --primary-light: #ffa533;
-            --primary-lighter: #ffb84d;
-            --primary-dark: #b36200;
-            --primary-darker: #cc7000;
-            --primary-glow: rgba(255, 140, 0, 0.3);
-            --primary-border: rgba(255, 140, 0, 0.3);
-            --primary-bg: rgba(255, 140, 0, 0.15);
         }
 
         body {
@@ -707,6 +576,14 @@
                 </svg>
                 Back to Band Manager
             </a>
+            <a href="chord-chart-editor.html" style="margin-left: 10px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                    <path d="M9 18V5l12-2v13"/>
+                    <circle cx="6" cy="18" r="3"/>
+                    <circle cx="18" cy="16" r="3"/>
+                </svg>
+                Chord Charts
+            </a>
         </div>
 
         <!-- Compact Theme Selector (Top Right) -->
@@ -868,30 +745,6 @@
         let selectedSongs = new Set(); // Now stores "artist|||song" keys instead of indices
 
         // Theme Management
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'grey';
-            applyTheme(savedTheme);
-            const themeSelector = document.getElementById('themeSelector');
-            if (themeSelector) {
-                themeSelector.value = savedTheme;
-            }
-        }
-
-        function applyTheme(theme) {
-            // Remove all theme data attributes
-            document.body.removeAttribute('data-theme');
-            
-            // Apply new theme (only if not default grey)
-            if (theme !== 'grey') {
-                document.body.setAttribute('data-theme', theme);
-            }
-        }
-
-        function changeTheme(theme) {
-            localStorage.setItem('bandOrganizerTheme', theme);
-            applyTheme(theme);
-        }
-
         // Utility functions (defined first so they can be used everywhere)
         // Optimized HTML escaping (faster than DOM method)
         const escapeMap = {
@@ -911,7 +764,7 @@
 
         // Load data on page load
         window.onload = function() {
-            loadTheme(); // Load theme first
+            // Theme already loaded by inline script below
             loadWatermark(); // Load watermark preference from Song Manager
             loadSongs();
             loadSetlists();
@@ -1122,6 +975,7 @@
                                                 </div>
                                                 <div style="display: flex; align-items: center; gap: 10px;">
                                                     ${song.duration ? `<span style="color: var(--primary-light); font-size: 0.9em; min-width: 50px; text-align: right;">${escapeHtml(song.duration)}</span>` : ''}
+                                                    ${song.chordChart ? `<a href="chord-chart-editor.html?songId=${songs.findIndex(s => s.artist === song.artist && s.song === song.song)}" target="_blank" title="View Chord Chart" class="no-print" style="color: var(--primary-light); text-decoration: none; font-size: 1.2em;">📊</a>` : ''}
                                                     <button class="btn-secondary btn-small no-print" onclick="editSongFromSetlist('${escapeHtml(song.artist)}', '${escapeHtml(song.song)}')" title="Edit song in Song Manager">
                                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
                                                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -2133,6 +1987,36 @@
             a.click();
             window.URL.revokeObjectURL(url);
         }
+    </script>
+
+    <!-- Theme Management Script (Inline for file:// compatibility) -->
+    <script>
+        // Synchronized theme management using localStorage
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'grey';
+            applyTheme(savedTheme);
+            const themeSelector = document.getElementById('themeSelector');
+            if (themeSelector) {
+                themeSelector.value = savedTheme;
+            }
+            return savedTheme;
+        }
+        
+        function applyTheme(theme) {
+            if (theme === 'grey') {
+                document.body.removeAttribute('data-theme');
+            } else {
+                document.body.setAttribute('data-theme', theme);
+            }
+        }
+        
+        function changeTheme(theme) {
+            localStorage.setItem('bandOrganizerTheme', theme);
+            applyTheme(theme);
+        }
+        
+        // Load theme immediately
+        loadTheme();
     </script>
 </body>
 </html>

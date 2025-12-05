@@ -78,6 +78,7 @@ export const STORAGE_KEYS = {
     // Features
     SAVED_FILTERS: 'savedFilters',      // Saved filter presets
     STATS_PREFERENCES: 'statsPreferences', // Statistics display preferences
-    EDIT_SONG_SEARCH: 'editSongSearch'  // Temporary cross-page song search
+    EDIT_SONG_SEARCH: 'editSongSearch', // Temporary cross-page song search
+    CHORD_CHART_AUTOSAVE: 'chordChartAutosave' // Temporary save during editing
 };
 
