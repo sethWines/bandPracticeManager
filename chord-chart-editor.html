@@ -1145,7 +1145,7 @@
             color: #d84315;
         }
 
-        .performance-view .chord-line {
+        .performance-container .chord-line {
             color: rgba(255, 255, 255, 0.4);
             opacity: 0.7;
         }
@@ -1726,6 +1726,7 @@
                     let contentHtml = '';
                     for (let i = 0; i < lines.length; i++) {
                         const line = lines[i];
+                        const lineMetadata = comp.lyricsMetadata && comp.lyricsMetadata[i];
                         
                         if (!line.trim()) {
                             // Empty line - render as empty div to preserve spacing
@@ -1733,24 +1734,36 @@
                             continue;
                         }
                         
-                        // Check if this is a chord line (standalone or above lyrics)
-                        if (isChordLine(line)) {
-                            // This line looks like chords
-                            contentHtml += `<div class="chord-line">${line}</div>`;
-                            continue;
+                        // Priority 1: Use explicit metadata from grid editor
+                        if (lineMetadata) {
+                            if (lineMetadata.type === 'chord') {
+                                contentHtml += `<div class="chord-line">${line}</div>`;
+                                continue;
+                            } else if (lineMetadata.type === 'lyric') {
+                                contentHtml += `<div class="lyric-line">${line}</div>`;
+                                continue;
+                            }
+                            // If type is 'generic', fall through to detection
                         }
                         
-                        // Check for inline chord format [Chord]
+                        // Priority 2: Check for inline chord format [Chord]
                         if (line.includes('[')) {
                             const formatted = this.inlineToChordLine(line);
                             if (formatted.chords) {
                                 contentHtml += `<div class="chord-line">${formatted.chords}</div>`;
                             }
                             contentHtml += `<div class="lyric-line">${formatted.lyrics}</div>`;
-                        } else {
-                            // Regular lyric line
-                            contentHtml += `<div class="lyric-line">${line}</div>`;
+                            continue;
                         }
+                        
+                        // Priority 3: Fallback to regex detection
+                        if (isChordLine(line)) {
+                            contentHtml += `<div class="chord-line">${line}</div>`;
+                            continue;
+                        }
+                        
+                        // Priority 4: Default to lyric
+                        contentHtml += `<div class="lyric-line">${line}</div>`;
                     }
                     
                     html += `
@@ -1813,6 +1826,7 @@
                     let contentHtml = '';
                     for (let i = 0; i < lines.length; i++) {
                         const line = lines[i];
+                        const lineMetadata = comp.lyricsMetadata && comp.lyricsMetadata[i];
                         
                         if (!line.trim()) {
                             // Empty line - render as empty div to preserve spacing
@@ -1820,24 +1834,36 @@
                             continue;
                         }
                         
-                        // Check if this is a chord line (standalone or above lyrics)
-                        if (isChordLine(line)) {
-                            // This line looks like chords
-                            contentHtml += `<div class="chord-line">${line}</div>`;
-                            continue;
+                        // Priority 1: Use explicit metadata from grid editor
+                        if (lineMetadata) {
+                            if (lineMetadata.type === 'chord') {
+                                contentHtml += `<div class="chord-line">${line}</div>`;
+                                continue;
+                            } else if (lineMetadata.type === 'lyric') {
+                                contentHtml += `<div class="lyric-line">${line}</div>`;
+                                continue;
+                            }
+                            // If type is 'generic', fall through to detection
                         }
                         
-                        // Check for inline chord format [Chord]
+                        // Priority 2: Check for inline chord format [Chord]
                         if (line.includes('[')) {
                             const formatted = this.inlineToChordLine(line);
                             if (formatted.chords) {
                                 contentHtml += `<div class="chord-line">${formatted.chords}</div>`;
                             }
                             contentHtml += `<div class="lyric-line">${formatted.lyrics}</div>`;
-                        } else {
-                            // Regular lyric line
-                            contentHtml += `<div class="lyric-line">${line}</div>`;
+                            continue;
                         }
+                        
+                        // Priority 3: Fallback to regex detection
+                        if (isChordLine(line)) {
+                            contentHtml += `<div class="chord-line">${line}</div>`;
+                            continue;
+                        }
+                        
+                        // Priority 4: Default to lyric
+                        contentHtml += `<div class="lyric-line">${line}</div>`;
                     }
                     
                     html += `
@@ -2515,6 +2541,20 @@
                 });
             }
             
+            // Initialize or sync metadata with current gridRows
+            if (!comp.lyricsMetadata) {
+                // First time: initialize metadata based on current gridRows
+                comp.lyricsMetadata = comp.gridRows.map(row => ({ type: row.type || 'generic' }));
+            } else if (comp.lyricsMetadata.length !== comp.gridRows.length) {
+                // Sync metadata length with current rows
+                const newMetadata = [];
+                comp.gridRows.forEach((row, idx) => {
+                    // Preserve existing metadata if available, otherwise use row type
+                    newMetadata.push(comp.lyricsMetadata[idx] || { type: row.type || 'generic' });
+                });
+                comp.lyricsMetadata = newMetadata;
+            }
+            
             // Find the longest line and add 10 extra cells for padding
             const maxLength = Math.max(...comp.gridRows.map(row => row.chars.length), 10) + 10;
             
@@ -2904,6 +2944,10 @@
             
             // Update component lyrics
             comp.lyrics = newLines.join('\n');
+            
+            // Save row type metadata for accurate chord/lyric detection
+            comp.lyricsMetadata = comp.gridRows.map(row => ({ type: row.type || 'generic' }));
+            
             const textarea = document.querySelector(`.component-tile[data-index="${index}"] .component-textarea`);
             if (textarea) {
                 textarea.value = comp.lyrics;
