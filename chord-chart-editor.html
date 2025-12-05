@@ -1116,16 +1116,18 @@
         .print-lyrics,
         .performance-lyrics {
             line-height: 1.8;
-            padding-left: 20px;
+            padding-left: 0;
             white-space: pre-wrap;
             font-family: 'Courier New', monospace;
+            flex: 1;
         }
 
         .print-lyrics {
             line-height: 1.8;
-            padding-left: 20px;
+            padding-left: 0;
             white-space: pre-wrap;
             font-family: 'Courier New', monospace;
+            flex: 1;
         }
 
         .chord-line {
@@ -1161,13 +1163,34 @@
         }
 
         .print-component h3,
+        .performance-component {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+
         .performance-component h3 {
             font-size: 1.1em;
-            margin-bottom: 8px;
+            margin: 0;
+            padding-right: 20px;
             font-weight: bold;
+            min-width: 120px;
+            flex-shrink: 0;
+        }
+
+        .print-component {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: flex-start;
         }
 
         .print-component h3 {
+            font-size: 1.1em;
+            margin: 0;
+            padding-right: 20px;
+            font-weight: bold;
+            min-width: 120px;
+            flex-shrink: 0;
             color: #333;
         }
 
@@ -1679,12 +1702,6 @@
                 `;
                 
                 chart.components.forEach(comp => {
-                    html += `
-                        <div class="print-component">
-                            <h3>${comp.displayName}</h3>
-                            <div class="print-lyrics">
-                    `;
-                    
                     const lines = comp.lyrics.split('\n');
                     
                     // Helper to detect if a line is a chord line (contains chord-like patterns)
@@ -1705,18 +1722,21 @@
                         return startsWithChord && !hasLyricIndicators && chordPattern.test(trimmed);
                     };
                     
+                    // Build content HTML
+                    let contentHtml = '';
                     for (let i = 0; i < lines.length; i++) {
                         const line = lines[i];
                         
                         if (!line.trim()) {
-                            // Skip empty lines
+                            // Empty line - render as empty div to preserve spacing
+                            contentHtml += `<div class="lyric-line">&nbsp;</div>`;
                             continue;
                         }
                         
                         // Check if this is a chord line (standalone or above lyrics)
                         if (isChordLine(line)) {
                             // This line looks like chords
-                            html += `<div class="chord-line">${line}</div>`;
+                            contentHtml += `<div class="chord-line">${line}</div>`;
                             continue;
                         }
                         
@@ -1724,17 +1744,19 @@
                         if (line.includes('[')) {
                             const formatted = this.inlineToChordLine(line);
                             if (formatted.chords) {
-                                html += `<div class="chord-line">${formatted.chords}</div>`;
+                                contentHtml += `<div class="chord-line">${formatted.chords}</div>`;
                             }
-                            html += `<div class="lyric-line">${formatted.lyrics}</div>`;
+                            contentHtml += `<div class="lyric-line">${formatted.lyrics}</div>`;
                         } else {
                             // Regular lyric line
-                            html += `<div class="lyric-line">${line}</div>`;
+                            contentHtml += `<div class="lyric-line">${line}</div>`;
                         }
                     }
                     
                     html += `
-                            </div>
+                        <div class="print-component">
+                            <h3>${comp.displayName}</h3>
+                            <div class="print-lyrics">${contentHtml}</div>
                         </div>
                     `;
                 });
@@ -1767,12 +1789,6 @@
                 `;
                 
                 chart.components.forEach(comp => {
-                    html += `
-                        <div class="performance-component">
-                            <h3>${comp.displayName}</h3>
-                            <div class="performance-lyrics">
-                    `;
-                    
                     const lines = comp.lyrics.split('\n');
                     
                     // Helper to detect if a line is a chord line (contains chord-like patterns)
@@ -1793,18 +1809,21 @@
                         return startsWithChord && !hasLyricIndicators && chordPattern.test(trimmed);
                     };
                     
+                    // Build content HTML
+                    let contentHtml = '';
                     for (let i = 0; i < lines.length; i++) {
                         const line = lines[i];
                         
                         if (!line.trim()) {
-                            // Skip empty lines
+                            // Empty line - render as empty div to preserve spacing
+                            contentHtml += `<div class="lyric-line">&nbsp;</div>`;
                             continue;
                         }
                         
                         // Check if this is a chord line (standalone or above lyrics)
                         if (isChordLine(line)) {
                             // This line looks like chords
-                            html += `<div class="chord-line">${line}</div>`;
+                            contentHtml += `<div class="chord-line">${line}</div>`;
                             continue;
                         }
                         
@@ -1812,17 +1831,19 @@
                         if (line.includes('[')) {
                             const formatted = this.inlineToChordLine(line);
                             if (formatted.chords) {
-                                html += `<div class="chord-line">${formatted.chords}</div>`;
+                                contentHtml += `<div class="chord-line">${formatted.chords}</div>`;
                             }
-                            html += `<div class="lyric-line">${formatted.lyrics}</div>`;
+                            contentHtml += `<div class="lyric-line">${formatted.lyrics}</div>`;
                         } else {
                             // Regular lyric line
-                            html += `<div class="lyric-line">${line}</div>`;
+                            contentHtml += `<div class="lyric-line">${line}</div>`;
                         }
                     }
                     
                     html += `
-                            </div>
+                        <div class="performance-component">
+                            <h3>${comp.displayName}</h3>
+                            <div class="performance-lyrics">${contentHtml}</div>
                         </div>
                     `;
                 });
@@ -2444,16 +2465,45 @@
             // Parse lyrics into individual lines, preserving exact spacing
             const lines = comp.lyrics.split('\n');
             
-            // Initialize row data structure if not exists
+            // Synchronize gridRows with current lyrics while preserving row types
             if (!comp.gridRows) {
+                // First time: create new grid
                 comp.gridRows = [];
                 lines.forEach((line) => {
-                    const chars = line.split(''); // Split into characters, preserving spaces
+                    const chars = line.split('');
                     comp.gridRows.push({
-                        type: 'generic', // All rows start as generic
+                        type: 'generic',
                         chars: chars.length > 0 ? chars : [' ']
-                        // Note: selected property intentionally omitted (defaults to falsy)
                     });
+                });
+            } else if (comp.gridRows.length !== lines.length) {
+                // Number of lines changed: add or remove rows while preserving existing types
+                if (lines.length > comp.gridRows.length) {
+                    // Lines added: add new generic rows at the end
+                    const newRowCount = lines.length - comp.gridRows.length;
+                    for (let i = 0; i < newRowCount; i++) {
+                        comp.gridRows.push({
+                            type: 'generic',
+                            chars: [' ']
+                        });
+                    }
+                } else {
+                    // Lines removed: trim rows from the end
+                    comp.gridRows = comp.gridRows.slice(0, lines.length);
+                }
+                
+                // Update all row contents with current line text
+                lines.forEach((line, i) => {
+                    const chars = line.split('');
+                    comp.gridRows[i].chars = chars.length > 0 ? chars : [' '];
+                    // Preserve type: don't modify comp.gridRows[i].type
+                });
+            } else {
+                // Same number of lines: just update content, preserve types
+                lines.forEach((line, i) => {
+                    const chars = line.split('');
+                    comp.gridRows[i].chars = chars.length > 0 ? chars : [' '];
+                    // Preserve type: don't modify comp.gridRows[i].type
                 });
             }
             
@@ -2462,7 +2512,6 @@
                 comp.gridRows.push({
                     type: 'generic',
                     chars: [' ']
-                    // Note: selected property intentionally omitted (defaults to falsy)
                 });
             }
             
