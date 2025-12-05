@@ -1116,21 +1116,20 @@
         .print-lyrics,
         .performance-lyrics {
             line-height: 1.8;
-            padding-left: 40px;
+            padding-left: 20px;
             white-space: pre-wrap;
             font-family: 'Courier New', monospace;
         }
 
         .print-lyrics {
             line-height: 1.8;
-            padding-left: 40px;
+            padding-left: 20px;
             white-space: pre-wrap;
             font-family: 'Courier New', monospace;
         }
 
         .chord-line {
             font-weight: bold;
-            letter-spacing: 1px;
             font-size: 1em;
             white-space: pre-wrap;
         }
@@ -1693,14 +1692,17 @@
                         const trimmed = line.trim();
                         if (!trimmed) return false;
                         
-                        // More flexible chord pattern: A-G (case insensitive), optional #/b, optional modifiers, optional numbers
-                        // Multiple chords separated by spaces
-                        const chordPattern = /^[\s]*([A-G](#|b)?(m|M|maj|min|sus|aug|dim|add)?[0-9]?([/-][A-G](#|b)?)?[\s]*)+$/i;
+                        // Strict chord pattern: A-G followed by optional modifiers, separated by spaces
+                        // Must be at least 2 characters and contain only chord-like elements
+                        const chordPattern = /^[A-G](#|b)?(m|M|maj|min|sus|aug|dim|add)?[0-9]?([/-][A-G](#|b)?)?(\s+[A-G](#|b)?(m|M|maj|min|sus|aug|dim|add)?[0-9]?([/-][A-G](#|b)?)?)*$/;
                         
-                        // Also check if it contains mostly uppercase letters and spaces (typical chord format)
-                        const hasChordStructure = /[A-G]/.test(trimmed) && !/[a-z]{3,}/.test(trimmed);
+                        // Must NOT contain lowercase words, punctuation (except # and /) or common lyric indicators
+                        const hasLyricIndicators = /[a-z]{3,}|[,;.!?'"()]/.test(trimmed);
                         
-                        return chordPattern.test(trimmed) || hasChordStructure;
+                        // Must start with a valid chord (uppercase A-G)
+                        const startsWithChord = /^[A-G]/.test(trimmed);
+                        
+                        return startsWithChord && !hasLyricIndicators && chordPattern.test(trimmed);
                     };
                     
                     for (let i = 0; i < lines.length; i++) {
@@ -1778,14 +1780,17 @@
                         const trimmed = line.trim();
                         if (!trimmed) return false;
                         
-                        // More flexible chord pattern: A-G (case insensitive), optional #/b, optional modifiers, optional numbers
-                        // Multiple chords separated by spaces
-                        const chordPattern = /^[\s]*([A-G](#|b)?(m|M|maj|min|sus|aug|dim|add)?[0-9]?([/-][A-G](#|b)?)?[\s]*)+$/i;
+                        // Strict chord pattern: A-G followed by optional modifiers, separated by spaces
+                        // Must be at least 2 characters and contain only chord-like elements
+                        const chordPattern = /^[A-G](#|b)?(m|M|maj|min|sus|aug|dim|add)?[0-9]?([/-][A-G](#|b)?)?(\s+[A-G](#|b)?(m|M|maj|min|sus|aug|dim|add)?[0-9]?([/-][A-G](#|b)?)?)*$/;
                         
-                        // Also check if it contains mostly uppercase letters and spaces (typical chord format)
-                        const hasChordStructure = /[A-G]/.test(trimmed) && !/[a-z]{3,}/.test(trimmed);
+                        // Must NOT contain lowercase words, punctuation (except # and /) or common lyric indicators
+                        const hasLyricIndicators = /[a-z]{3,}|[,;.!?'"()]/.test(trimmed);
                         
-                        return chordPattern.test(trimmed) || hasChordStructure;
+                        // Must start with a valid chord (uppercase A-G)
+                        const startsWithChord = /^[A-G]/.test(trimmed);
+                        
+                        return startsWithChord && !hasLyricIndicators && chordPattern.test(trimmed);
                     };
                     
                     for (let i = 0; i < lines.length; i++) {
