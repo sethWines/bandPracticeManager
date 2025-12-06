@@ -2649,6 +2649,9 @@
             
             console.log(`Found grid editor element:`, gridEditor);
             
+            // OPTIMIZATION: Reset handler flag when rebuilding
+            gridEditor._handlersInitialized = false;
+            
             // Initialize grid structure
             initializeGrid(index);
             
@@ -2743,13 +2746,33 @@
             updateControlButtonStates(index);
         }
 
-        // Setup input event handlers - WITH MULTI-CELL SELECTION
+        // Debounce helper
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Setup input event handlers - WITH MULTI-CELL SELECTION (OPTIMIZED)
         function setupGridInputHandlers(compIndex) {
             const gridEditor = document.querySelector(`.grid-editor[data-index="${compIndex}"]`);
             if (!gridEditor) {
                 console.error('Grid editor not found for component:', compIndex);
                 return;
             }
+            
+            // OPTIMIZATION: Prevent duplicate setup
+            if (gridEditor._handlersInitialized) {
+                console.log('Grid handlers already initialized for component', compIndex);
+                return;
+            }
+            gridEditor._handlersInitialized = true;
             
             const allInputs = gridEditor.querySelectorAll('.grid-cell-input');
             console.log(`Setting up ${allInputs.length} grid inputs for component ${compIndex}`);
@@ -2759,24 +2782,28 @@
             let selectionStart = null;
             let selectedCells = new Set();
             
+            // OPTIMIZATION: Cache cell lookups
+            const cellCache = new Map();
+            allInputs.forEach(input => {
+                const key = `${input.dataset.row},${input.dataset.char}`;
+                cellCache.set(key, input.parentElement);
+            });
+            
             // Clear selection function
             function clearSelection() {
                 selectedCells.clear();
-                gridEditor.querySelectorAll('.grid-content-cell.selected').forEach(cell => {
+                cellCache.forEach(cell => {
                     cell.classList.remove('selected');
                 });
             }
             
-            // Update visual selection
+            // OPTIMIZATION: Update visual selection only for changed cells
             function updateSelection() {
-                gridEditor.querySelectorAll('.grid-content-cell').forEach(cell => {
-                    const input = cell.querySelector('.grid-cell-input');
-                    if (!input) return;
-                    const key = `${input.dataset.row},${input.dataset.char}`;
-                    if (selectedCells.has(key)) {
-                        cell.classList.add('selected');
-                    } else {
-                        cell.classList.remove('selected');
+                cellCache.forEach((cell, key) => {
+                    const shouldBeSelected = selectedCells.has(key);
+                    const isSelected = cell.classList.contains('selected');
+                    if (shouldBeSelected !== isSelected) {
+                        cell.classList.toggle('selected', shouldBeSelected);
                     }
                 });
             }
@@ -2797,171 +2824,181 @@
                 updateSelection();
             }
             
-            allInputs.forEach(input => {
-                const cell = input.parentElement;
+            // OPTIMIZATION: Debounced sync to avoid excessive updates
+            const debouncedSync = debounce(() => {
+                syncGridToText(compIndex);
+            }, 150);
+            
+            // OPTIMIZATION: Use event delegation on the grid editor instead of individual handlers
+            gridEditor.addEventListener('mousedown', function(e) {
+                const input = e.target.closest('.grid-cell-input');
+                if (!input) return;
                 
-                // Mouse down to start selection
-                input.addEventListener('mousedown', function(e) {
-                    const row = parseInt(this.dataset.row);
-                    const charIdx = parseInt(this.dataset.char);
-                    
-                    if (e.ctrlKey || e.metaKey) {
-                        // Ctrl+Click: toggle individual cell
-                        const key = `${row},${charIdx}`;
-                        if (selectedCells.has(key)) {
-                            selectedCells.delete(key);
-                        } else {
-                            selectedCells.add(key);
-                        }
-                        updateSelection();
-                    } else if (e.shiftKey && selectionStart) {
-                        // Shift+Click: select range
-                        selectRange(selectionStart.row, selectionStart.char, row, charIdx);
+                const row = parseInt(input.dataset.row);
+                const charIdx = parseInt(input.dataset.char);
+                
+                if (e.ctrlKey || e.metaKey) {
+                    // Ctrl+Click: toggle individual cell
+                    const key = `${row},${charIdx}`;
+                    if (selectedCells.has(key)) {
+                        selectedCells.delete(key);
                     } else {
-                        // Normal click: start new selection
-                        isMouseDown = true;
-                        selectionStart = { row, char: charIdx };
-                        clearSelection();
-                        selectedCells.add(`${row},${charIdx}`);
-                        updateSelection();
+                        selectedCells.add(key);
                     }
-                });
-                
-                // Mouse enter for drag selection
-                input.addEventListener('mouseenter', function() {
-                    if (isMouseDown && selectionStart) {
-                        const row = parseInt(this.dataset.row);
-                        const charIdx = parseInt(this.dataset.char);
-                        selectRange(selectionStart.row, selectionStart.char, row, charIdx);
-                    }
-                });
-                
-                // Handle character input
-                input.addEventListener('input', function() {
-                    const row = parseInt(this.dataset.row);
-                    const charIdx = parseInt(this.dataset.char);
-                    const comp = chartData.components[compIndex];
-                    
-                    console.log(`Input event: row=${row}, col=${charIdx}, value="${this.value}"`);
-                    
-                    // Update grid data
-                    if (!comp.gridRows[row]) return;
-                    if (!comp.gridRows[row].chars) comp.gridRows[row].chars = [];
-                    
-                    comp.gridRows[row].chars[charIdx] = this.value || '';
-                    
-                    // Auto-sync back to text
-                    syncGridToText(compIndex);
-                });
-                
-                // Handle keyboard navigation (ONLY for navigation keys)
-                input.addEventListener('keydown', function(e) {
-                    const row = parseInt(this.dataset.row);
-                    const charIdx = parseInt(this.dataset.char);
-                    let targetInput = null;
-                    
-                    // Copy (Ctrl+C)
-                    if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-                        e.preventDefault();
-                        copySelectedCells(compIndex, gridEditor, selectedCells);
-                        return;
-                    }
-                    
-                    // Cut (Ctrl+X)
-                    if ((e.ctrlKey || e.metaKey) && e.key === 'x') {
-                        e.preventDefault();
-                        cutSelectedCells(compIndex, gridEditor, selectedCells);
-                        return;
-                    }
-                    
-                    // Paste (Ctrl+V) - let the existing paste handler handle it
-                    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-                        // Will be handled by paste event below
-                        return;
-                    }
-                    
-                    // Select All (Ctrl+A)
-                    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-                        e.preventDefault();
-                        selectAllCells(compIndex, gridEditor, selectedCells, selectRange);
-                        return;
-                    }
-                    
-                    // Delete selected cells
-                    if (e.key === 'Delete' && selectedCells.size > 0) {
-                        e.preventDefault();
-                        deleteSelectedCells(compIndex, selectedCells);
-                        return;
-                    }
-                    
-                    switch(e.key) {
-                        case 'ArrowRight':
-                            e.preventDefault();
-                            targetInput = gridEditor.querySelector(
-                                `input[data-row="${row}"][data-char="${charIdx + 1}"]`
-                            );
-                            break;
-                            
-                        case 'ArrowLeft':
-                            e.preventDefault();
-                            targetInput = gridEditor.querySelector(
-                                `input[data-row="${row}"][data-char="${charIdx - 1}"]`
-                            );
-                            break;
-                            
-                        case 'ArrowDown':
-                            e.preventDefault();
-                            targetInput = gridEditor.querySelector(
-                                `input[data-row="${row + 1}"][data-char="${charIdx}"]`
-                            );
-                            break;
-                            
-                        case 'ArrowUp':
-                            e.preventDefault();
-                            targetInput = gridEditor.querySelector(
-                                `input[data-row="${row - 1}"][data-char="${charIdx}"]`
-                            );
-                            break;
-                            
-                        case 'Tab':
-                            e.preventDefault();
-                            const nextChar = gridEditor.querySelector(
-                                `input[data-row="${row}"][data-char="${charIdx + 1}"]`
-                            );
-                            targetInput = nextChar || gridEditor.querySelector(
-                                `input[data-row="${row + 1}"][data-char="0"]`
-                            );
-                            break;
-                            
-                        case 'Enter':
-                            e.preventDefault();
-                            targetInput = gridEditor.querySelector(
-                                `input[data-row="${row + 1}"][data-char="${charIdx}"]`
-                            );
-                            break;
-                    }
-                    
-                    if (targetInput) {
-                        targetInput.focus();
-                        targetInput.select();
-                    }
-                });
-                
-                // Handle paste
-                input.addEventListener('paste', function(e) {
-                    e.preventDefault();
-                    const text = e.clipboardData.getData('text/plain');
-                    const row = parseInt(this.dataset.row);
-                    const charIdx = parseInt(this.dataset.char);
-                    
-                    pasteIntoGrid(compIndex, row, charIdx, text);
-                });
+                    updateSelection();
+                } else if (e.shiftKey && selectionStart) {
+                    // Shift+Click: select range
+                    selectRange(selectionStart.row, selectionStart.char, row, charIdx);
+                } else {
+                    // Normal click: start new selection
+                    isMouseDown = true;
+                    selectionStart = { row, char: charIdx };
+                    clearSelection();
+                    selectedCells.add(`${row},${charIdx}`);
+                    updateSelection();
+                }
             });
             
-            // Global mouse up to end selection
-            document.addEventListener('mouseup', function() {
-                isMouseDown = false;
+            gridEditor.addEventListener('mouseenter', function(e) {
+                if (!isMouseDown || !selectionStart) return;
+                const input = e.target.closest('.grid-cell-input');
+                if (!input) return;
+                
+                const row = parseInt(input.dataset.row);
+                const charIdx = parseInt(input.dataset.char);
+                selectRange(selectionStart.row, selectionStart.char, row, charIdx);
+            }, true); // Use capture for better performance
+            
+            // Use event delegation for input events
+            gridEditor.addEventListener('input', function(e) {
+                const input = e.target.closest('.grid-cell-input');
+                if (!input) return;
+                
+                const row = parseInt(input.dataset.row);
+                const charIdx = parseInt(input.dataset.char);
+                const comp = chartData.components[compIndex];
+                
+                // Update grid data
+                if (!comp.gridRows[row]) return;
+                if (!comp.gridRows[row].chars) comp.gridRows[row].chars = [];
+                
+                comp.gridRows[row].chars[charIdx] = input.value || '';
+                
+                // OPTIMIZATION: Use debounced sync
+                debouncedSync();
             });
+            
+            // Use event delegation for keydown events
+            gridEditor.addEventListener('keydown', function(e) {
+                const input = e.target.closest('.grid-cell-input');
+                if (!input) return;
+                
+                const row = parseInt(input.dataset.row);
+                const charIdx = parseInt(input.dataset.char);
+                let targetInput = null;
+                
+                // Copy (Ctrl+C)
+                if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                    e.preventDefault();
+                    copySelectedCells(compIndex, gridEditor, selectedCells);
+                    return;
+                }
+                
+                // Cut (Ctrl+X)
+                if ((e.ctrlKey || e.metaKey) && e.key === 'x') {
+                    e.preventDefault();
+                    cutSelectedCells(compIndex, gridEditor, selectedCells);
+                    return;
+                }
+                
+                // Select All (Ctrl+A)
+                if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+                    e.preventDefault();
+                    selectAllCells(compIndex, gridEditor, selectedCells, selectRange);
+                    return;
+                }
+                
+                // Delete selected cells
+                if (e.key === 'Delete' && selectedCells.size > 0) {
+                    e.preventDefault();
+                    deleteSelectedCells(compIndex, selectedCells);
+                    return;
+                }
+                
+                // Navigation
+                switch(e.key) {
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        targetInput = gridEditor.querySelector(
+                            `input[data-row="${row}"][data-char="${charIdx + 1}"]`
+                        );
+                        break;
+                        
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        targetInput = gridEditor.querySelector(
+                            `input[data-row="${row}"][data-char="${charIdx - 1}"]`
+                        );
+                        break;
+                        
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        targetInput = gridEditor.querySelector(
+                            `input[data-row="${row + 1}"][data-char="${charIdx}"]`
+                        );
+                        break;
+                        
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        targetInput = gridEditor.querySelector(
+                            `input[data-row="${row - 1}"][data-char="${charIdx}"]`
+                        );
+                        break;
+                        
+                    case 'Tab':
+                        e.preventDefault();
+                        const nextChar = gridEditor.querySelector(
+                            `input[data-row="${row}"][data-char="${charIdx + 1}"]`
+                        );
+                        targetInput = nextChar || gridEditor.querySelector(
+                            `input[data-row="${row + 1}"][data-char="0"]`
+                        );
+                        break;
+                        
+                    case 'Enter':
+                        e.preventDefault();
+                        targetInput = gridEditor.querySelector(
+                            `input[data-row="${row + 1}"][data-char="${charIdx}"]`
+                        );
+                        break;
+                }
+                
+                if (targetInput) {
+                    targetInput.focus();
+                    targetInput.select();
+                }
+            });
+            
+            // Use event delegation for paste
+            gridEditor.addEventListener('paste', function(e) {
+                const input = e.target.closest('.grid-cell-input');
+                if (!input) return;
+                
+                e.preventDefault();
+                const text = e.clipboardData.getData('text/plain');
+                const row = parseInt(input.dataset.row);
+                const charIdx = parseInt(input.dataset.char);
+                
+                pasteIntoGrid(compIndex, row, charIdx, text);
+            });
+            
+            // OPTIMIZATION: Single global mouseup listener (not per component)
+            if (!window._gridMouseUpInitialized) {
+                window._gridMouseUpInitialized = true;
+                document.addEventListener('mouseup', function() {
+                    isMouseDown = false;
+                });
+            }
             
             // Store selection state on the grid editor for access by copy/paste functions
             gridEditor._selectionState = {
