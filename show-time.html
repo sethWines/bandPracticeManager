@@ -62,6 +62,23 @@
             flex-direction: column;
         }
 
+        /* Stationary theme gradient background layer */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, var(--primary-dark) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, var(--primary-darker) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 90%, var(--primary-color) 0%, transparent 40%),
+                        #000000;
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
         /* Background watermark - Guitar */
         body::before {
             content: '';
@@ -75,7 +92,7 @@
             background-position: center;
             background-size: contain;
             pointer-events: none;
-            z-index: 0;
+            z-index: 1;
             transition: opacity 0.3s ease;
         }
 
@@ -130,22 +147,24 @@
 
         .nav-link {
             padding: 6px 12px;
-            background: var(--primary-dark);
-            border: 2px solid var(--primary-light);
+            background: rgba(255, 255, 255, 0.05);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             color: var(--primary-light);
             text-decoration: none;
             border-radius: 6px;
             transition: all 0.3s;
             font-weight: 600;
             font-size: 13px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             display: inline-flex;
             align-items: center;
         }
 
         .nav-link:hover {
-            background: var(--primary-darker);
-            border-color: var(--primary-lighter);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-light);
             color: var(--primary-lighter);
             box-shadow: 0 0 10px var(--primary-glow);
             transform: translateY(-2px);
@@ -208,10 +227,10 @@
         }
 
         .setlist-card {
-            background: rgba(26, 26, 26, 0.9);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            border: 2px solid var(--primary-color);
+            background: rgba(0, 0, 0, 0.3);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
             padding: 20px;
             transition: all 0.3s;
@@ -222,6 +241,7 @@
             transform: translateY(-4px);
             box-shadow: 0 8px 30px var(--primary-glow);
             border-color: var(--primary-light);
+            background: rgba(0, 0, 0, 0.4);
         }
 
         .setlist-card-header {
@@ -266,20 +286,24 @@
         .start-show-btn {
             width: 100%;
             padding: 12px;
-            background: var(--primary-color);
+            background: rgba(255, 255, 255, 0.08);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
             border: 2px solid var(--primary-light);
-            color: white;
+            color: var(--primary-light);
             border-radius: 8px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
+            text-shadow: 0 0 10px var(--primary-glow);
         }
 
         .start-show-btn:hover {
-            background: var(--primary-light);
+            background: rgba(255, 255, 255, 0.15);
             box-shadow: 0 4px 20px var(--primary-glow);
             transform: scale(1.05);
+            border-color: var(--primary-lighter);
         }
 
         /* Performance Mode */
@@ -409,10 +433,10 @@
             width: 45px;
             height: 45px;
             border-radius: 50%;
-            background: rgba(26, 26, 26, 0.95);
+            background: rgba(0, 0, 0, 0.3);
             -webkit-backdrop-filter: blur(15px);
             backdrop-filter: blur(15px);
-            border: 2px solid var(--primary-border);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -424,6 +448,7 @@
         }
 
         .speed-orb:hover {
+            background: rgba(0, 0, 0, 0.5);
             border-color: var(--primary-light);
             color: var(--primary-light);
             transform: scale(1.15);
@@ -434,10 +459,10 @@
             width: 75px;
             height: 75px;
             border-radius: 50%;
-            background: rgba(26, 26, 26, 0.95);
+            background: rgba(0, 0, 0, 0.4);
             -webkit-backdrop-filter: blur(15px);
             backdrop-filter: blur(15px);
-            border: 3px solid var(--primary-color);
+            border: 3px solid rgba(255, 255, 255, 0.3);
             cursor: pointer;
             display: flex;
             flex-direction: column;
@@ -461,7 +486,7 @@
             border-color: var(--primary-light);
             box-shadow: 0 0 30px var(--primary-glow), 0 0 60px var(--primary-glow);
             opacity: 1;
-            background: rgba(26, 26, 26, 1);
+            background: rgba(0, 0, 0, 0.6);
         }
 
         .autoscroll-play-btn svg {
