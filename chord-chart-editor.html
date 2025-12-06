@@ -1458,6 +1458,12 @@
                         </svg>
                         Setlists
                     </a>
+                    <a href="show-time.html" class="nav-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Show Time
+                    </a>
                 </div>
                 <label for="themeSelector" class="visually-hidden">Select theme color</label>
                 <select id="themeSelector" name="themeSelector" class="theme-selector" title="Choose theme color" aria-label="Theme color selector" onchange="changeTheme(this.value)">
@@ -1483,6 +1489,12 @@
                         <rect x="6" y="14" width="12" height="8"/>
                     </svg>
                     View/Print
+                </button>
+                <button class="btn btn-secondary" onclick="openInShowTime()" title="Open in full-screen Show Time mode">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Show Time
                 </button>
         </div>
     </div>
@@ -3365,6 +3377,20 @@
             document.getElementById('printModal').classList.remove('show');
             document.getElementById('autoscrollControls').classList.remove('show');
             stopAutoscroll();
+        };
+
+        // Open current song in Show Time (single-song mode)
+        window.openInShowTime = function() {
+            if (!currentSong) {
+                alert('No song loaded');
+                return;
+            }
+            
+            // Encode song ID as artist|song
+            const songId = encodeURIComponent(`${currentSong.artist}|${currentSong.song}`);
+            
+            // Open Show Time in single-song mode
+            window.location.href = `show-time.html?mode=single&songId=${songId}`;
         };
 
         // ============================================================================
