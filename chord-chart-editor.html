@@ -348,6 +348,50 @@
             box-shadow: 0 2px 10px var(--primary-glow);
         }
 
+        .song-info-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .song-info-title {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .show-time-btn {
+            background: var(--primary-bg);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-light);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .show-time-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            transform: translateY(-2px);
+        }
+
+        .show-time-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
         .song-info h2 {
             color: var(--primary-light);
             text-shadow: 0 0 10px var(--primary-glow);
@@ -1490,12 +1534,6 @@
                     </svg>
                     View/Print
                 </button>
-                <button class="btn btn-secondary" onclick="openInShowTime()" title="Open in full-screen Show Time mode">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
-                        <polygon points="5 3 19 12 5 21 5 3"/>
-                    </svg>
-                    Show Time
-                </button>
         </div>
     </div>
 
@@ -1518,12 +1556,22 @@
         <!-- Center Pane - Drop Zone -->
         <div class="center-pane">
             <div class="song-info" id="songInfo">
-                <h2 id="songTitle">Loading...</h2>
-                <div class="artist" id="songArtist"></div>
-                <div class="meta">
-                    <span id="songKey"></span>
-                    <span id="songTuning"></span>
-                    <span id="songDuration"></span>
+                <div class="song-info-header">
+                    <div class="song-info-title">
+                        <h2 id="songTitle">Loading...</h2>
+                        <div class="artist" id="songArtist"></div>
+                        <div class="meta">
+                            <span id="songKey"></span>
+                            <span id="songTuning"></span>
+                            <span id="songDuration"></span>
+                        </div>
+                    </div>
+                    <button class="show-time-btn" onclick="openInShowTime()" title="Open in Show Time performance viewer">
+                        <svg viewBox="0 0 24 24">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Show Time
+                    </button>
                 </div>
             </div>
 
@@ -2253,12 +2301,22 @@
 
             // Recreate song info structure (in case showEmptyState destroyed it)
             document.getElementById('songInfo').innerHTML = `
-                <h2 id="songTitle">${currentSong.song}</h2>
-                <div class="artist" id="songArtist">${currentSong.artist}</div>
-                <div class="meta">
-                    <span id="songKey">${currentSong.key ? `Key: ${currentSong.key}` : ''}</span>
-                    <span id="songTuning">${currentSong.tuning ? `Tuning: ${currentSong.tuning}` : ''}</span>
-                    <span id="songDuration">${currentSong.duration ? `Duration: ${currentSong.duration}` : ''}</span>
+                <div class="song-info-header">
+                    <div class="song-info-title">
+                        <h2 id="songTitle">${currentSong.song}</h2>
+                        <div class="artist" id="songArtist">${currentSong.artist}</div>
+                        <div class="meta">
+                            <span id="songKey">${currentSong.key ? `Key: ${currentSong.key}` : ''}</span>
+                            <span id="songTuning">${currentSong.tuning ? `Tuning: ${currentSong.tuning}` : ''}</span>
+                            <span id="songDuration">${currentSong.duration ? `Duration: ${currentSong.duration}` : ''}</span>
+                        </div>
+                    </div>
+                    <button class="show-time-btn" onclick="openInShowTime()" title="Open in Show Time performance viewer">
+                        <svg viewBox="0 0 24 24">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Show Time
+                    </button>
                 </div>
             `;
 
