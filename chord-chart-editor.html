@@ -2555,82 +2555,71 @@
             return chordMap;
         }
 
-        // Build grid editor UI - Simple character-by-character system
-        function buildGridFromLyrics(index) {
-            const comp = chartData.components[index];
-            const gridEditor = document.querySelector(`.grid-editor[data-index="${index}"]`);
-            
-            // Parse lyrics into individual lines, preserving exact spacing
+        // ============================================================================
+        // GRID EDITOR - REDESIGNED FOR SIMPLICITY AND RELIABILITY
+        // ============================================================================
+        
+        /*
+         * CORE CONCEPT:
+         * - Grid is a 2D array of characters (rows x columns)
+         * - Each row has a type: 'chord', 'lyric', or 'generic'
+         * - Character positions are preserved exactly for perfect alignment
+         * - Bidirectional sync: text ↔ grid ↔ performance view
+         */
+        
+        // Initialize grid from lyrics text
+        function initializeGrid(compIndex) {
+            const comp = chartData.components[compIndex];
             const lines = comp.lyrics.split('\n');
             
-            // Synchronize gridRows with current lyrics while preserving row types
-            if (!comp.gridRows) {
-                // First time: create new grid
-                comp.gridRows = [];
-                lines.forEach((line) => {
-                    const chars = line.split('');
-                    comp.gridRows.push({
-                        type: 'generic',
-                        chars: chars.length > 0 ? chars : [' ']
-                    });
-                });
-            } else if (comp.gridRows.length !== lines.length) {
-                // Number of lines changed: add or remove rows while preserving existing types
-                if (lines.length > comp.gridRows.length) {
-                    // Lines added: add new generic rows at the end
-                    const newRowCount = lines.length - comp.gridRows.length;
-                    for (let i = 0; i < newRowCount; i++) {
-                        comp.gridRows.push({
-                            type: 'generic',
-                            chars: [' ']
-                        });
-                    }
-                } else {
-                    // Lines removed: trim rows from the end
-                    comp.gridRows = comp.gridRows.slice(0, lines.length);
-                }
-                
-                // Update all row contents with current line text
-                lines.forEach((line, i) => {
-                    const chars = line.split('');
-                    comp.gridRows[i].chars = chars.length > 0 ? chars : [' '];
-                    // Preserve type: don't modify comp.gridRows[i].type
-                });
-            } else {
-                // Same number of lines: just update content, preserve types
-                lines.forEach((line, i) => {
-                    const chars = line.split('');
-                    comp.gridRows[i].chars = chars.length > 0 ? chars : [' '];
-                    // Preserve type: don't modify comp.gridRows[i].type
-                });
-            }
-            
-            if (comp.gridRows.length === 0) {
-                // Add one empty row if none exist
-                comp.gridRows.push({
+            // Create or update grid structure
+            if (!comp.gridRows || comp.gridRows.length === 0) {
+                comp.gridRows = lines.map(line => ({
                     type: 'generic',
-                    chars: [' ']
+                    chars: line.split('')
+                }));
+            } else {
+                // Sync existing grid with current text
+                lines.forEach((line, i) => {
+                    if (!comp.gridRows[i]) {
+                        comp.gridRows[i] = { type: 'generic', chars: [] };
+                    }
+                    comp.gridRows[i].chars = line.split('');
                 });
+                // Remove extra rows if text is shorter
+                comp.gridRows = comp.gridRows.slice(0, lines.length);
             }
             
-            // Initialize or sync metadata with current gridRows
-            if (!comp.lyricsMetadata) {
-                // First time: initialize metadata based on current gridRows
-                comp.lyricsMetadata = comp.gridRows.map(row => ({ type: row.type || 'generic' }));
-            } else if (comp.lyricsMetadata.length !== comp.gridRows.length) {
-                // Sync metadata length with current rows
-                const newMetadata = [];
-                comp.gridRows.forEach((row, idx) => {
-                    // Preserve existing metadata if available, otherwise use row type
-                    newMetadata.push(comp.lyricsMetadata[idx] || { type: row.type || 'generic' });
-                });
-                comp.lyricsMetadata = newMetadata;
+            // Ensure at least one row exists
+            if (comp.gridRows.length === 0) {
+                comp.gridRows = [{ type: 'generic', chars: [] }];
+            }
+        }
+        
+        // Build grid editor UI - Simple character-by-character system
+        function buildGridFromLyrics(index) {
+            console.log(`buildGridFromLyrics called for component ${index}`);
+            
+            const comp = chartData.components[index];
+            const gridEditor = document.querySelector(`.grid-editor[data-index="${index}"]`);
+            if (!gridEditor) {
+                console.error(`Grid editor element not found for index ${index}`);
+                return;
             }
             
-            // Find the longest line and add 10 extra cells for padding
-            const maxLength = Math.max(...comp.gridRows.map(row => row.chars.length), 10) + 10;
+            console.log(`Found grid editor element:`, gridEditor);
             
-            // Build controls
+            // Initialize grid structure
+            initializeGrid(index);
+            
+            console.log(`Grid initialized with ${comp.gridRows.length} rows`);
+            
+            // Calculate grid dimensions
+            const maxChars = Math.max(...comp.gridRows.map(r => r.chars.length), 20) + 15;
+            
+            console.log(`Max chars per row: ${maxChars}`);
+            
+            // Build controls HTML
             let html = `
                 <div class="grid-controls">
                     <button class="btn btn-secondary btn-sm" onclick="addGridRow(${index})">
@@ -2640,11 +2629,14 @@
                         </svg>
                         Add Row
                     </button>
-                    <button class="btn btn-secondary btn-sm" id="toggleChordBtn${index}" onclick="setSelectedRowsType(${index}, 'chord')" disabled>
-                        Set as Chord (C)
+                    <button class="btn btn-secondary btn-sm" id="setChordBtn${index}" onclick="setSelectedRowsType(${index}, 'chord')" disabled>
+                        Mark as Chord Row
                     </button>
-                    <button class="btn btn-secondary btn-sm" id="toggleLyricBtn${index}" onclick="setSelectedRowsType(${index}, 'lyric')" disabled>
-                        Set as Lyric (L)
+                    <button class="btn btn-secondary btn-sm" id="setLyricBtn${index}" onclick="setSelectedRowsType(${index}, 'lyric')" disabled>
+                        Mark as Lyric Row
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="setGenericBtn${index}" onclick="setSelectedRowsType(${index}, 'generic')" disabled>
+                        Mark as Generic
                     </button>
                     <button class="btn btn-danger btn-sm" id="deleteRowBtn${index}" onclick="deleteSelectedRows(${index})" disabled>
                         Delete Selected
@@ -2653,130 +2645,143 @@
                 <table class="grid-editor-table">
             `;
             
+            // Build grid rows
             comp.gridRows.forEach((row, rowIndex) => {
                 const rowType = row.type || 'generic';
-                let chars = [...row.chars];
+                const isSelected = row.selected || false;
+                const rowClass = isSelected ? 'grid-row-selected' : '';
                 
-                // Pad to maxLength
-                while (chars.length < maxLength) {
-                    chars.push(' ');
-                }
-                
-                // Determine input behavior based on type
-                const maxLengthAttr = rowType === 'lyric' ? 'maxlength="1"' : '';
-                const rowClass = row.selected ? 'grid-row-selected' : '';
-                
-                // Indicator label
-                let indicator = '−'; // Generic
+                // Row type indicator
+                let indicator = '−';
                 if (rowType === 'chord') indicator = 'C';
                 if (rowType === 'lyric') indicator = 'L';
                 
                 html += `<tr class="${rowClass}">`;
                 
                 // Indicator cell (clickable for selection)
-                html += `<td class="grid-indicator-cell" onclick="toggleRowSelection(${index}, ${rowIndex})">
-                    <div class="row-indicator row-indicator-${rowType}">${indicator}</div>
-                </td>`;
+                html += `
+                    <td class="grid-indicator-cell" onclick="toggleRowSelection(${index}, ${rowIndex})">
+                        <div class="row-indicator row-indicator-${rowType}">${indicator}</div>
+                    </td>
+                `;
                 
-                // Content cells
-                chars.forEach((char, charIndex) => {
-                    const cellClass = 'grid-content-cell';
-                    // Only escape double quotes for the attribute value
-                    const escapedChar = char.replace(/"/g, '&quot;');
+                // Character cells
+                for (let charIndex = 0; charIndex < maxChars; charIndex++) {
+                    const char = row.chars[charIndex] || '';
+                    const escapedChar = char.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    const displayChar = char || '';
                     
-                    html += `<td class="${cellClass}">
-                        <input type="text" 
-                               class="grid-cell-input" 
-                               value="${escapedChar}" 
-                               data-row="${rowIndex}" 
-                               data-char="${charIndex}"
-                               ${maxLengthAttr}
-                               onchange="updateGridCell(${index}, ${rowIndex}, ${charIndex}, this.value)"
-                               onfocus="updateControlButtonStates(${index})"
-                               placeholder="·">
-                    </td>`;
-                });
+                    // Lyric rows limit to 1 character per cell
+                    const maxLengthAttr = rowType === 'lyric' ? 'maxlength="1"' : '';
+                    
+                    html += `
+                        <td class="grid-content-cell">
+                            <input type="text" 
+                                   class="grid-cell-input grid-${rowType}-input" 
+                                   value="${escapedChar}"
+                                   data-comp="${index}"
+                                   data-row="${rowIndex}"
+                                   data-char="${charIndex}"
+                                   ${maxLengthAttr}
+                                   placeholder="·">
+                        </td>
+                    `;
+                }
                 
                 html += '</tr>';
             });
             
             html += '</table>';
+            
+            // Render grid
             gridEditor.innerHTML = html;
             
-            // Add keyboard navigation and copy/paste support
-            setupGridKeyboardNavigation(index);
+            console.log(`Grid HTML rendered`);
+            
+            // Setup event handlers
+            setupGridInputHandlers(index);
             updateControlButtonStates(index);
         }
 
-        // Setup keyboard navigation for grid
-        function setupGridKeyboardNavigation(compIndex) {
+        // Setup input event handlers - CLEAN AND SIMPLE
+        function setupGridInputHandlers(compIndex) {
             const gridEditor = document.querySelector(`.grid-editor[data-index="${compIndex}"]`);
-            if (!gridEditor) return;
+            if (!gridEditor) {
+                console.error('Grid editor not found for component:', compIndex);
+                return;
+            }
             
-            const allInputs = gridEditor.querySelectorAll('.grid-chord-input, .grid-lyric-input');
+            const allInputs = gridEditor.querySelectorAll('.grid-cell-input');
+            console.log(`Setting up ${allInputs.length} grid inputs for component ${compIndex}`);
             
             allInputs.forEach(input => {
-                // Arrow key navigation
-                input.addEventListener('keydown', (e) => {
-                    const currentRow = parseInt(input.dataset.row);
-                    const currentChar = parseInt(input.dataset.char);
+                // Handle character input
+                input.addEventListener('input', function() {
+                    const row = parseInt(this.dataset.row);
+                    const charIdx = parseInt(this.dataset.char);
+                    const comp = chartData.components[compIndex];
                     
+                    console.log(`Input event: row=${row}, col=${charIdx}, value="${this.value}"`);
+                    
+                    // Update grid data
+                    if (!comp.gridRows[row]) return;
+                    if (!comp.gridRows[row].chars) comp.gridRows[row].chars = [];
+                    
+                    comp.gridRows[row].chars[charIdx] = this.value || '';
+                    
+                    // Auto-sync back to text
+                    syncGridToText(compIndex);
+                });
+                
+                // Handle keyboard navigation (ONLY for navigation keys)
+                input.addEventListener('keydown', function(e) {
+                    const row = parseInt(this.dataset.row);
+                    const charIdx = parseInt(this.dataset.char);
                     let targetInput = null;
                     
                     switch(e.key) {
                         case 'ArrowRight':
                             e.preventDefault();
-                            // Move to next cell in same row
                             targetInput = gridEditor.querySelector(
-                                `input[data-row="${currentRow}"][data-char="${currentChar + 1}"]`
+                                `input[data-row="${row}"][data-char="${charIdx + 1}"]`
                             );
                             break;
                             
                         case 'ArrowLeft':
                             e.preventDefault();
-                            // Move to previous cell in same row
                             targetInput = gridEditor.querySelector(
-                                `input[data-row="${currentRow}"][data-char="${currentChar - 1}"]`
+                                `input[data-row="${row}"][data-char="${charIdx - 1}"]`
                             );
                             break;
                             
                         case 'ArrowDown':
                             e.preventDefault();
-                            // Move to next row, same column
                             targetInput = gridEditor.querySelector(
-                                `input[data-row="${currentRow + 1}"][data-char="${currentChar}"]`
+                                `input[data-row="${row + 1}"][data-char="${charIdx}"]`
                             );
                             break;
                             
                         case 'ArrowUp':
                             e.preventDefault();
-                            // Move to previous row, same column
                             targetInput = gridEditor.querySelector(
-                                `input[data-row="${currentRow - 1}"][data-char="${currentChar}"]`
+                                `input[data-row="${row - 1}"][data-char="${charIdx}"]`
                             );
                             break;
                             
                         case 'Tab':
                             e.preventDefault();
-                            // Move to next cell (wrap to next row if needed)
-                            const nextCharInput = gridEditor.querySelector(
-                                `input[data-row="${currentRow}"][data-char="${currentChar + 1}"]`
+                            const nextChar = gridEditor.querySelector(
+                                `input[data-row="${row}"][data-char="${charIdx + 1}"]`
                             );
-                            if (nextCharInput) {
-                                targetInput = nextCharInput;
-                            } else {
-                                // Wrap to next row
-                                targetInput = gridEditor.querySelector(
-                                    `input[data-row="${currentRow + 1}"][data-char="0"]`
-                                );
-                            }
+                            targetInput = nextChar || gridEditor.querySelector(
+                                `input[data-row="${row + 1}"][data-char="0"]`
+                            );
                             break;
                             
                         case 'Enter':
                             e.preventDefault();
-                            // Move down one row, same column
                             targetInput = gridEditor.querySelector(
-                                `input[data-row="${currentRow + 1}"][data-char="${currentChar}"]`
+                                `input[data-row="${row + 1}"][data-char="${charIdx}"]`
                             );
                             break;
                     }
@@ -2787,96 +2792,90 @@
                     }
                 });
                 
-                // Copy/Paste support
-                input.addEventListener('copy', (e) => {
-                    const selection = getGridSelection(gridEditor);
-                    if (selection.length > 1) {
-                        e.preventDefault();
-                        const tsv = selectionToTSV(selection);
-                        e.clipboardData.setData('text/plain', tsv);
-                    }
-                });
-                
-                input.addEventListener('paste', (e) => {
+                // Handle paste
+                input.addEventListener('paste', function(e) {
                     e.preventDefault();
                     const text = e.clipboardData.getData('text/plain');
-                    pasteIntoGrid(gridEditor, input, text, compIndex);
+                    const row = parseInt(this.dataset.row);
+                    const charIdx = parseInt(this.dataset.char);
+                    
+                    pasteIntoGrid(compIndex, row, charIdx, text);
                 });
             });
+        }
+
+        // Paste multi-line text into grid
+        function pasteIntoGrid(compIndex, startRow, startChar, text) {
+            const comp = chartData.components[compIndex];
+            const lines = text.split(/\r?\n/);
+            
+            lines.forEach((line, lineOffset) => {
+                const targetRow = startRow + lineOffset;
+                
+                // Ensure row exists
+                while (targetRow >= comp.gridRows.length) {
+                    comp.gridRows.push({ type: 'generic', chars: [] });
+                }
+                
+                // Insert characters starting at startChar
+                const chars = line.split('');
+                chars.forEach((char, charOffset) => {
+                    const targetChar = startChar + charOffset;
+                    comp.gridRows[targetRow].chars[targetChar] = char;
+                });
+            });
+            
+            // Rebuild grid and sync to text
+            buildGridFromLyrics(compIndex);
+            syncGridToText(compIndex);
+        }
+        
+        // Sync grid data back to text format (preserving exact character positions)
+        function syncGridToText(compIndex) {
+            const comp = chartData.components[compIndex];
+            if (!comp.gridRows) return;
+            
+            const lines = comp.gridRows.map(row => {
+                if (!row.chars || row.chars.length === 0) return '';
+                
+                // Convert chars array to string, trimming trailing spaces
+                let line = row.chars.join('');
+                // Remove trailing spaces but keep internal spacing
+                line = line.replace(/\s+$/, '');
+                return line;
+            });
+            
+            // Update component lyrics
+            comp.lyrics = lines.join('\n');
+            
+            // Update textarea
+            const textarea = document.querySelector(`.component-tile[data-index="${compIndex}"] .component-textarea`);
+            if (textarea) {
+                textarea.value = comp.lyrics;
+            }
+            
+            scheduleAutoSave();
         }
 
         // Get selected grid cells (for copy)
         function getGridSelection(gridEditor) {
-            const selection = [];
-            const selectedInputs = gridEditor.querySelectorAll('.grid-chord-input:focus, .grid-lyric-input:focus');
-            // For now, just return single cell (multi-select would need additional UI)
-            selectedInputs.forEach(input => {
-                selection.push({
-                    line: parseInt(input.dataset.line),
-                    char: parseInt(input.dataset.char),
-                    value: input.value,
-                    isChord: input.classList.contains('grid-chord-input')
-                });
-            });
-            return selection;
+            // Simple selection - just return focused cell
+            const focusedInput = gridEditor.querySelector('.grid-cell-input:focus');
+            if (!focusedInput) return [];
+            
+            return [{
+                row: parseInt(focusedInput.dataset.row),
+                char: parseInt(focusedInput.dataset.char),
+                value: focusedInput.value
+            }];
         }
 
-        // Convert selection to TSV (Tab-Separated Values)
-        function selectionToTSV(selection) {
-            // For now, just return single value
-            return selection.length > 0 ? selection[0].value : '';
-        }
-
-        // Paste data into grid
-        function pasteIntoGrid(gridEditor, startInput, text, compIndex) {
-            const startRow = parseInt(startInput.dataset.row);
-            const startChar = parseInt(startInput.dataset.char);
-            
-            // Split by lines (rows)
-            const rows = text.split(/\r?\n/);
-            
-            rows.forEach((row, rowOffset) => {
-                const cells = row.split('\t'); // Split by tabs (columns)
-                
-                cells.forEach((cellValue, colOffset) => {
-                    const targetRow = startRow + rowOffset;
-                    const targetChar = startChar + colOffset;
-                    
-                    const targetInput = gridEditor.querySelector(
-                        `input[data-row="${targetRow}"][data-char="${targetChar}"]`
-                    );
-                    
-                    if (targetInput) {
-                        const maxLength = targetInput.getAttribute('maxlength');
-                        targetInput.value = maxLength ? cellValue.slice(0, 1) : cellValue;
-                        
-                        // Trigger change event
-                        updateGridCell(compIndex, targetRow, targetChar, targetInput.value);
-                    }
-                });
-            });
-        }
-
-        // Update cell in grid
-        window.updateGridCell = function(compIndex, rowIndex, charIndex, value) {
-            const comp = chartData.components[compIndex];
-            if (!comp.gridRows[rowIndex]) return;
-            
-            // Update the character in the row
-            if (!comp.gridRows[rowIndex].chars) {
-                comp.gridRows[rowIndex].chars = [];
-            }
-            comp.gridRows[rowIndex].chars[charIndex] = value || ' ';
-        };
-
-        // Toggle row selection
+        // Row selection toggle
         window.toggleRowSelection = function(compIndex, rowIndex) {
             const comp = chartData.components[compIndex];
             if (!comp.gridRows[rowIndex]) return;
             
             comp.gridRows[rowIndex].selected = !comp.gridRows[rowIndex].selected;
-            
-            // Rebuild to show selection
             buildGridFromLyrics(compIndex);
         };
 
@@ -2893,8 +2892,8 @@
             });
             
             if (hasSelection) {
-                // Rebuild grid
                 buildGridFromLyrics(compIndex);
+                syncGridToText(compIndex);
             }
         };
 
@@ -2913,24 +2912,21 @@
             // Remove selected rows
             comp.gridRows = comp.gridRows.filter(row => !row.selected);
             
-            // Rebuild grid
             buildGridFromLyrics(compIndex);
+            syncGridToText(compIndex);
         };
 
         // Add new row
         window.addGridRow = function(compIndex) {
             const comp = chartData.components[compIndex];
-            if (!comp.gridRows) {
-                comp.gridRows = [];
-            }
+            if (!comp.gridRows) comp.gridRows = [];
             
             comp.gridRows.push({
                 type: 'generic',
-                chars: [' '],
+                chars: [],
                 selected: false
             });
             
-            // Rebuild grid
             buildGridFromLyrics(compIndex);
         };
 
@@ -2941,94 +2937,27 @@
             
             const hasSelection = comp.gridRows.some(row => row.selected);
             
-            // Enable/disable buttons
-            const chordBtn = document.getElementById(`toggleChordBtn${compIndex}`);
-            const lyricBtn = document.getElementById(`toggleLyricBtn${compIndex}`);
+            const chordBtn = document.getElementById(`setChordBtn${compIndex}`);
+            const lyricBtn = document.getElementById(`setLyricBtn${compIndex}`);
+            const genericBtn = document.getElementById(`setGenericBtn${compIndex}`);
             const deleteBtn = document.getElementById(`deleteRowBtn${compIndex}`);
             
             if (chordBtn) chordBtn.disabled = !hasSelection;
             if (lyricBtn) lyricBtn.disabled = !hasSelection;
+            if (genericBtn) genericBtn.disabled = !hasSelection;
             if (deleteBtn) deleteBtn.disabled = !hasSelection;
         };
 
         // Legacy functions (redirects)
-        window.toggleGridRowType = function(compIndex, rowIndex) {
-            toggleRowSelection(compIndex, rowIndex);
+        
+        // Legacy function compatibility (if needed by old code)
+        window.updateLyricsFromGrid = function(index) {
+            syncGridToText(index);
         };
-
-        window.deleteGridRow = function(compIndex, rowIndex) {
-            const comp = chartData.components[compIndex];
-            comp.gridRows[rowIndex].selected = true;
-            deleteSelectedRows(compIndex);
-        };
-
-        window.updateChordInGrid = function(compIndex, lineIndex, charIndex, chord) {
-            updateGridCell(compIndex, lineIndex, charIndex, chord);
-        };
-
-        window.updateLyricInGrid = function(compIndex, lineIndex, charIndex, newChar) {
-            updateGridCell(compIndex, lineIndex, charIndex, newChar);
-        };
-
-        // Convert grid back to chords-above-lyrics format (DEFAULT)
-        // Convert grid back to text format
-        function updateLyricsFromGrid(index) {
-            const comp = chartData.components[index];
-            const gridEditor = document.querySelector(`.grid-editor[data-index="${index}"]`);
-            
-            if (!comp.gridRows) return;
-            
-            const newLines = [];
-            
-            // Read all inputs from the grid
-            comp.gridRows.forEach((row, rowIndex) => {
-                const inputs = gridEditor.querySelectorAll(`input[data-row="${rowIndex}"]`);
-                
-                if (inputs.length === 0) return;
-                
-                // Build line content character by character
-                let lineContent = '';
-                inputs.forEach(input => {
-                    const val = input.value;
-                    // If empty input, treat as space
-                    lineContent += val || ' ';
-                });
-                
-                // Find the last non-space character position
-                let lastNonSpace = -1;
-                for (let i = lineContent.length - 1; i >= 0; i--) {
-                    if (lineContent[i] !== ' ') {
-                        lastNonSpace = i;
-                        break;
-                    }
-                }
-                
-                // Trim to last non-space character (preserve all spaces before that point)
-                // If entire line is spaces, keep just one space
-                const trimmedContent = lastNonSpace >= 0 
-                    ? lineContent.substring(0, lastNonSpace + 1)
-                    : (lineContent.length > 0 ? ' ' : '');
-                
-                // Update row chars array with trimmed content
-                row.chars = trimmedContent.split('');
-                
-                // Add to output
-                newLines.push(trimmedContent);
-            });
-            
-            // Update component lyrics
-            comp.lyrics = newLines.join('\n');
-            
-            // Save row type metadata for accurate chord/lyric detection
-            comp.lyricsMetadata = comp.gridRows.map(row => ({ type: row.type || 'generic' }));
-            
-            const textarea = document.querySelector(`.component-tile[data-index="${index}"] .component-textarea`);
-            if (textarea) {
-                textarea.value = comp.lyrics;
-            }
-            
-            scheduleAutoSave();
-        }
+        
+        // ============================================================================
+        // END OF GRID EDITOR
+        // ============================================================================
 
         // Clear chart
         window.clearChart = function() {

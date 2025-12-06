@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid System Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #e0e0e0;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        td {
+            border: 1px solid #444;
+            padding: 0;
+        }
+        input {
+            width: 24px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            text-align: center;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        input:focus {
+            background: #333;
+            outline: 2px solid #2196F3;
+        }
+        .indicator {
+            background: #2a2a2a;
+            padding: 4px 8px;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .indicator:hover {
+            background: #3a3a3a;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: #2a2a2a;
+            color: #e0e0e0;
+            border: 1px solid #444;
+            padding: 10px;
+            font-family: monospace;
+        }
+        .debug {
+            background: #2a2a2a;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #444;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Grid System Test</h1>
+    
+    <textarea id="textInput" placeholder="Type or paste text here...">D              G
+listen here my friend</textarea>
+    
+    <button onclick="buildGrid()">Build Grid</button>
+    <button onclick="syncToText()">Sync to Text</button>
+    
+    <div id="debug" class="debug">Debug info will appear here</div>
+    
+    <div id="gridContainer"></div>
+    
+    <script>
+        let gridData = [];
+        
+        function buildGrid() {
+            const text = document.getElementById('textInput').value;
+            const lines = text.split('\n');
+            
+            // Initialize grid data
+            gridData = lines.map(line => ({
+                type: 'generic',
+                chars: line.split(''),
+                selected: false
+            }));
+            
+            const maxWidth = Math.max(...gridData.map(r => r.chars.length), 30);
+            
+            let html = '<table>';
+            
+            gridData.forEach((row, rowIdx) => {
+                html += '<tr>';
+                html += `<td class="indicator" onclick="toggleRow(${rowIdx})">−</td>`;
+                
+                for (let colIdx = 0; colIdx < maxWidth; colIdx++) {
+                    const char = (row.chars[colIdx] || '').replace(/"/g, '&quot;');
+                    html += `<td><input type="text" value="${char}" data-row="${rowIdx}" data-col="${colIdx}"></td>`;
+                }
+                
+                html += '</tr>';
+            });
+            
+            html += '</table>';
+            
+            document.getElementById('gridContainer').innerHTML = html;
+            
+            // Attach event handlers
+            const inputs = document.querySelectorAll('#gridContainer input');
+            log(`Attached handlers to ${inputs.length} inputs`);
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const row = parseInt(this.dataset.row);
+                    const col = parseInt(this.dataset.col);
+                    const val = this.value;
+                    
+                    log(`Input: row=${row}, col=${col}, val="${val}"`);
+                    
+                    if (!gridData[row].chars) gridData[row].chars = [];
+                    gridData[row].chars[col] = val;
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        const next = document.querySelector(
+                            `input[data-row="${this.dataset.row}"][data-col="${parseInt(this.dataset.col) + 1}"]`
+                        );
+                        if (next) next.focus();
+                    }
+                });
+            });
+        }
+        
+        function syncToText() {
+            const lines = gridData.map(row => {
+                if (!row.chars || row.chars.length === 0) return '';
+                return row.chars.join('').replace(/\s+$/, '');
+            });
+            
+            document.getElementById('textInput').value = lines.join('\n');
+            log('Synced to text');
+        }
+        
+        function toggleRow(idx) {
+            gridData[idx].selected = !gridData[idx].selected;
+            log(`Toggled row ${idx}: ${gridData[idx].selected}`);
+        }
+        
+        function log(msg) {
+            const debug = document.getElementById('debug');
+            const time = new Date().toLocaleTimeString();
+            debug.innerHTML = `[${time}] ${msg}<br>` + debug.innerHTML;
+        }
+        
+        // Build on load
+        window.onload = buildGrid;
+    </script>
+</body>
+</html>
+
