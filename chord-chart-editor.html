@@ -788,35 +788,65 @@
         }
 
         .grid-content-cell {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(100, 100, 100, 0.3);
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(100, 100, 100, 0.5);
             padding: 0;
             width: 20px;
             height: 24px;
         }
 
+        /* Grid cell inputs - CRITICAL: Override all theme styles */
         .grid-cell-input {
             width: 100%;
             height: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            text-align: center;
-            padding: 4px 2px;
+            background: transparent !important;
+            border: none !important;
+            color: #ffffff !important;
+            font-family: 'Courier New', monospace !important;
+            font-size: 14px !important;
+            font-weight: bold !important;
+            text-align: center !important;
+            padding: 4px 2px !important;
             outline: none;
+            line-height: normal !important;
+            -webkit-text-fill-color: #ffffff !important;
+            -moz-text-fill-color: #ffffff !important;
+            text-fill-color: #ffffff !important;
+            text-shadow: 0 0 1px rgba(255, 255, 255, 0.8) !important;
+            /* Ensure no background clip interferes */
+            -webkit-background-clip: border-box !important;
+            background-clip: border-box !important;
+            /* Reset any gradient effects */
+            background-image: none !important;
         }
 
         .grid-cell-input:focus {
-            background: rgba(255, 255, 255, 0.1);
-            outline: 2px solid var(--primary-color);
+            background: rgba(255, 255, 255, 0.1) !important;
+            outline: 2px solid var(--primary-color) !important;
             outline-offset: -2px;
-            box-shadow: 0 0 8px rgba(33, 150, 243, 0.5);
+            box-shadow: 0 0 8px rgba(33, 150, 243, 0.5) !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
         }
 
         .grid-cell-input:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .grid-cell-input::placeholder {
+            color: rgba(255, 255, 255, 0.3) !important;
+            opacity: 1 !important;
+            -webkit-text-fill-color: rgba(255, 255, 255, 0.3) !important;
+        }
+        
+        /* Make sure grid inputs are not affected by theme gradients */
+        [data-theme="synthwave"] .grid-cell-input,
+        [data-theme="prism"] .grid-cell-input {
+            background: transparent !important;
+            background-image: none !important;
+            -webkit-background-clip: border-box !important;
+            -webkit-text-fill-color: #ffffff !important;
+            color: #ffffff !important;
         }
 
         .grid-row-selected {
