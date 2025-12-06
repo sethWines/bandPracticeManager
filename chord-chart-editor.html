@@ -849,6 +849,16 @@
             color: #ffffff !important;
         }
 
+        /* Multi-cell selection styling */
+        .grid-content-cell.selected {
+            background: rgba(33, 150, 243, 0.4) !important;
+            border: 2px solid var(--primary-color) !important;
+        }
+
+        .grid-content-cell.selected .grid-cell-input {
+            background: rgba(33, 150, 243, 0.2) !important;
+        }
+
         .grid-row-selected {
             background: rgba(33, 150, 243, 0.15);
         }
@@ -2733,7 +2743,7 @@
             updateControlButtonStates(index);
         }
 
-        // Setup input event handlers - CLEAN AND SIMPLE
+        // Setup input event handlers - WITH MULTI-CELL SELECTION
         function setupGridInputHandlers(compIndex) {
             const gridEditor = document.querySelector(`.grid-editor[data-index="${compIndex}"]`);
             if (!gridEditor) {
@@ -2744,7 +2754,88 @@
             const allInputs = gridEditor.querySelectorAll('.grid-cell-input');
             console.log(`Setting up ${allInputs.length} grid inputs for component ${compIndex}`);
             
+            // Selection state
+            let isMouseDown = false;
+            let selectionStart = null;
+            let selectedCells = new Set();
+            
+            // Clear selection function
+            function clearSelection() {
+                selectedCells.clear();
+                gridEditor.querySelectorAll('.grid-content-cell.selected').forEach(cell => {
+                    cell.classList.remove('selected');
+                });
+            }
+            
+            // Update visual selection
+            function updateSelection() {
+                gridEditor.querySelectorAll('.grid-content-cell').forEach(cell => {
+                    const input = cell.querySelector('.grid-cell-input');
+                    if (!input) return;
+                    const key = `${input.dataset.row},${input.dataset.char}`;
+                    if (selectedCells.has(key)) {
+                        cell.classList.add('selected');
+                    } else {
+                        cell.classList.remove('selected');
+                    }
+                });
+            }
+            
+            // Get selection range
+            function selectRange(startRow, startChar, endRow, endChar) {
+                const minRow = Math.min(startRow, endRow);
+                const maxRow = Math.max(startRow, endRow);
+                const minChar = Math.min(startChar, endChar);
+                const maxChar = Math.max(startChar, endChar);
+                
+                selectedCells.clear();
+                for (let r = minRow; r <= maxRow; r++) {
+                    for (let c = minChar; c <= maxChar; c++) {
+                        selectedCells.add(`${r},${c}`);
+                    }
+                }
+                updateSelection();
+            }
+            
             allInputs.forEach(input => {
+                const cell = input.parentElement;
+                
+                // Mouse down to start selection
+                input.addEventListener('mousedown', function(e) {
+                    const row = parseInt(this.dataset.row);
+                    const charIdx = parseInt(this.dataset.char);
+                    
+                    if (e.ctrlKey || e.metaKey) {
+                        // Ctrl+Click: toggle individual cell
+                        const key = `${row},${charIdx}`;
+                        if (selectedCells.has(key)) {
+                            selectedCells.delete(key);
+                        } else {
+                            selectedCells.add(key);
+                        }
+                        updateSelection();
+                    } else if (e.shiftKey && selectionStart) {
+                        // Shift+Click: select range
+                        selectRange(selectionStart.row, selectionStart.char, row, charIdx);
+                    } else {
+                        // Normal click: start new selection
+                        isMouseDown = true;
+                        selectionStart = { row, char: charIdx };
+                        clearSelection();
+                        selectedCells.add(`${row},${charIdx}`);
+                        updateSelection();
+                    }
+                });
+                
+                // Mouse enter for drag selection
+                input.addEventListener('mouseenter', function() {
+                    if (isMouseDown && selectionStart) {
+                        const row = parseInt(this.dataset.row);
+                        const charIdx = parseInt(this.dataset.char);
+                        selectRange(selectionStart.row, selectionStart.char, row, charIdx);
+                    }
+                });
+                
                 // Handle character input
                 input.addEventListener('input', function() {
                     const row = parseInt(this.dataset.row);
@@ -2768,6 +2859,40 @@
                     const row = parseInt(this.dataset.row);
                     const charIdx = parseInt(this.dataset.char);
                     let targetInput = null;
+                    
+                    // Copy (Ctrl+C)
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                        e.preventDefault();
+                        copySelectedCells(compIndex, gridEditor, selectedCells);
+                        return;
+                    }
+                    
+                    // Cut (Ctrl+X)
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'x') {
+                        e.preventDefault();
+                        cutSelectedCells(compIndex, gridEditor, selectedCells);
+                        return;
+                    }
+                    
+                    // Paste (Ctrl+V) - let the existing paste handler handle it
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+                        // Will be handled by paste event below
+                        return;
+                    }
+                    
+                    // Select All (Ctrl+A)
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+                        e.preventDefault();
+                        selectAllCells(compIndex, gridEditor, selectedCells, selectRange);
+                        return;
+                    }
+                    
+                    // Delete selected cells
+                    if (e.key === 'Delete' && selectedCells.size > 0) {
+                        e.preventDefault();
+                        deleteSelectedCells(compIndex, selectedCells);
+                        return;
+                    }
                     
                     switch(e.key) {
                         case 'ArrowRight':
@@ -2832,11 +2957,26 @@
                     pasteIntoGrid(compIndex, row, charIdx, text);
                 });
             });
+            
+            // Global mouse up to end selection
+            document.addEventListener('mouseup', function() {
+                isMouseDown = false;
+            });
+            
+            // Store selection state on the grid editor for access by copy/paste functions
+            gridEditor._selectionState = {
+                selectedCells,
+                clearSelection,
+                updateSelection,
+                selectRange
+            };
         }
 
         // Paste multi-line text into grid
         function pasteIntoGrid(compIndex, startRow, startChar, text) {
+            console.log('Pasting into grid:', { compIndex, startRow, startChar, text });
             const comp = chartData.components[compIndex];
+            const gridEditor = document.querySelector(`.grid-editor[data-index="${compIndex}"]`);
             const lines = text.split(/\r?\n/);
             
             lines.forEach((line, lineOffset) => {
@@ -2847,17 +2987,33 @@
                     comp.gridRows.push({ type: 'generic', chars: [] });
                 }
                 
+                // Ensure chars array exists
+                if (!comp.gridRows[targetRow].chars) {
+                    comp.gridRows[targetRow].chars = [];
+                }
+                
                 // Insert characters starting at startChar
                 const chars = line.split('');
                 chars.forEach((char, charOffset) => {
                     const targetChar = startChar + charOffset;
                     comp.gridRows[targetRow].chars[targetChar] = char;
+                    
+                    // Update the input value directly
+                    const input = gridEditor.querySelector(`input[data-row="${targetRow}"][data-char="${targetChar}"]`);
+                    if (input) {
+                        input.value = char;
+                    }
                 });
             });
             
-            // Rebuild grid and sync to text
-            buildGridFromLyrics(compIndex);
-            syncGridToText(compIndex);
+            // If we added new rows, rebuild. Otherwise just sync
+            if (lines.length > 1 && (startRow + lines.length) > comp.gridRows.length) {
+                buildGridFromLyrics(compIndex);
+            } else {
+                syncGridToText(compIndex);
+            }
+            
+            console.log('Paste complete');
         }
         
         // Sync grid data back to text format (preserving exact character positions)
@@ -2898,6 +3054,102 @@
                 char: parseInt(focusedInput.dataset.char),
                 value: focusedInput.value
             }];
+        }
+
+        // Copy selected cells to clipboard
+        function copySelectedCells(compIndex, gridEditor, selectedCells) {
+            if (selectedCells.size === 0) {
+                console.log('No cells selected for copy');
+                return;
+            }
+            
+            console.log('Copying cells:', selectedCells);
+            const comp = chartData.components[compIndex];
+            const cellArray = Array.from(selectedCells).map(key => {
+                const [row, char] = key.split(',').map(Number);
+                return { row, char, value: comp.gridRows[row]?.chars[char] || '' };
+            });
+            
+            // Group by rows
+            const rows = {};
+            cellArray.forEach(cell => {
+                if (!rows[cell.row]) rows[cell.row] = {};
+                rows[cell.row][cell.char] = cell.value;
+            });
+            
+            // Build clipboard text
+            const minRow = Math.min(...cellArray.map(c => c.row));
+            const maxRow = Math.max(...cellArray.map(c => c.row));
+            const minChar = Math.min(...cellArray.map(c => c.char));
+            const maxChar = Math.max(...cellArray.map(c => c.char));
+            
+            let clipboardText = '';
+            for (let r = minRow; r <= maxRow; r++) {
+                let line = '';
+                for (let c = minChar; c <= maxChar; c++) {
+                    line += (rows[r] && rows[r][c]) || '';
+                }
+                clipboardText += line + '\n';
+            }
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(clipboardText.trimEnd()).then(() => {
+                console.log('✓ Copied to clipboard:', clipboardText);
+            }).catch(err => {
+                console.error('✗ Failed to copy:', err);
+            });
+        }
+
+        // Cut selected cells (copy then delete)
+        function cutSelectedCells(compIndex, gridEditor, selectedCells) {
+            if (selectedCells.size === 0) {
+                console.log('No cells selected for cut');
+                return;
+            }
+            
+            console.log('Cutting cells:', selectedCells);
+            
+            // First copy
+            copySelectedCells(compIndex, gridEditor, selectedCells);
+            
+            // Then delete (with a small delay to ensure clipboard operation completes)
+            setTimeout(() => {
+                deleteSelectedCells(compIndex, selectedCells);
+            }, 50);
+        }
+
+        // Delete selected cells content
+        function deleteSelectedCells(compIndex, selectedCells) {
+            if (selectedCells.size === 0) return;
+            
+            console.log('Deleting selected cells:', selectedCells);
+            const comp = chartData.components[compIndex];
+            const gridEditor = document.querySelector(`.grid-editor[data-index="${compIndex}"]`);
+            
+            selectedCells.forEach(key => {
+                const [row, char] = key.split(',').map(Number);
+                if (comp.gridRows[row] && comp.gridRows[row].chars) {
+                    comp.gridRows[row].chars[char] = '';
+                    
+                    // Update the input value directly without rebuilding
+                    const input = gridEditor.querySelector(`input[data-row="${row}"][data-char="${char}"]`);
+                    if (input) {
+                        input.value = '';
+                    }
+                }
+            });
+            
+            // Sync to text (no rebuild needed)
+            syncGridToText(compIndex);
+        }
+
+        // Select all cells in the grid
+        function selectAllCells(compIndex, gridEditor, selectedCells, selectRange) {
+            const comp = chartData.components[compIndex];
+            if (!comp.gridRows || comp.gridRows.length === 0) return;
+            
+            const maxChars = Math.max(...comp.gridRows.map(row => row.chars?.length || 0));
+            selectRange(0, 0, comp.gridRows.length - 1, maxChars - 1);
         }
 
         // Row selection toggle
