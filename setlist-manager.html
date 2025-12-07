@@ -506,6 +506,29 @@
             border-radius: 2px;
             box-shadow: 0 0 10px rgba(255, 107, 61, 0.5);
         }
+        
+        /* Set dragging styles */
+        .set-container.dragging-set {
+            opacity: 0.4;
+            background: rgba(216, 67, 21, 0.2);
+        }
+        
+        .set-container.drag-over-set {
+            background: rgba(255, 107, 61, 0.15);
+            border-color: #ff6b3d;
+            box-shadow: 0 0 25px rgba(255, 107, 61, 0.4);
+            transform: scale(1.02);
+            transition: all 0.2s ease;
+        }
+        
+        .set-drag-handle {
+            transition: opacity 0.2s ease;
+        }
+        
+        .set-drag-handle:hover {
+            opacity: 1 !important;
+            color: var(--primary-light);
+        }
 
         @media print {
             body {
@@ -753,25 +776,36 @@
         let selectedBand = null;
         let selectedSetlistIndex = -1;
         let expandedBands = new Set();
+        
+        // State tracking for expanded/collapsed sets within setlists
+        // Structure: { setlistIndex: { setIndex: true/false } }
+        let expandedSets = {};
 
         // Save state to sessionStorage (persists during tab session)
         function saveSessionState() {
             sessionStorage.setItem('setlistManager_selectedBand', selectedBand);
             sessionStorage.setItem('setlistManager_selectedSetlistIndex', selectedSetlistIndex.toString());
             sessionStorage.setItem('setlistManager_expandedBands', JSON.stringify(Array.from(expandedBands)));
+            sessionStorage.setItem('setlistManager_expandedSets', JSON.stringify(expandedSets));
         }
 
         // Load state from sessionStorage
         function loadSessionState() {
-            // Check if this is a page reload (F5) vs navigation
+            // Check if this is a page reload (F5 or CTRL+F5) vs navigation
             const perfData = performance.getEntriesByType('navigation')[0];
             const isReload = perfData && perfData.type === 'reload';
             
-            // If it's a reload (F5), clear the state for a clean view
-            if (isReload) {
+            // Also check for hard refresh flag (set on CTRL+F5 via beforeunload)
+            const isHardRefresh = sessionStorage.getItem('hardRefresh') === 'true';
+            sessionStorage.removeItem('hardRefresh'); // Clear the flag
+            
+            // If it's a reload (F5/CTRL+F5), clear the state for a clean view
+            if (isReload || isHardRefresh) {
                 sessionStorage.removeItem('setlistManager_selectedBand');
                 sessionStorage.removeItem('setlistManager_selectedSetlistIndex');
                 sessionStorage.removeItem('setlistManager_expandedBands');
+                sessionStorage.removeItem('setlistManager_expandedSets');
+                expandedSets = {}; // Reset to collapsed state
                 return;
             }
             
@@ -779,6 +813,7 @@
             const savedBand = sessionStorage.getItem('setlistManager_selectedBand');
             const savedIndex = sessionStorage.getItem('setlistManager_selectedSetlistIndex');
             const savedExpanded = sessionStorage.getItem('setlistManager_expandedBands');
+            const savedExpandedSets = sessionStorage.getItem('setlistManager_expandedSets');
             
             if (savedBand && savedBand !== 'null') {
                 selectedBand = savedBand;
@@ -790,6 +825,10 @@
             
             if (savedExpanded) {
                 expandedBands = new Set(JSON.parse(savedExpanded));
+            }
+            
+            if (savedExpandedSets) {
+                expandedSets = JSON.parse(savedExpandedSets);
             }
         }
 
@@ -828,6 +867,14 @@
                 document.querySelector('.right-sidebar').classList.add('collapsed');
             }
         };
+        
+        // Detect hard refresh (CTRL+F5) by monitoring key press before unload
+        window.addEventListener('keydown', function(e) {
+            // CTRL+F5 or CTRL+R
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'F5' || e.key === 'r' || e.key === 'R')) {
+                sessionStorage.setItem('hardRefresh', 'true');
+            }
+        });
 
         // Load and apply watermark preference (inherited from Song Manager)
         function loadWatermark() {
@@ -985,18 +1032,42 @@
             const songList = container.querySelector('.set-song-list');
             const arrow = container.querySelector('.set-header .set-title span:first-child');
             
+            // Initialize expanded state for this setlist if not exists
+            if (!expandedSets[setlistIndex]) {
+                expandedSets[setlistIndex] = {};
+            }
+            
             if (songList.style.display === 'none') {
                 songList.style.display = 'block';
                 if (arrow) arrow.textContent = '▼';
+                expandedSets[setlistIndex][setIndex] = true;
             } else {
                 songList.style.display = 'none';
                 if (arrow) arrow.textContent = '▶';
+                expandedSets[setlistIndex][setIndex] = false;
             }
+            
+            // Save the state to session storage
+            saveSessionState();
         }
 
         // Save setlists
         function saveSetlistsToStorage() {
             localStorage.setItem('bandSetlists', JSON.stringify(setlists));
+        }
+        
+        // Auto-update set names based on position (1st Set, 2nd Set, etc.)
+        function updateSetNames(setlist) {
+            const ordinals = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'];
+            
+            setlist.sets.forEach((set, index) => {
+                if (index < ordinals.length) {
+                    set.name = `${ordinals[index]} Set`;
+                } else {
+                    // For sets beyond 10, use numerical format
+                    set.name = `Set ${index + 1}`;
+                }
+            });
         }
 
         // Populate band suggestions
@@ -1049,6 +1120,11 @@
                 }];
             }
             
+            // Initialize expanded state for this setlist if not exists
+            if (!expandedSets[setlistIndex]) {
+                expandedSets[setlistIndex] = {};
+            }
+            
             const totalSongs = setlist.sets.reduce((sum, set) => sum + set.songs.length, 0);
             
             return `
@@ -1095,11 +1171,27 @@
                         </div>
                     </div>
                     
-                    ${setlist.sets.map((set, setIndex) => `
-                        <div class="set-container">
-                            <div class="set-header" style="cursor: pointer;" onclick="toggleSet(${setlistIndex}, ${setIndex})">
-                                <div class="set-title">
-                                    <span style="font-size: 12px; opacity: 0.7; margin-right: 8px;">▶</span>
+                    ${setlist.sets.map((set, setIndex) => {
+                        // Check if this set is expanded (default to collapsed)
+                        const isExpanded = expandedSets[setlistIndex] && expandedSets[setlistIndex][setIndex] === true;
+                        const arrow = isExpanded ? '▼' : '▶';
+                        const display = isExpanded ? 'block' : 'none';
+                        
+                        return `
+                        <div class="set-container" draggable="false"
+                             ondragstart="handleSetDragStart(event, ${setlistIndex}, ${setIndex})"
+                             ondragover="handleSetDragOver(event)"
+                             ondragenter="handleSetDragEnter(event)"
+                             ondrop="handleSetDrop(event, ${setlistIndex}, ${setIndex})"
+                             ondragend="handleSetDragEnd(event)">
+                            <div class="set-header" style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="toggleSet(${setlistIndex}, ${setIndex})">
+                                <span class="set-drag-handle" style="cursor: move; opacity: 0.5; font-size: 16px; padding: 4px;" 
+                                      onmousedown="enableSetDrag(event)"
+                                      onmouseup="disableSetDrag(event)"
+                                      onclick="event.stopPropagation()" 
+                                      title="Drag to reorder sets">⋮⋮</span>
+                                <div class="set-title" style="flex: 1;">
+                                    <span style="font-size: 12px; opacity: 0.7; margin-right: 8px;">${arrow}</span>
                                     ${escapeHtml(set.name)} (${set.songs.length} songs${(() => {
                                         const totalSeconds = calculateSetDuration(set);
                                         if (totalSeconds > 0) {
@@ -1121,7 +1213,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="set-song-list" style="display: none;"
+                            <div class="set-song-list" style="display: ${display};"
                                  ondragover="handleSetDragOver(event, ${setlistIndex}, ${setIndex})"
                                  ondrop="handleDropOnSet(event, ${setlistIndex}, ${setIndex})">
                                 ${set.songs.length === 0 ? `<div class="empty-set-dropzone" 
@@ -1163,7 +1255,7 @@
                                 }
                             </div>
                         </div>
-                    `).join('')}
+                    `;}).join('')}
                     
                     <div class="setlist-info">
                         ${totalSongs} song${totalSongs !== 1 ? 's' : ''} total • ${setlist.sets.length} set${setlist.sets.length !== 1 ? 's' : ''}
@@ -1913,6 +2005,227 @@
             // Save and re-render
             saveSetlistsToStorage();
             renderSetlistCenter();
+        }
+
+        // Drag and drop functionality for SET REORDERING
+        let draggedSetSetlistIndex = null;
+        let draggedSetSetIndex = null;
+        
+        // Enable dragging on the set-container when mousedown on handle
+        function enableSetDrag(event) {
+            event.stopPropagation();
+            const setContainer = event.target.closest('.set-container');
+            if (setContainer) {
+                setContainer.setAttribute('draggable', 'true');
+            }
+        }
+        
+        // Disable dragging when mouse is released
+        function disableSetDrag(event) {
+            const setContainer = event.target.closest('.set-container');
+            if (setContainer) {
+                setContainer.setAttribute('draggable', 'false');
+            }
+        }
+        
+        function handleSetDragStart(event, setlistIndex, setIndex) {
+            // Only proceed if dragging is enabled (via the handle)
+            const setContainer = event.target.closest('.set-container');
+            if (!setContainer || setContainer.getAttribute('draggable') !== 'true') {
+                event.preventDefault();
+                return;
+            }
+            
+            draggedSetSetlistIndex = setlistIndex;
+            draggedSetSetIndex = setIndex;
+            setContainer.classList.add('dragging-set');
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', ''); // Required for Firefox
+        }
+        
+        function handleSetDragEnter(event) {
+            // Only handle set dragging, not song dragging
+            if (draggedSetSetlistIndex === null || event.target.closest('.song-item')) {
+                return;
+            }
+            event.preventDefault();
+            const setContainer = event.target.closest('.set-container');
+            if (setContainer && !setContainer.classList.contains('dragging-set')) {
+                setContainer.classList.add('drag-over-set');
+            }
+        }
+        
+        function handleSetDragOver(event) {
+            // Only handle set dragging, not song dragging
+            if (draggedSetSetlistIndex === null || event.target.closest('.song-item')) {
+                return;
+            }
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            
+            // Remove drag-over from all containers and previews
+            document.querySelectorAll('.set-container').forEach(el => {
+                el.classList.remove('drag-over-set');
+            });
+            document.querySelectorAll('.set-drop-preview').forEach(el => {
+                el.remove();
+            });
+            
+            // Find the set container we're hovering over
+            const setContainer = event.target.closest('.set-container');
+            if (setContainer && !setContainer.classList.contains('dragging-set')) {
+                // Calculate if we should insert before or after this set
+                const rect = setContainer.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                const insertBefore = event.clientY < midpoint;
+                
+                // Create drop preview indicator
+                const preview = document.createElement('div');
+                preview.className = 'set-drop-preview';
+                preview.style.cssText = 'height: 3px; background: #ff6b3d; margin: 8px 0; border-radius: 2px; box-shadow: 0 0 10px rgba(255, 107, 61, 0.6);';
+                
+                if (insertBefore) {
+                    setContainer.parentNode.insertBefore(preview, setContainer);
+                } else {
+                    setContainer.parentNode.insertBefore(preview, setContainer.nextSibling);
+                }
+            }
+        }
+        
+        function handleSetDrop(event, setlistIndex, setIndex) {
+            console.log('handleSetDrop called', {setlistIndex, setIndex, draggedSetSetlistIndex, draggedSetSetIndex});
+            
+            // Only handle set dragging, not song dragging
+            if (draggedSetSetlistIndex === null) {
+                console.log('Ignoring - no set being dragged');
+                return;
+            }
+            
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Clean up visual feedback
+            document.querySelectorAll('.set-container').forEach(el => {
+                el.classList.remove('drag-over-set');
+                el.classList.remove('dragging-set');
+            });
+            document.querySelectorAll('.set-drop-preview').forEach(el => {
+                el.remove();
+            });
+            
+            // Validate drag state
+            if (draggedSetSetlistIndex === null || draggedSetSetIndex === null) {
+                console.log('Invalid drag state');
+                return;
+            }
+            
+            // Only allow reordering within the same setlist
+            if (draggedSetSetlistIndex !== setlistIndex) {
+                console.log('Different setlist - not allowed');
+                draggedSetSetlistIndex = null;
+                draggedSetSetIndex = null;
+                return;
+            }
+            
+            const setlist = setlists[setlistIndex];
+            
+            // Calculate drop position based on mouse position
+            const setContainer = event.target.closest('.set-container');
+            let newPosition = setIndex;
+            
+            if (setContainer) {
+                const rect = setContainer.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                const insertBefore = event.clientY < midpoint;
+                
+                console.log('Drop calculation', {setIndex, insertBefore, mouseY: event.clientY, midpoint});
+                
+                // Calculate target position
+                if (insertBefore) {
+                    newPosition = setIndex;
+                } else {
+                    newPosition = setIndex + 1;
+                }
+            }
+            
+            console.log('Before removal', {draggedSetSetIndex, newPosition, totalSets: setlist.sets.length});
+            
+            // Remove the dragged set from its current position first
+            const draggedSet = setlist.sets.splice(draggedSetSetIndex, 1)[0];
+            
+            // Adjust newPosition after removal (since array is now shorter)
+            if (draggedSetSetIndex < newPosition) {
+                newPosition--;
+            }
+            
+            console.log('After adjustment', {finalPosition: newPosition});
+            
+            // Don't do anything if the position hasn't changed
+            if (draggedSetSetIndex === newPosition) {
+                console.log('Position unchanged - putting back');
+                // Put it back
+                setlist.sets.splice(draggedSetSetIndex, 0, draggedSet);
+                draggedSetSetlistIndex = null;
+                draggedSetSetIndex = null;
+                return;
+            }
+            
+            console.log('Inserting at new position', newPosition);
+            
+            // Insert at new position
+            setlist.sets.splice(newPosition, 0, draggedSet);
+            
+            // Update set names based on new order
+            updateSetNames(setlist);
+            
+            // Update expanded state to match new indices
+            const newExpandedState = {};
+            Object.keys(expandedSets[setlistIndex] || {}).forEach(oldIndex => {
+                const oldIndexNum = parseInt(oldIndex);
+                let newIndex = oldIndexNum;
+                
+                // If this was the dragged set, it moves to newPosition
+                if (oldIndexNum === draggedSetSetIndex) {
+                    newIndex = newPosition;
+                }
+                // If a set was between old and new position, shift it
+                else if (draggedSetSetIndex < newPosition && oldIndexNum > draggedSetSetIndex && oldIndexNum <= newPosition) {
+                    newIndex = oldIndexNum - 1;
+                }
+                else if (draggedSetSetIndex > newPosition && oldIndexNum >= newPosition && oldIndexNum < draggedSetSetIndex) {
+                    newIndex = oldIndexNum + 1;
+                }
+                
+                newExpandedState[newIndex] = expandedSets[setlistIndex][oldIndex];
+            });
+            
+            expandedSets[setlistIndex] = newExpandedState;
+            
+            // Save and re-render
+            saveSetlistsToStorage();
+            saveSessionState();
+            renderSetlistCenter();
+            
+            // Reset state
+            draggedSetSetlistIndex = null;
+            draggedSetSetIndex = null;
+        }
+        
+        function handleSetDragEnd(event) {
+            console.log('handleSetDragEnd called');
+            // Clean up
+            document.querySelectorAll('.set-container').forEach(el => {
+                el.classList.remove('dragging-set');
+                el.classList.remove('drag-over-set');
+                el.setAttribute('draggable', 'false'); // Reset draggable state
+            });
+            document.querySelectorAll('.set-drop-preview').forEach(el => {
+                el.remove();
+            });
+            
+            // Reset state
+            draggedSetSetlistIndex = null;
+            draggedSetSetIndex = null;
         }
 
         // Export single setlist
