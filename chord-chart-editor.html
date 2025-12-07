@@ -2939,6 +2939,36 @@
                 selectRange(selectionStart.row, selectionStart.char, row, charIdx);
             }, true); // Use capture for better performance
             
+            // Mouse movement for drag selection
+            gridEditor.addEventListener('mousemove', function(e) {
+                if (!isMouseDown || !selectionStart) return;
+                const input = e.target.closest('.grid-cell-input');
+                if (!input) return;
+                
+                const row = parseInt(input.dataset.row);
+                const charIdx = parseInt(input.dataset.char);
+                selectRange(selectionStart.row, selectionStart.char, row, charIdx);
+            });
+            
+            // Mouse up handler for this specific grid
+            gridEditor.addEventListener('mouseup', function() {
+                isMouseDown = false;
+            });
+            
+            // Also clear on mouse leave to prevent sticky selections
+            gridEditor.addEventListener('mouseleave', function() {
+                isMouseDown = false;
+            });
+            
+            // Global mouseup as backup (in case mouse is released outside grid)
+            const globalMouseUpHandler = function() {
+                isMouseDown = false;
+            };
+            document.addEventListener('mouseup', globalMouseUpHandler);
+            
+            // Store handler reference for cleanup
+            gridEditor._globalMouseUpHandler = globalMouseUpHandler;
+            
             // Use event delegation for input events
             gridEditor.addEventListener('input', function(e) {
                 const input = e.target.closest('.grid-cell-input');
@@ -3061,14 +3091,6 @@
                 
                 pasteIntoGrid(compIndex, row, charIdx, text);
             });
-            
-            // OPTIMIZATION: Single global mouseup listener (not per component)
-            if (!window._gridMouseUpInitialized) {
-                window._gridMouseUpInitialized = true;
-                document.addEventListener('mouseup', function() {
-                    isMouseDown = false;
-                });
-            }
             
             // Store selection state on the grid editor for access by copy/paste functions
             gridEditor._selectionState = {
