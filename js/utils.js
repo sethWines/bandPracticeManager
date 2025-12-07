@@ -92,6 +92,23 @@ export function debounce(func, wait) {
 }
 
 /**
+ * Throttle function - ensures function is called at most once per interval
+ * @param {Function} func - Function to throttle
+ * @param {number} limit - Minimum time between calls in ms
+ * @returns {Function} Throttled function
+ */
+export function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+        if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+/**
  * Show modal
  * @param {string} modalId - Modal element ID
  */
