@@ -96,6 +96,32 @@
             transition: opacity 0.3s ease;
         }
 
+        /* Drum watermark overlay */
+        .drum-watermark-overlay {
+            position: fixed;
+            top: 0%;
+            right: -20%;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24' fill='none' stroke='%23ffffff' stroke-width='1' opacity='0.08'%3E%3Ccircle cx='23' cy='17' r='4.5'/%3E%3Cline x1='16' y1='21.5' x2='16' y2='2'/%3E%3Cline x1='11' y1='5' x2='21' y2='5'/%3E%3Cline x1='18' y1='8' x2='28' y2='8'/%3E%3Cline x1='21' y1='10' x2='26' y2='10'/%3E%3Cline x1='7' y1='12.5' x2='18' y2='12.5'/%3E%3Cline x1='30' y1='12.5' x2='30' y2='2'/%3E%3Cline x1='25' y1='5' x2='35' y2='5'/%3E%3Cline x1='27' y1='8' x2='33' y2='8'/%3E%3Cline x1='26' y1='14' x2='31' y2='14'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Show drum watermark when active */
+        body.drum-watermark::before {
+            opacity: 0;
+        }
+
+        body.drum-watermark .drum-watermark-overlay {
+            opacity: 1;
+        }
+
         .header {
             background: rgba(0, 0, 0, 0.15);
             -webkit-backdrop-filter: blur(10px);
@@ -617,16 +643,31 @@
     </style>
 </head>
 <body>
+    <!-- Drum Watermark Overlay -->
+    <div class="drum-watermark-overlay"></div>
+    
     <!-- Header -->
     <div class="header">
         <h1>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg id="guitarIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; cursor: pointer; transition: opacity 0.3s;" onclick="switchWatermark('guitar')" title="Show Guitar Watermark">
                 <circle cx="12" cy="17" r="4.5"/>
                 <line x1="12" y1="12.5" x2="12" y2="2"/>
                 <line x1="9" y1="5" x2="15" y2="5"/>
                 <line x1="9" y1="8" x2="15" y2="8"/>
             </svg>
             Show Time
+            <svg id="drumIcon" viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 40px; height: 24px; cursor: pointer; opacity: 0.5; transition: opacity 0.3s;" onclick="switchWatermark('drum')" title="Show Drum Watermark">
+                <circle cx="23" cy="17" r="4.5"/>
+                <line x1="16" y1="21.5" x2="16" y2="2"/>
+                <line x1="11" y1="5" x2="21" y2="5"/>
+                <line x1="18" y1="8" x2="28" y2="8"/>
+                <line x1="21" y1="10" x2="26" y2="10"/>
+                <line x1="7" y1="12.5" x2="18" y2="12.5"/>
+                <line x1="30" y1="12.5" x2="30" y2="2"/>
+                <line x1="25" y1="5" x2="35" y2="5"/>
+                <line x1="27" y1="8" x2="33" y2="8"/>
+                <line x1="26" y1="14" x2="31" y2="14"/>
+            </svg>
         </h1>
         <div class="header-controls">
             <div class="nav-links">
@@ -747,6 +788,41 @@
                 if (selector) {
                     selector.value = savedTheme;
                 }
+            }
+        }
+
+        // Watermark management
+        function loadWatermark() {
+            const watermark = localStorage.getItem('watermark') || 'guitar';
+            if (watermark === 'drum') {
+                document.body.classList.add('drum-watermark');
+                updateIconStyles('drum');
+            } else {
+                document.body.classList.remove('drum-watermark');
+                updateIconStyles('guitar');
+            }
+        }
+
+        function switchWatermark(type) {
+            localStorage.setItem('watermark', type);
+            if (type === 'drum') {
+                document.body.classList.add('drum-watermark');
+            } else {
+                document.body.classList.remove('drum-watermark');
+            }
+            updateIconStyles(type);
+        }
+
+        function updateIconStyles(activeType) {
+            const guitarIcon = document.getElementById('guitarIcon');
+            const drumIcon = document.getElementById('drumIcon');
+            
+            if (activeType === 'guitar') {
+                guitarIcon.style.opacity = '1';
+                drumIcon.style.opacity = '0.5';
+            } else {
+                guitarIcon.style.opacity = '0.5';
+                drumIcon.style.opacity = '1';
             }
         }
 
@@ -1269,6 +1345,7 @@
         function init() {
             loadData();
             loadTheme();
+            loadWatermark();
             parseUrlParams();
             
             if (!isSingleSongMode) {
