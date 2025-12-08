@@ -1218,9 +1218,15 @@
                 document.body.setAttribute('data-theme', savedTheme);
                 const watermark = localStorage.getItem('watermark') || 'guitar';
                 updateFaviconForThemeAndWatermark(savedTheme, watermark);
+                
+                // Sync both desktop and mobile theme selectors
                 const selector = document.querySelector('.theme-selector');
                 if (selector) {
                     selector.value = savedTheme;
+                }
+                const mobileSelector = document.getElementById('mobileThemeSelector');
+                if (mobileSelector) {
+                    mobileSelector.value = savedTheme;
                 }
             }
         }
