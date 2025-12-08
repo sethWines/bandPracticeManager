@@ -4,6 +4,166 @@
  */
 
 /* ========================================
+   MOBILE COMMAND MENU (Hamburger)
+   ======================================== */
+
+.mobile-menu-btn {
+    display: none; /* Hidden by default (desktop) */
+    background: var(--primary-dark);
+    border: 2px solid var(--primary-light);
+    color: var(--primary-light);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
+}
+
+.mobile-menu-btn:hover {
+    background: var(--primary-darker);
+    border-color: var(--primary-lighter);
+}
+
+.mobile-menu-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Full-screen mobile menu overlay */
+.mobile-menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.98);
+    z-index: 9999;
+    overflow-y: auto;
+    animation: fadeIn 0.3s ease;
+}
+
+.mobile-menu-overlay.active {
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 2px solid var(--primary-border);
+    background: rgba(0, 0, 0, 0.5);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.mobile-menu-title {
+    color: var(--primary-light);
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 0 0 10px var(--primary-glow);
+}
+
+.mobile-menu-close {
+    background: transparent;
+    border: 2px solid var(--primary-light);
+    color: var(--primary-light);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 24px;
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.mobile-menu-close:hover {
+    background: var(--primary-dark);
+    transform: rotate(90deg);
+}
+
+.mobile-menu-content {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.mobile-menu-section {
+    background: rgba(26, 26, 26, 0.8);
+    border: 2px solid var(--primary-border);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.mobile-menu-section-title {
+    color: var(--primary-light);
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mobile-menu-section .nav-link,
+.mobile-menu-section .btn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    min-height: 50px;
+    font-size: 16px;
+    gap: 10px;
+}
+
+.mobile-menu-section .theme-selector {
+    width: 100%;
+    min-height: 50px;
+    font-size: 16px;
+}
+
+.mobile-menu-section .search-box {
+    width: 100%;
+    min-height: 50px;
+    font-size: 16px;
+    margin-bottom: 0;
+}
+
+.mobile-menu-section input,
+.mobile-menu-section select {
+    margin-bottom: 10px;
+}
+
+.mobile-menu-section input:last-child,
+.mobile-menu-section select:last-child,
+.mobile-menu-section .btn:last-child,
+.mobile-menu-section .nav-link:last-child {
+    margin-bottom: 0;
+}
+
+/* ========================================
    HEADER STYLES
    ======================================== */
 
@@ -17,7 +177,8 @@
     align-items: center;
     border-bottom: 2px solid var(--primary-color);
     flex-shrink: 0;
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: 9998;
     box-shadow: 0 2px 10px var(--primary-glow);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -925,72 +1086,44 @@ label:has(input[type="checkbox"]) {
         font-size: 16px; /* Prevent zoom on iOS */
     }
     
-    /* Header adjustments */
+    /* Header adjustments - keep it simple and sticky */
     .header {
-        flex-wrap: wrap;
-        padding: 10px;
-        gap: 8px;
+        position: sticky;
+        top: 0;
+        flex-wrap: nowrap;
+        padding: 10px 15px;
+        gap: 10px;
     }
     
     .header h1 {
-        font-size: 16px;
-        flex: 1 0 100%; /* Take full width on mobile */
-        margin-bottom: 8px;
-    }
-    
-    .header-controls {
-        flex-wrap: wrap;
-        width: 100%;
-        gap: 6px;
-        justify-content: space-between;
-    }
-    
-    /* Compact stats for mobile */
-    .compact-stats {
-        display: none !important; /* Hide on very small screens */
-    }
-    
-    /* Navigation links - stack or scroll */
-    .nav-links {
-        display: flex;
-        gap: 4px;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; /* Firefox */
-    }
-    
-    .nav-links::-webkit-scrollbar {
-        display: none; /* Chrome, Safari */
-    }
-    
-    .nav-link {
-        padding: 8px 12px;
-        font-size: 12px;
-        white-space: nowrap;
-        min-height: 36px; /* Better touch target */
-    }
-    
-    /* Buttons - larger touch targets */
-    .btn, .btn-primary, .btn-secondary, .btn-success, .btn-danger {
-        padding: 10px 16px;
-        font-size: 14px;
-        min-height: 44px; /* Apple/Android guidelines */
-        white-space: nowrap;
-    }
-    
-    .btn-small, .btn-sm {
-        min-height: 36px;
-        padding: 8px 12px;
-    }
-    
-    /* Theme selector */
-    .theme-selector {
-        padding: 10px 12px;
-        font-size: 14px;
-        min-height: 44px;
+        font-size: 18px;
         flex: 1;
-        min-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Show hamburger menu button on mobile */
+    .mobile-menu-btn {
+        display: flex;
+    }
+    
+    /* Hide desktop navigation on mobile */
+    .header-controls {
+        display: none !important;
+    }
+    
+    /* Song selector (for song-manager.html) */
+    .song-selector {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+    }
+    
+    .song-selector h1 {
+        font-size: 16px !important;
+        white-space: nowrap;
     }
     
     /* Layout changes */
@@ -1028,25 +1161,6 @@ label:has(input[type="checkbox"]) {
     .right-sidebar.collapsed {
         width: 100%;
         padding: 12px;
-    }
-    
-    /* Song selector for mobile */
-    .song-selector {
-        flex: 1 0 100%;
-        margin-bottom: 8px;
-    }
-    
-    .song-selector h1 {
-        font-size: 16px !important;
-    }
-    
-    /* Search box */
-    .search-box {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 12px 16px;
-        font-size: 16px; /* Prevent zoom on iOS */
-        min-height: 44px;
     }
     
     /* Modal improvements */
@@ -1202,22 +1316,21 @@ label:has(input[type="checkbox"]) {
     input[type="checkbox"]:checked::after {
         font-size: 16px;
     }
+    
+    /* Compact stats - hide on mobile */
+    .compact-stats {
+        display: none !important;
+    }
 }
 
 /* Very small screens (phones in portrait) */
 @media (max-width: 480px) {
     .header h1 {
-        font-size: 14px;
+        font-size: 16px;
     }
     
-    .nav-link {
-        padding: 8px 10px;
-        font-size: 11px;
-    }
-    
-    .btn {
-        padding: 10px 14px;
-        font-size: 13px;
+    .song-selector h1 {
+        font-size: 14px !important;
     }
     
     .center-pane {
