@@ -397,8 +397,9 @@
     z-index: 1;
 }
 
-/* Left Sidebar */
+/* Left Sidebar - Desktop: normal sidebar, Mobile: floating box */
 .left-sidebar {
+    /* Desktop styles - part of layout */
     width: 140px;
     background: rgba(0, 0, 0, 0.15);
     -webkit-backdrop-filter: blur(10px);
@@ -409,6 +410,7 @@
     flex-shrink: 0;
     box-shadow: 2px 0 10px var(--primary-glow);
     transition: all 0.3s ease;
+    position: relative; /* Normal flow on desktop */
 }
 
 .left-sidebar.collapsed {
@@ -1104,6 +1106,11 @@ label:has(input[type="checkbox"]) {
         font-size: 16px; /* Prevent zoom on iOS */
     }
     
+    /* Remove z-index from main-layout so sidebar can escape */
+    .main-layout {
+        z-index: auto;
+    }
+    
     /* Show mobile search bar */
     .mobile-search-bar {
         display: block;
@@ -1162,28 +1169,49 @@ label:has(input[type="checkbox"]) {
         position: relative;
     }
     
-    /* Left sidebar - make it overlay on mobile with dynamic height */
+    /* Left sidebar - make it a floating compact box on mobile */
     .left-sidebar {
-        position: fixed;
+        position: fixed !important;
         left: -100%; /* Hidden by default */
-        top: 60px; /* Below header */
-        width: 80%;
-        max-width: 300px;
-        max-height: calc(100vh - 60px); /* Don't exceed viewport */
+        top: 80px; /* Below header with margin */
+        width: auto !important; /* Size to content width */
+        min-width: 160px; /* Minimum width for readability */
+        max-width: 280px; /* Don't get too wide */
+        max-height: calc(100vh - 120px); /* Leave space top and bottom */
         height: auto; /* Size to content - grows/shrinks dynamically */
-        z-index: 9999; /* Above header and backdrop */
-        background: #1a1a1a !important; /* Solid bright background */
-        border: 2px solid var(--primary-border) !important;
-        border-radius: 8px !important;
-        padding: 15px !important;
+        z-index: 10001 !important; /* Above backdrop (10000) */
+        background: #1a1a1a !important; /* Solid opaque background */
+        opacity: 1 !important; /* Ensure not dimmed */
+        border: 3px solid var(--primary-light) !important;
+        border-radius: 12px !important;
+        padding: 20px 15px !important;
         overflow-y: auto;
         transition: left 0.3s ease;
-        box-shadow: 4px 4px 30px rgba(0, 0, 0, 0.9) !important;
-        pointer-events: auto; /* Ensure sidebar is always interactive */
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.9), 0 0 20px var(--primary-glow) !important;
+        pointer-events: auto !important; /* Ensure sidebar is always interactive */
+        isolation: isolate; /* Create new stacking context */
     }
     
     .left-sidebar.mobile-open {
-        left: 0; /* Slide in when toggled */
+        left: 15px !important; /* Slide in with margin from edge */
+    }
+    
+    /* Ensure sidebar content is not dimmed */
+    .left-sidebar * {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+    }
+    
+    /* Make sidebar title more prominent in mobile box */
+    @media (max-width: 768px) {
+        .left-sidebar .sidebar-title,
+        .left-sidebar .palette-title {
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-border);
+        }
     }
     
     /* Right sidebar - hide on mobile */
@@ -1199,16 +1227,18 @@ label:has(input[type="checkbox"]) {
         overflow-y: auto;
     }
     
-    /* Mobile sidebar backdrop - only covers content area to the right of sidebar */
+    /* Mobile sidebar backdrop - covers entire viewport */
     .mobile-sidebar-backdrop {
         display: none;
         position: fixed;
         top: 0;
-        left: 300px; /* Start AFTER the sidebar */
+        left: 0; /* Start from the left edge to cover everything */
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.7);
-        z-index: 9996; /* Below sidebar (9999) */
+        z-index: 10000; /* Above content but below sidebar (10001) */
+        pointer-events: auto; /* Make backdrop clickable */
+        cursor: pointer; /* Show it's clickable */
     }
     
     .mobile-sidebar-backdrop.active {
@@ -1390,8 +1420,15 @@ label:has(input[type="checkbox"]) {
     }
     
     .left-sidebar {
-        width: 90%;
-        max-width: none;
+        max-width: 220px; /* Slightly narrower on small screens */
+        min-width: 140px;
+        left: -100%;
+        top: 70px; /* Closer to header on small screens */
+        max-height: calc(100vh - 100px);
+    }
+    
+    .left-sidebar.mobile-open {
+        left: 10px; /* Smaller margin on tiny screens */
     }
 }
 
