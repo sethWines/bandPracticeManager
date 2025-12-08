@@ -783,6 +783,45 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .grid-controls .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-width: 36px;
+            padding: 8px 12px;
+        }
+        
+        .grid-controls .btn svg {
+            flex-shrink: 0;
+        }
+        
+        .grid-controls .btn-text {
+            display: inline;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-controls {
+                gap: 6px;
+            }
+            
+            .grid-controls .btn {
+                padding: 8px;
+                min-width: 40px;
+                font-size: 0;
+            }
+            
+            .grid-controls .btn svg {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .grid-controls .btn-text {
+                display: none;
+            }
         }
 
         .grid-indicator-cell {
@@ -3123,24 +3162,39 @@
             // Build controls HTML
             let html = `
                 <div class="grid-controls">
-                    <button class="btn btn-secondary btn-sm" onclick="addGridRow(${index})">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button class="btn btn-secondary btn-sm" onclick="addGridRow(${index})" title="Add Row">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                        Add Row
+                        <span class="btn-text">Add</span>
                     </button>
-                    <button class="btn btn-secondary btn-sm" id="setChordBtn${index}" onclick="setSelectedRowsType(${index}, 'chord')" disabled>
-                        Mark as Chord Row
+                    <button class="btn btn-secondary btn-sm" id="setChordBtn${index}" onclick="setSelectedRowsType(${index}, 'chord')" disabled title="Mark as Chord Row">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18V5l12-2v13"></path>
+                            <circle cx="6" cy="18" r="3"></circle>
+                            <circle cx="18" cy="16" r="3"></circle>
+                        </svg>
+                        <span class="btn-text">Chord</span>
                     </button>
-                    <button class="btn btn-secondary btn-sm" id="setLyricBtn${index}" onclick="setSelectedRowsType(${index}, 'lyric')" disabled>
-                        Mark as Lyric Row
+                    <button class="btn btn-secondary btn-sm" id="setLyricBtn${index}" onclick="setSelectedRowsType(${index}, 'lyric')" disabled title="Mark as Lyric Row">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 7V4h16v3M9 20h6M12 4v16"></path>
+                        </svg>
+                        <span class="btn-text">Lyric</span>
                     </button>
-                    <button class="btn btn-secondary btn-sm" id="setGenericBtn${index}" onclick="setSelectedRowsType(${index}, 'generic')" disabled>
-                        Mark as Generic
+                    <button class="btn btn-secondary btn-sm" id="setGenericBtn${index}" onclick="setSelectedRowsType(${index}, 'generic')" disabled title="Mark as Generic">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span class="btn-text">-</span>
                     </button>
-                    <button class="btn btn-danger btn-sm" id="deleteRowBtn${index}" onclick="deleteSelectedRows(${index})" disabled>
-                        Delete Selected
+                    <button class="btn btn-danger btn-sm" id="deleteRowBtn${index}" onclick="deleteSelectedRows(${index})" disabled title="Delete Selected Rows">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        <span class="btn-text">Delete</span>
                     </button>
                 </div>
                 <table class="grid-editor-table">
@@ -3541,10 +3595,24 @@
             const lines = comp.gridRows.map(row => {
                 if (!row.chars || row.chars.length === 0) return '';
                 
-                // Convert chars array to string, trimming trailing spaces
-                let line = row.chars.join('');
-                // Remove trailing spaces but keep internal spacing
-                line = line.replace(/\s+$/, '');
+                // Find the last non-empty character position
+                let lastNonEmpty = -1;
+                for (let i = row.chars.length - 1; i >= 0; i--) {
+                    if (row.chars[i] && row.chars[i].trim() !== '') {
+                        lastNonEmpty = i;
+                        break;
+                    }
+                }
+                
+                // If row is completely empty
+                if (lastNonEmpty === -1) return '';
+                
+                // Build line with spaces for empty positions up to last non-empty char
+                let line = '';
+                for (let i = 0; i <= lastNonEmpty; i++) {
+                    line += (row.chars[i] || ' ');
+                }
+                
                 return line;
             });
             
