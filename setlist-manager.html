@@ -762,8 +762,25 @@
                     <option value="prism">Dark Prism</option>
                 </select>
             </div>
+            
+            <!-- Bands Section (Shows sidebar) -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Bands & Components</div>
+                <button class="btn-primary" onclick="toggleMobileSidebar(); toggleMobileMenu();">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    Show Bands & Components
+                </button>
+            </div>
         </div>
     </div>
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop" onclick="toggleMobileSidebar()"></div>
 
     <!-- Three-Pane Layout -->
     <div class="main-layout">
@@ -2434,6 +2451,22 @@
             }
         }
         
+        // Toggle mobile sidebar (left sidebar on setlist manager)
+        function toggleMobileSidebar() {
+            const sidebar = document.querySelector('.left-sidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+            if (sidebar && backdrop) {
+                sidebar.classList.toggle('mobile-open');
+                backdrop.classList.toggle('active');
+                // Prevent body scroll when sidebar is open
+                if (sidebar.classList.contains('mobile-open')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            }
+        }
+        
         // Close mobile menu when clicking outside or pressing escape
         document.addEventListener('DOMContentLoaded', () => {
             const mobileMenu = document.getElementById('mobileMenu');
@@ -2447,8 +2480,15 @@
                 
                 // Close on escape key
                 document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
-                        toggleMobileMenu();
+                    if (e.key === 'Escape') {
+                        if (mobileMenu.classList.contains('active')) {
+                            toggleMobileMenu();
+                        }
+                        // Also close sidebar if open
+                        const sidebar = document.querySelector('.left-sidebar');
+                        if (sidebar && sidebar.classList.contains('mobile-open')) {
+                            toggleMobileSidebar();
+                        }
                     }
                 });
             }

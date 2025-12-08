@@ -1108,8 +1108,14 @@ label:has(input[type="checkbox"]) {
         display: flex;
     }
     
-    /* Hide desktop navigation on mobile */
-    .header-controls {
+    /* Hide ALL desktop header controls on mobile */
+    .header-controls,
+    .header-controls *,
+    .header .nav-links,
+    .header .search-box,
+    .header .compact-stats,
+    .header .btn-secondary,
+    .header .theme-selector {
         display: none !important;
     }
     
@@ -1126,24 +1132,61 @@ label:has(input[type="checkbox"]) {
         white-space: nowrap;
     }
     
-    /* Layout changes - HIDE SIDEBARS ON MOBILE */
+    /* Layout changes - HIDE SIDEBARS ON MOBILE by default */
     .main-layout {
-        flex-direction: column;
-        overflow-y: auto;
+        flex-direction: row; /* Keep horizontal for overlay */
+        overflow: hidden;
+        position: relative;
     }
     
-    /* Hide left and right sidebars on mobile */
-    .left-sidebar,
+    /* Left sidebar - make it overlay on mobile */
+    .left-sidebar {
+        position: fixed;
+        left: -100%; /* Hidden by default */
+        top: 0;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        z-index: 9997;
+        background: rgba(0, 0, 0, 0.98);
+        border-right: 2px solid var(--primary-border);
+        padding: 60px 15px 15px 15px; /* Extra top padding for header clearance */
+        overflow-y: auto;
+        transition: left 0.3s ease;
+        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.8);
+    }
+    
+    .left-sidebar.mobile-open {
+        left: 0; /* Slide in when toggled */
+    }
+    
+    /* Right sidebar - hide on mobile */
     .right-sidebar {
         display: none !important;
     }
     
-    /* Center pane takes full width and sits directly under header */
+    /* Center pane takes full width */
     .center-pane {
         flex: 1;
-        padding: 15px 10px;
         width: 100%;
+        padding: 15px 10px;
         overflow-y: auto;
+    }
+    
+    /* Mobile sidebar backdrop */
+    .mobile-sidebar-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9996;
+    }
+    
+    .mobile-sidebar-backdrop.active {
+        display: block;
     }
     
     /* Modal improvements */
@@ -1318,6 +1361,11 @@ label:has(input[type="checkbox"]) {
     
     .center-pane {
         padding: 10px 8px;
+    }
+    
+    .left-sidebar {
+        width: 90%;
+        max-width: none;
     }
 }
 
