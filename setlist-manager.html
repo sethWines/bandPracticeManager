@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Band Manager">
+    <link rel="manifest" href="manifest.json">
     <title>Setlist Manager</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d84315' stroke-width='2'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>">
     <link rel="stylesheet" href="./css/themes.css">
@@ -529,6 +533,59 @@
             }
         }
 
+        /* Mobile/Tablet Optimizations - Only applies on small screens */
+        @media (max-width: 768px) {
+            /* Increase touch target sizes per Apple/Google guidelines (min 44px) */
+            .song-item {
+                padding: 14px 12px;
+                min-height: 50px;
+            }
+            
+            .icon-btn {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 10px;
+            }
+            
+            .btn-primary, .btn-secondary, .btn-success, .btn-danger {
+                padding: 12px 20px;
+                font-size: 16px;
+                min-height: 44px;
+            }
+            
+            /* Larger tap targets for set headers */
+            .set-header {
+                padding: 12px 8px;
+                min-height: 50px;
+            }
+            
+            /* Improve modal usability on small screens */
+            .modal-content {
+                max-width: 95%;
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            /* Make song selector items easier to tap */
+            .song-selector-item {
+                padding: 14px 12px;
+                min-height: 50px;
+            }
+            
+            /* Larger search boxes */
+            .search-box {
+                padding: 14px 18px;
+                font-size: 16px;
+            }
+            
+            /* Better sidebar on mobile */
+            .left-sidebar, .right-sidebar {
+                width: 100%;
+                max-height: 250px;
+                overflow-y: auto;
+            }
+        }
+
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -583,6 +640,24 @@
                     Show Time
                 </a>
             </div>
+            
+            <button class="btn-secondary" onclick="exportAllData()" title="Export all songs, setlists, and settings for backup">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Backup
+            </button>
+            
+            <button class="btn-secondary" onclick="importAllData()" title="Import backup file to restore all data">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Restore
+            </button>
             
             <select id="themeSelector" class="theme-selector" onchange="changeTheme(this.value)" title="Select color theme" aria-label="Color theme selector">
                 <option value="grey">Grey</option>
@@ -1876,6 +1951,82 @@
             });
 
             downloadFile(csv, `all-setlists-${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+        }
+
+        // Export ALL app data (for backup and transfer between devices)
+        function exportAllData() {
+            const allData = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                songs: localStorage.getItem('bandSongs'),
+                setlists: localStorage.getItem('setlists'),
+                theme: localStorage.getItem('bandOrganizerTheme'),
+                watermark: localStorage.getItem('watermark'),
+                columnVisibility: localStorage.getItem('columnVisibility'),
+                rightSidebarCollapsed: localStorage.getItem('rightSidebarCollapsed')
+            };
+            
+            const jsonString = JSON.stringify(allData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `band-practice-manager-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('All data exported successfully! This file contains all your songs, setlists, and settings.');
+        }
+
+        // Import ALL app data (restore from backup)
+        function importAllData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        // Validate the data structure
+                        if (!data.version || !data.exportDate) {
+                            alert('Invalid backup file format!');
+                            return;
+                        }
+                        
+                        // Confirm before overwriting
+                        const confirmMsg = `This will replace ALL current data with the backup from ${new Date(data.exportDate).toLocaleDateString()}.\n\nAre you sure you want to continue?`;
+                        if (!confirm(confirmMsg)) {
+                            return;
+                        }
+                        
+                        // Restore all data
+                        if (data.songs) localStorage.setItem('bandSongs', data.songs);
+                        if (data.setlists) localStorage.setItem('setlists', data.setlists);
+                        if (data.theme) localStorage.setItem('bandOrganizerTheme', data.theme);
+                        if (data.watermark) localStorage.setItem('watermark', data.watermark);
+                        if (data.columnVisibility) localStorage.setItem('columnVisibility', data.columnVisibility);
+                        if (data.rightSidebarCollapsed) localStorage.setItem('rightSidebarCollapsed', data.rightSidebarCollapsed);
+                        
+                        alert('All data imported successfully! The page will now reload.');
+                        location.reload();
+                        
+                    } catch (error) {
+                        console.error('Import error:', error);
+                        alert('Error importing data: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            input.click();
         }
 
         // Print single setlist
