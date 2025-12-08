@@ -556,6 +556,39 @@
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid var(--primary-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .song-wheel-close-btn {
+            background: transparent;
+            border: 2px solid var(--primary-light);
+            color: var(--primary-light);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            line-height: 1;
+            transition: all 0.3s;
+            padding: 0;
+            flex-shrink: 0;
+        }
+        
+        .song-wheel-close-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: rotate(90deg);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+        
+        /* Ensure mobile menu appears above performance mode */
+        .mobile-menu-overlay {
+            z-index: 10001 !important; /* Above performance mode (10000) */
         }
 
         .song-wheel-container {
@@ -928,7 +961,10 @@
 
         <!-- 3D Song Wheel Menu -->
         <div class="song-wheel" id="songWheel">
-            <div class="song-wheel-header">Setlist Navigation</div>
+            <div class="song-wheel-header">
+                <span>Setlist Navigation</span>
+                <button class="song-wheel-close-btn" onclick="closeSongWheel()" title="Close" aria-label="Close setlist navigation">✕</button>
+            </div>
             <div class="song-wheel-container" id="songWheelContainer">
                 <!-- Song list will be inserted here -->
             </div>
@@ -1010,6 +1046,8 @@
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             if (menu) {
+                const isOpening = !menu.classList.contains('active');
+                
                 menu.classList.toggle('active');
                 // Prevent body scroll when menu is open
                 if (menu.classList.contains('active')) {
@@ -1524,7 +1562,14 @@
         // Manual toggle function for mobile button
         function toggleSongWheel() {
             const wheel = document.getElementById('songWheel');
+            const isOpening = !wheel.classList.contains('active');
+            
             wheel.classList.toggle('active');
+            
+            // Close hamburger menu when song wheel opens
+            if (isOpening) {
+                closeMobileMenu();
+            }
         }
         
         // Close song wheel helper function
@@ -1532,6 +1577,15 @@
             const wheel = document.getElementById('songWheel');
             if (wheel) {
                 wheel.classList.remove('active');
+            }
+        }
+        
+        // Close mobile menu helper function
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu && menu.classList.contains('active')) {
+                menu.classList.remove('active');
+                document.body.style.overflow = '';
             }
         }
 
