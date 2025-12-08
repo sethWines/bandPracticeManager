@@ -1126,41 +1126,24 @@ label:has(input[type="checkbox"]) {
         white-space: nowrap;
     }
     
-    /* Layout changes */
+    /* Layout changes - HIDE SIDEBARS ON MOBILE */
     .main-layout {
         flex-direction: column;
         overflow-y: auto;
     }
     
-    .left-sidebar, .right-sidebar {
-        width: 100%;
-        max-height: none;
-        min-height: auto;
-        border: none;
-        border-bottom: 2px solid var(--primary-border);
-        padding: 12px;
+    /* Hide left and right sidebars on mobile */
+    .left-sidebar,
+    .right-sidebar {
+        display: none !important;
     }
     
-    .left-sidebar {
-        order: 1;
-    }
-    
+    /* Center pane takes full width and sits directly under header */
     .center-pane {
-        order: 2;
         flex: 1;
         padding: 15px 10px;
-        min-height: 60vh;
-    }
-    
-    .right-sidebar {
-        order: 3;
-        border-top: 2px solid var(--primary-border);
-        border-bottom: none;
-    }
-    
-    .right-sidebar.collapsed {
         width: 100%;
-        padding: 12px;
+        overflow-y: auto;
     }
     
     /* Modal improvements */

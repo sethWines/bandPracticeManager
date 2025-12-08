@@ -1467,6 +1467,22 @@
                 <input type="text" class="search-box" id="mobileSearchBox" placeholder="🔍 Search songs..." oninput="handleSearchInput(event)" onkeydown="handleSearchKeydown(event)">
             </div>
 
+            <!-- Filter Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Filters</div>
+                <select id="mobileBandFilter" class="theme-selector" onchange="filterByBand(this.value)" style="margin-bottom: 10px;">
+                    <option value="">All Bands</option>
+                </select>
+                <button class="btn-secondary" onclick="showColumnVisibilityModal(); toggleMobileMenu();">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                    Show/Hide Columns
+                </button>
+            </div>
+
             <!-- Data Management Section -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-section-title">Data Management</div>
@@ -3565,6 +3581,7 @@ What would you like to do?
             updateBulkActionsFooter();
             initColumnResizing(); // Initialize column resizing
             initColumnCheckboxes(); // Populate column visibility checkboxes
+            syncMobileBandFilter(); // Populate mobile band filter
             
             // Load left sidebar collapse state
             const leftSidebarCollapsed = localStorage.getItem('leftSidebarCollapsed') === 'true';
@@ -6425,7 +6442,40 @@ What would you like to do?
                     }
                 });
             }
+            
+            // Sync mobile band filter with available bands
+            syncMobileBandFilter();
         });
+        
+        // Sync mobile band filter dropdown with all bands
+        function syncMobileBandFilter() {
+            const mobileFilter = document.getElementById('mobileBandFilter');
+            if (!mobileFilter || !songs) return;
+            
+            // Get unique bands from songs
+            const bands = [...new Set(songs.map(s => s.band).filter(b => b))].sort();
+            
+            // Clear and repopulate mobile filter
+            mobileFilter.innerHTML = '<option value="">All Bands</option>';
+            bands.forEach(band => {
+                const option = document.createElement('option');
+                option.value = band;
+                option.textContent = band;
+                mobileFilter.appendChild(option);
+            });
+        }
+        
+        // Filter songs by band
+        function filterByBand(band) {
+            if (!band) {
+                // Show all songs
+                renderSongs();
+            } else {
+                // Filter by selected band
+                const filtered = songs.filter(s => s.band === band);
+                renderSongs(filtered);
+            }
+        }
         
         // Load theme immediately
         loadTheme();
