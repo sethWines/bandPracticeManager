@@ -34,6 +34,24 @@
     height: 24px;
 }
 
+/* Mobile search bar (visible only on mobile, below header) */
+.mobile-search-bar {
+    display: none; /* Hidden on desktop */
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid var(--primary-border);
+    position: sticky;
+    top: 60px; /* Below header */
+    z-index: 9997;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.mobile-search-bar .search-box {
+    width: 100%;
+    margin: 0;
+}
+
 /* Full-screen mobile menu overlay */
 .mobile-menu-overlay {
     display: none;
@@ -1084,6 +1102,11 @@ label:has(input[type="checkbox"]) {
     /* Mobile-first adjustments */
     body {
         font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    /* Show mobile search bar */
+    .mobile-search-bar {
+        display: block;
     }
     
     /* Header adjustments - keep it simple and sticky */

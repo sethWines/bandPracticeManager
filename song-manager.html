@@ -1461,16 +1461,10 @@
                 </a>
             </div>
 
-            <!-- Search Section -->
-            <div class="mobile-menu-section">
-                <div class="mobile-menu-section-title">Search</div>
-                <input type="text" class="search-box" id="mobileSearchBox" placeholder="🔍 Search songs..." oninput="handleSearchInput(event)" onkeydown="handleSearchKeydown(event)">
-            </div>
-
             <!-- Filter Section -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-section-title">Filters</div>
-                <select id="mobileBandFilter" class="theme-selector" onchange="filterByBand(this.value)" style="margin-bottom: 10px;">
+                <select id="mobileBandFilter" class="theme-selector" onchange="filterByBand(this.value); toggleMobileMenu();" style="margin-bottom: 10px;">
                     <option value="">All Bands</option>
                 </select>
                 <button class="btn-secondary" onclick="showColumnVisibilityModal(); toggleMobileMenu();">
@@ -1525,6 +1519,11 @@
                 </select>
             </div>
         </div>
+    </div>
+
+    <!-- Mobile Search Bar (visible only on mobile, below header) -->
+    <div class="mobile-search-bar">
+        <input type="text" class="search-box" id="mobileSearchInput" placeholder="🔍 Search songs..." oninput="handleSearchInput(event)" onkeydown="handleSearchKeydown(event)">
     </div>
 
     <!-- Main Layout -->
