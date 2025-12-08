@@ -273,6 +273,15 @@
             transform: translateX(5px);
         }
 
+        .song-item.dragging {
+            opacity: 0.4;
+            background: rgba(216, 67, 21, 0.2);
+        }
+
+        .song-item.drag-over {
+            border-top: 3px solid #10b981;
+        }
+
         .song-number {
             font-weight: bold;
             color: var(--primary-color);
@@ -1177,7 +1186,11 @@
                                      Click Add to populate this set
                                 </div>` : 
                                     set.songs.map((song, songIndex) => `
-                                        <div class="song-item">
+                                        <div class="song-item" draggable="true"
+                                             ondragstart="onSongDragStart(event, ${setlistIndex}, ${setIndex}, ${songIndex})"
+                                             ondragover="onSongDragOver(event)"
+                                             ondrop="onSongDrop(event, ${setlistIndex}, ${setIndex}, ${songIndex})"
+                                             ondragend="onSongDragEnd(event)">
                                             <div class="song-info">
                                                 <span class="song-number">${songIndex + 1}.</span>
                                                 ${song.link ? 
@@ -1702,6 +1715,95 @@
             saveSetlistsToStorage();
             renderSetlistCenter();
             saveSessionState();
+        }
+
+        // ============================================================================
+        // SONG DRAG AND DROP
+        // ============================================================================
+        
+        let draggedSong = null; // { setlistIndex, setIndex, songIndex }
+        
+        function onSongDragStart(event, setlistIndex, setIndex, songIndex) {
+            draggedSong = { setlistIndex, setIndex, songIndex };
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function onSongDragOver(event) {
+            if (!draggedSong) return;
+            
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            
+            // Remove drag-over from all items
+            document.querySelectorAll('.song-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+            
+            // Add drag-over to current target
+            const songItem = event.currentTarget;
+            if (!songItem.classList.contains('dragging')) {
+                songItem.classList.add('drag-over');
+            }
+        }
+        
+        function onSongDrop(event, targetSetlistIndex, targetSetIndex, targetSongIndex) {
+            if (!draggedSong) return;
+            
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Remove visual feedback
+            document.querySelectorAll('.song-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+            
+            const sourceSetlistIndex = draggedSong.setlistIndex;
+            const sourceSetIndex = draggedSong.setIndex;
+            const sourceSongIndex = draggedSong.songIndex;
+            
+            // Only allow within same setlist
+            if (sourceSetlistIndex !== targetSetlistIndex) {
+                return;
+            }
+            
+            const setlist = setlists[targetSetlistIndex];
+            const sourceSet = setlist.sets[sourceSetIndex];
+            const targetSet = setlist.sets[targetSetIndex];
+            
+            // Get the dragged song
+            const [movedSong] = sourceSet.songs.splice(sourceSongIndex, 1);
+            
+            // Calculate insert position
+            let insertPosition = targetSongIndex;
+            
+            // If moving within same set and dropping after source, adjust
+            if (sourceSetIndex === targetSetIndex && sourceSongIndex < targetSongIndex) {
+                insertPosition--;
+            }
+            
+            // Determine if we should insert before or after based on mouse position
+            const rect = event.currentTarget.getBoundingClientRect();
+            const midY = rect.top + rect.height / 2;
+            if (event.clientY > midY) {
+                insertPosition++;
+            }
+            
+            // Insert at target position
+            targetSet.songs.splice(insertPosition, 0, movedSong);
+            
+            // Save and re-render
+            saveSetlistsToStorage();
+            renderSetlistCenter();
+            saveSessionState();
+        }
+        
+        function onSongDragEnd(event) {
+            event.target.classList.remove('dragging');
+            document.querySelectorAll('.song-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+            draggedSong = null;
         }
 
         // Export single setlist
