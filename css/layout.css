@@ -1162,25 +1162,38 @@ label:has(input[type="checkbox"]) {
         position: relative;
     }
     
-    /* Left sidebar - make it overlay on mobile */
+    /* Left sidebar - make it overlay on mobile with dynamic height */
     .left-sidebar {
         position: fixed;
         left: -100%; /* Hidden by default */
-        top: 0;
+        top: 60px; /* Below header */
         width: 80%;
         max-width: 300px;
-        height: 100vh;
-        z-index: 9997;
-        background: rgba(0, 0, 0, 0.98);
-        border-right: 2px solid var(--primary-border);
-        padding: 60px 15px 15px 15px; /* Extra top padding for header clearance */
+        max-height: calc(100vh - 60px); /* Don't exceed viewport */
+        height: auto; /* Size to content - grows/shrinks dynamically */
+        z-index: 9999; /* Above header and backdrop */
+        background: transparent; /* Transparent container */
+        border: none; /* No border on container */
+        padding: 0; /* No padding on container */
         overflow-y: auto;
         transition: left 0.3s ease;
-        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.8);
+        pointer-events: auto; /* Ensure sidebar is always interactive */
     }
     
     .left-sidebar.mobile-open {
         left: 0; /* Slide in when toggled */
+    }
+    
+    /* Make the content areas inside sidebar bright */
+    @media (max-width: 768px) {
+        .left-sidebar #bandList,
+        .left-sidebar #songList {
+            background: #1a1a1a; /* Solid bright background */
+            border: 2px solid var(--primary-border);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 4px 4px 30px rgba(0, 0, 0, 0.9);
+        }
     }
     
     /* Right sidebar - hide on mobile */
@@ -1196,19 +1209,36 @@ label:has(input[type="checkbox"]) {
         overflow-y: auto;
     }
     
-    /* Mobile sidebar backdrop */
+    /* Mobile sidebar backdrop - only covers content area to the right of sidebar */
     .mobile-sidebar-backdrop {
         display: none;
         position: fixed;
         top: 0;
-        left: 0;
+        left: 300px; /* Start AFTER the sidebar */
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.7);
-        z-index: 9996;
+        z-index: 9996; /* Below sidebar (9999) */
     }
     
     .mobile-sidebar-backdrop.active {
+        display: block;
+    }
+    
+    /* Left column dark overlay - separate element with independent z-index */
+    .mobile-sidebar-left-overlay {
+        display: none;
+        position: fixed;
+        top: 60px; /* Below header */
+        left: 0;
+        width: 300px; /* Cover left column where sidebar can be */
+        height: calc(100vh - 60px);
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9997; /* Above main backdrop (9996) but below sidebar (9999) */
+        pointer-events: none; /* Don't block sidebar interactions */
+    }
+    
+    .mobile-sidebar-left-overlay.active {
         display: block;
     }
     

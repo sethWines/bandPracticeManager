@@ -720,6 +720,20 @@
                     Show Time
                 </a>
             </div>
+            
+            <!-- Bands Section (Shows sidebar) -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Bands & Components</div>
+                <button class="btn-primary" onclick="toggleMobileSidebar(); toggleMobileMenu();">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    Show Bands & Components
+                </button>
+            </div>
 
             <!-- Data Management Section -->
             <div class="mobile-menu-section">
@@ -762,25 +776,14 @@
                     <option value="prism">Dark Prism</option>
                 </select>
             </div>
-            
-            <!-- Bands Section (Shows sidebar) -->
-            <div class="mobile-menu-section">
-                <div class="mobile-menu-section-title">Bands & Components</div>
-                <button class="btn-primary" onclick="toggleMobileSidebar(); toggleMobileMenu();">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                    </svg>
-                    Show Bands & Components
-                </button>
-            </div>
         </div>
     </div>
 
-    <!-- Mobile Sidebar Backdrop -->
-    <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop" onclick="toggleMobileSidebar()"></div>
+    <!-- Mobile Sidebar Backdrop (right side) -->
+    <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
+    
+    <!-- Left column dark overlay (behind sidebar) -->
+    <div class="mobile-sidebar-left-overlay" id="mobileSidebarLeftOverlay"></div>
 
     <!-- Three-Pane Layout -->
     <div class="main-layout">
@@ -2453,11 +2456,15 @@
         
         // Toggle mobile sidebar (left sidebar on setlist manager)
         function toggleMobileSidebar() {
+            console.log('[Mobile] Toggling sidebar');
             const sidebar = document.querySelector('.left-sidebar');
             const backdrop = document.getElementById('mobileSidebarBackdrop');
-            if (sidebar && backdrop) {
+            const leftOverlay = document.getElementById('mobileSidebarLeftOverlay');
+            if (sidebar && backdrop && leftOverlay) {
                 sidebar.classList.toggle('mobile-open');
                 backdrop.classList.toggle('active');
+                leftOverlay.classList.toggle('active');
+                console.log('[Mobile] Sidebar open:', sidebar.classList.contains('mobile-open'));
                 // Prevent body scroll when sidebar is open
                 if (sidebar.classList.contains('mobile-open')) {
                     document.body.style.overflow = 'hidden';
@@ -2470,6 +2477,11 @@
         // Close mobile menu when clicking outside or pressing escape
         document.addEventListener('DOMContentLoaded', () => {
             const mobileMenu = document.getElementById('mobileMenu');
+            const sidebar = document.querySelector('.left-sidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+            
+            console.log('[Mobile] Initialized - Sidebar:', !!sidebar, 'Backdrop:', !!backdrop);
+            
             if (mobileMenu) {
                 // Close on background click
                 mobileMenu.addEventListener('click', (e) => {
@@ -2485,11 +2497,26 @@
                             toggleMobileMenu();
                         }
                         // Also close sidebar if open
-                        const sidebar = document.querySelector('.left-sidebar');
                         if (sidebar && sidebar.classList.contains('mobile-open')) {
                             toggleMobileSidebar();
                         }
                     }
+                });
+            }
+            
+            // Setup backdrop click handler
+            if (backdrop) {
+                backdrop.addEventListener('click', (e) => {
+                    console.log('[Mobile] Backdrop clicked');
+                    toggleMobileSidebar();
+                });
+            }
+            
+            // Prevent sidebar clicks from bubbling to backdrop
+            if (sidebar) {
+                sidebar.addEventListener('click', (e) => {
+                    console.log('[Mobile] Sidebar clicked:', e.target.className);
+                    e.stopPropagation();
                 });
             }
         });
