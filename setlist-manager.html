@@ -1071,7 +1071,7 @@
 
         // Load songs from song organizer
         function loadSongs() {
-            const stored = localStorage.getItem('bandSongs');
+            const stored = localStorage.getItem('songDatabase') || localStorage.getItem('bandSongs');
             if (stored) {
                 songs = JSON.parse(stored);
             }
@@ -1082,7 +1082,40 @@
             const stored = localStorage.getItem('bandSetlists');
             if (stored) {
                 setlists = JSON.parse(stored);
+            } else if (songs.length > 0) {
+                // No existing setlists but we have songs - create demo setlist for first-time users
+                console.log('No setlists found - creating demo setlist');
+                loadDemoSetlist();
             }
+        }
+        
+        // Load demo setlist for first-time users
+        function loadDemoSetlist() {
+            // Only create demo setlist if we have songs (including demo songs)
+            if (songs.length === 0) return;
+            
+            // Get the first 3 songs (or all if less than 3)
+            const demoSongs = songs.slice(0, 3).map((song, index) => ({
+                songId: song.id,
+                position: index + 1,
+                notes: ''
+            }));
+            
+            setlists = [
+                {
+                    id: generateId(),
+                    band: 'Demo Band',
+                    setNumber: 1,
+                    title: 'Getting Started',
+                    date: new Date().toISOString().split('T')[0],
+                    venue: 'Welcome to Band Practice Manager!',
+                    notes: 'This is a demo setlist to help you get started. Try editing, reordering, or creating your own!',
+                    songs: demoSongs
+                }
+            ];
+            
+            saveSetlists();
+            console.log('Demo setlist created');
         }
 
         // Get list of bands with their setlists

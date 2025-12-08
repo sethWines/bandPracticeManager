@@ -4208,7 +4208,84 @@ What would you like to do?
                 }
             } else {
                 console.log('No songs found in localStorage');
+                // No existing data - load demo data for first-time users
+                loadDemoData();
             }
+        }
+        
+        // Load demo data for first-time users
+        function loadDemoData() {
+            // Create a sample chord chart for "Let It Be"
+            const demoChordChart = {
+                capo: '',
+                tuning: '',
+                components: [
+                    {
+                        type: 'section',
+                        name: 'Verse 1',
+                        lyrics: 'C               G\nWhen I find myself in times of trouble\nAm              F\nMother Mary comes to me\nC                 G              F    C\nSpeaking words of wisdom, let it be'
+                    },
+                    {
+                        type: 'section',
+                        name: 'Chorus',
+                        lyrics: 'C           G           Am          F\nLet it be, let it be, let it be, let it be\nC              G              F    C\nWhisper words of wisdom, let it be'
+                    },
+                    {
+                        type: 'section',
+                        name: 'Bridge',
+                        lyrics: 'Am         G          F           C\nAnd when the broken-hearted people\nAm         G             F         C\nLiving in the world agree\nC                G              F    C\nThere will be an answer, let it be'
+                    }
+                ]
+            };
+            
+            songs = [
+                {
+                    id: generateId(),
+                    artist: 'The Beatles',
+                    song: 'Let It Be',
+                    album: 'Let It Be',
+                    year: '1970',
+                    genre: 'Rock',
+                    key: 'C',
+                    tempo: '76',
+                    duration: '4:03',
+                    bands: 'Demo Band',
+                    notes: 'Classic ballad - great for acoustic sets',
+                    chordChart: demoChordChart
+                },
+                {
+                    id: generateId(),
+                    artist: 'Eagles',
+                    song: 'Hotel California',
+                    album: 'Hotel California',
+                    year: '1976',
+                    genre: 'Rock',
+                    key: 'Bm',
+                    tempo: '74',
+                    duration: '6:30',
+                    bands: 'Demo Band',
+                    notes: 'Iconic guitar solo',
+                    chordChart: null
+                },
+                {
+                    id: generateId(),
+                    artist: 'Queen',
+                    song: 'Bohemian Rhapsody',
+                    album: 'A Night at the Opera',
+                    year: '1975',
+                    genre: 'Rock',
+                    key: 'Bb',
+                    tempo: '72',
+                    duration: '5:55',
+                    bands: 'Demo Band',
+                    notes: 'Epic multi-section masterpiece',
+                    chordChart: null
+                }
+            ];
+            
+            // Save demo songs
+            saveSongs();
+            console.log('Demo data loaded:', songs.length, 'songs');
         }
 
         // Save songs to localStorage
