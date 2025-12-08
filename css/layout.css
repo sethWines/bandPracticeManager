@@ -1172,28 +1172,18 @@ label:has(input[type="checkbox"]) {
         max-height: calc(100vh - 60px); /* Don't exceed viewport */
         height: auto; /* Size to content - grows/shrinks dynamically */
         z-index: 9999; /* Above header and backdrop */
-        background: transparent; /* Transparent container */
-        border: none; /* No border on container */
-        padding: 0; /* No padding on container */
+        background: #1a1a1a !important; /* Solid bright background */
+        border: 2px solid var(--primary-border) !important;
+        border-radius: 8px !important;
+        padding: 15px !important;
         overflow-y: auto;
         transition: left 0.3s ease;
+        box-shadow: 4px 4px 30px rgba(0, 0, 0, 0.9) !important;
         pointer-events: auto; /* Ensure sidebar is always interactive */
     }
     
     .left-sidebar.mobile-open {
         left: 0; /* Slide in when toggled */
-    }
-    
-    /* Make the content areas inside sidebar bright */
-    @media (max-width: 768px) {
-        .left-sidebar #bandList,
-        .left-sidebar #songList {
-            background: #1a1a1a; /* Solid bright background */
-            border: 2px solid var(--primary-border);
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 4px 4px 30px rgba(0, 0, 0, 0.9);
-        }
     }
     
     /* Right sidebar - hide on mobile */
@@ -1222,23 +1212,6 @@ label:has(input[type="checkbox"]) {
     }
     
     .mobile-sidebar-backdrop.active {
-        display: block;
-    }
-    
-    /* Left column dark overlay - separate element with independent z-index */
-    .mobile-sidebar-left-overlay {
-        display: none;
-        position: fixed;
-        top: 60px; /* Below header */
-        left: 0;
-        width: 300px; /* Cover left column where sidebar can be */
-        height: calc(100vh - 60px);
-        background: rgba(0, 0, 0, 0.7);
-        z-index: 9997; /* Above main backdrop (9996) but below sidebar (9999) */
-        pointer-events: none; /* Don't block sidebar interactions */
-    }
-    
-    .mobile-sidebar-left-overlay.active {
         display: block;
     }
     

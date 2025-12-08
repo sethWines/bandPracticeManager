@@ -781,9 +781,6 @@
 
     <!-- Mobile Sidebar Backdrop (right side) -->
     <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
-    
-    <!-- Left column dark overlay (behind sidebar) -->
-    <div class="mobile-sidebar-left-overlay" id="mobileSidebarLeftOverlay"></div>
 
     <!-- Three-Pane Layout -->
     <div class="main-layout">
@@ -2459,11 +2456,9 @@
             console.log('[Mobile] Toggling sidebar');
             const sidebar = document.querySelector('.left-sidebar');
             const backdrop = document.getElementById('mobileSidebarBackdrop');
-            const leftOverlay = document.getElementById('mobileSidebarLeftOverlay');
-            if (sidebar && backdrop && leftOverlay) {
+            if (sidebar && backdrop) {
                 sidebar.classList.toggle('mobile-open');
                 backdrop.classList.toggle('active');
-                leftOverlay.classList.toggle('active');
                 console.log('[Mobile] Sidebar open:', sidebar.classList.contains('mobile-open'));
                 // Prevent body scroll when sidebar is open
                 if (sidebar.classList.contains('mobile-open')) {
