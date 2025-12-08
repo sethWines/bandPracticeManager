@@ -821,6 +821,11 @@
                 display: flex !important;
             }
             
+            /* Hide mobile song wheel button when hidden class is applied (single song mode) */
+            .mobile-song-wheel-btn.hidden {
+                display: none !important;
+            }
+            
             /* Make song wheel narrower on mobile */
             .song-wheel {
                 width: 300px;
@@ -1000,6 +1005,12 @@
                         <circle cx="18" cy="16" r="3"/>
                     </svg>
                     Charts
+                </a>
+                <a href="show-time.html" class="nav-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Show Time
                 </a>
             </div>
 
