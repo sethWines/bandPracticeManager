@@ -200,6 +200,27 @@
             height: 16px;
         }
 
+        /* Modal button styles */
+        .btn-primary, .btn-success, .btn-secondary, .btn-danger {
+            padding: 10px 20px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary:hover, .btn-success:hover, .btn-secondary:hover, .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
         .setlist-card {
             background: rgba(0, 0, 0, 0.7);
             -webkit-backdrop-filter: blur(10px);
@@ -673,17 +694,28 @@
                     <span id="selectedCount">0</span> song(s) selected
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <label style="margin: 0; color: var(--primary-light);">Add to:</label>
-                    <select id="targetSet" onchange="renderSongSelector(getCurrentFilteredSongs())" style="padding: 6px 12px; background: #000; border: 2px solid var(--primary-border); border-radius: 6px; color: #e0e0e0;"></select>
-                    <button class="btn-secondary btn-small" onclick="clearSelection()">✕ Clear Selection</button>
+                    <label style="margin: 0; color: var(--primary-light); font-weight: 600;">Add to:</label>
+                    <select id="targetSet" onchange="renderSongSelector(getCurrentFilteredSongs())" style="padding: 8px 14px; background: #000; border: 2px solid var(--primary-border); border-radius: 6px; color: #e0e0e0; font-size: 14px; font-weight: 500;"></select>
+                    <button class="btn-secondary" onclick="clearSelection()" style="padding: 8px 16px; font-size: 14px; font-weight: 600;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 4px;">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Clear Selection
+                    </button>
                 </div>
             </div>
             <input type="text" class="search-box" id="songSearch" placeholder="🔍 Search songs... (use spaces to add multiple filters - selections persist across searches)" oninput="filterSongs()">
             <div class="song-selector" id="songSelector">
             </div>
             <div class="button-group" style="margin-top: 20px;">
-                <button class="btn-success" onclick="addSelectedSongs()">✓ Add Selected Songs (<span id="selectedCountBtn">0</span>)</button>
-                <button class="btn-secondary" onclick="closeAddSongsModal()">Close</button>
+                <button class="btn-success" onclick="addSelectedSongs()" style="padding: 12px 24px; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0;">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Add Selected Songs (<span id="selectedCountBtn">0</span>)</span>
+                </button>
+                <button class="btn-secondary" onclick="closeAddSongsModal()" style="padding: 12px 24px; font-size: 16px; font-weight: 600;">Close</button>
             </div>
         </div>
     </div>
@@ -745,16 +777,16 @@
 
         // Load state from sessionStorage
         function loadSessionState() {
-            // Check if this is a page reload (F5 or CTRL+F5) vs navigation
+            // Check if this is a hard refresh (CTRL+F5) or first-time navigation
             const perfData = performance.getEntriesByType('navigation')[0];
-            const isReload = perfData && perfData.type === 'reload';
-            
-            // Also check for hard refresh flag (set on CTRL+F5 via beforeunload)
             const isHardRefresh = sessionStorage.getItem('hardRefresh') === 'true';
-            sessionStorage.removeItem('hardRefresh'); // Clear the flag
             
-            // If it's a reload (F5/CTRL+F5), clear the state for a clean view
-            if (isReload || isHardRefresh) {
+            // Clear hard refresh flag
+            sessionStorage.removeItem('hardRefresh');
+            
+            // Only clear state on hard refresh (CTRL+F5) or first navigation
+            // Allow normal F5 refresh to keep state
+            if (isHardRefresh) {
                 sessionStorage.removeItem('setlistManager_selectedBand');
                 sessionStorage.removeItem('setlistManager_selectedSetlistIndex');
                 sessionStorage.removeItem('setlistManager_expandedBands');
@@ -763,7 +795,7 @@
                 return;
             }
             
-            // Otherwise, restore the session state
+            // Restore the session state (works for normal refresh and navigation)
             const savedBand = sessionStorage.getItem('setlistManager_selectedBand');
             const savedIndex = sessionStorage.getItem('setlistManager_selectedSetlistIndex');
             const savedExpanded = sessionStorage.getItem('setlistManager_expandedBands');
@@ -828,6 +860,16 @@
             if ((e.ctrlKey || e.metaKey) && (e.key === 'F5' || e.key === 'r' || e.key === 'R')) {
                 sessionStorage.setItem('hardRefresh', 'true');
             }
+        });
+        
+        // Save session state before page unload (but not on hard refresh)
+        window.addEventListener('beforeunload', function(e) {
+            // If hard refresh was detected by keydown, don't save state
+            if (sessionStorage.getItem('hardRefresh') === 'true') {
+                return;
+            }
+            // Otherwise, save current state for normal refresh or navigation
+            saveSessionState();
         });
 
         // Load and apply watermark preference (inherited from Song Manager)
