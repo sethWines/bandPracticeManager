@@ -1175,8 +1175,8 @@ label:has(input[type="checkbox"]) {
         left: -100%; /* Hidden by default */
         top: 80px; /* Below header with margin */
         width: auto !important; /* Size to content width */
-        min-width: 160px; /* Minimum width for readability */
-        max-width: 280px; /* Don't get too wide */
+        min-width: 200px; /* Minimum width for readability */
+        max-width: 340px; /* Don't get too wide */
         max-height: calc(100vh - 120px); /* Leave space top and bottom */
         height: auto; /* Size to content - grows/shrinks dynamically */
         z-index: 10001 !important; /* Above backdrop (10000) */
@@ -1420,8 +1420,8 @@ label:has(input[type="checkbox"]) {
     }
     
     .left-sidebar {
-        max-width: 220px; /* Slightly narrower on small screens */
-        min-width: 140px;
+        max-width: 280px; /* Slightly narrower on small screens */
+        min-width: 180px;
         left: -100%;
         top: 70px; /* Closer to header on small screens */
         max-height: calc(100vh - 100px);
