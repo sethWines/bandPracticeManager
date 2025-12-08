@@ -273,10 +273,6 @@
             transform: translateX(5px);
         }
 
-        .song-item.dragging {
-            opacity: 0.5;
-        }
-
         .song-number {
             font-weight: bold;
             color: var(--primary-color);
@@ -417,10 +413,6 @@
             border-left-color: var(--primary-color);
         }
 
-        .song-selector-item.dragging {
-            opacity: 0.5;
-        }
-
         .song-selector-item.disabled {
             cursor: not-allowed;
         }
@@ -459,12 +451,6 @@
             transition: all 0.2s ease;
         }
 
-        .set-container.drag-over {
-            background: rgba(255, 107, 61, 0.1);
-            border-color: #ff6b3d;
-            box-shadow: 0 0 20px rgba(255, 107, 61, 0.3);
-        }
-
         .set-header {
             display: flex;
             justify-content: space-between;
@@ -487,47 +473,6 @@
 
         .set-song-list {
             min-height: 50px;
-        }
-
-        .drag-over {
-            background: rgba(216, 67, 21, 0.3) !important;
-            border: 2px dashed #d84315 !important;
-        }
-
-        .dragging {
-            opacity: 0.5;
-            background: rgba(216, 67, 21, 0.2);
-        }
-
-        .drop-preview {
-            height: 4px;
-            background: #ff6b3d;
-            margin: 4px 0;
-            border-radius: 2px;
-            box-shadow: 0 0 10px rgba(255, 107, 61, 0.5);
-        }
-        
-        /* Set dragging styles */
-        .set-container.dragging-set {
-            opacity: 0.4;
-            background: rgba(216, 67, 21, 0.2);
-        }
-        
-        .set-container.drag-over-set {
-            background: rgba(255, 107, 61, 0.15);
-            border-color: #ff6b3d;
-            box-shadow: 0 0 25px rgba(255, 107, 61, 0.4);
-            transform: scale(1.02);
-            transition: all 0.2s ease;
-        }
-        
-        .set-drag-handle {
-            transition: opacity 0.2s ease;
-        }
-        
-        .set-drag-handle:hover {
-            opacity: 1 !important;
-            color: var(--primary-light);
         }
 
         @media print {
@@ -1026,8 +971,14 @@
 
         // Toggle set expansion
         function toggleSet(setlistIndex, setIndex) {
-            const container = document.querySelector(`#setlistsContainer .set-container:nth-child(${setIndex + 2})`);
-            if (!container) return;
+            // Find all set containers and get the one at the correct index
+            const allSetContainers = document.querySelectorAll('#setlistsContainer .set-container');
+            const container = allSetContainers[setIndex];
+            
+            if (!container) {
+                console.warn('Could not find set container', {setlistIndex, setIndex, totalContainers: allSetContainers.length});
+                return;
+            }
             
             const songList = container.querySelector('.set-song-list');
             const arrow = container.querySelector('.set-header .set-title span:first-child');
@@ -1037,7 +988,10 @@
                 expandedSets[setlistIndex] = {};
             }
             
-            if (songList.style.display === 'none') {
+            // Check current state from the inline style attribute
+            const isCurrentlyHidden = songList.style.display === 'none' || !songList.style.display;
+            
+            if (isCurrentlyHidden) {
                 songList.style.display = 'block';
                 if (arrow) arrow.textContent = '▼';
                 expandedSets[setlistIndex][setIndex] = true;
@@ -1178,18 +1132,8 @@
                         const display = isExpanded ? 'block' : 'none';
                         
                         return `
-                        <div class="set-container" draggable="false"
-                             ondragstart="handleSetDragStart(event, ${setlistIndex}, ${setIndex})"
-                             ondragover="handleSetDragOver(event)"
-                             ondragenter="handleSetDragEnter(event)"
-                             ondrop="handleSetDrop(event, ${setlistIndex}, ${setIndex})"
-                             ondragend="handleSetDragEnd(event)">
+                        <div class="set-container" id="set-${setlistIndex}-${setIndex}">
                             <div class="set-header" style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="toggleSet(${setlistIndex}, ${setIndex})">
-                                <span class="set-drag-handle" style="cursor: move; opacity: 0.5; font-size: 16px; padding: 4px;" 
-                                      onmousedown="enableSetDrag(event)"
-                                      onmouseup="disableSetDrag(event)"
-                                      onclick="event.stopPropagation()" 
-                                      title="Drag to reorder sets">⋮⋮</span>
                                 <div class="set-title" style="flex: 1;">
                                     <span style="font-size: 12px; opacity: 0.7; margin-right: 8px;">${arrow}</span>
                                     ${escapeHtml(set.name)} (${set.songs.length} songs${(() => {
@@ -1205,6 +1149,20 @@
                                     ${set.songs.length > 20 ? `<span style="color: #ff6b3d; font-size: 0.85em; margin-left: 10px;">⚠️ May exceed one page when printed</span>` : ''}
                                 </div>
                                 <div class="set-actions" onclick="event.stopPropagation()">
+                                    ${setIndex > 0 ? `
+                                    <button class="icon-btn" onclick="moveSetUp(${setlistIndex}, ${setIndex})" title="Move Set Up">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                            <polyline points="18 15 12 9 6 15"/>
+                                        </svg>
+                                    </button>
+                                    ` : ''}
+                                    ${setIndex < setlist.sets.length - 1 ? `
+                                    <button class="icon-btn" onclick="moveSetDown(${setlistIndex}, ${setIndex})" title="Move Set Down">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                            <polyline points="6 9 12 15 18 9"/>
+                                        </svg>
+                                    </button>
+                                    ` : ''}
                                     <button class="icon-btn" onclick="openAddSongsModal(${setlistIndex}, ${setIndex})" title="Add Songs">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                             <line x1="12" y1="5" x2="12" y2="19"/>
@@ -1213,20 +1171,13 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="set-song-list" style="display: ${display};"
-                                 ondragover="handleSetDragOver(event, ${setlistIndex}, ${setIndex})"
-                                 ondrop="handleDropOnSet(event, ${setlistIndex}, ${setIndex})">
+                            <div class="set-song-list" style="display: ${display};">
                                 ${set.songs.length === 0 ? `<div class="empty-set-dropzone" 
                                      style="text-align: center; color: #999; padding: 40px; border: 2px dashed rgba(255, 255, 255, 0.1); border-radius: 8px; margin: 10px 0;">
-                                     Drag songs here or click Add to populate this set
+                                     Click Add to populate this set
                                 </div>` : 
                                     set.songs.map((song, songIndex) => `
-                                        <div class="song-item" draggable="true" 
-                                             ondragstart="handleDragStart(event, ${setlistIndex}, ${setIndex}, ${songIndex})" 
-                                             ondragover="handleDragOver(event)" 
-                                             ondragenter="handleDragOver(event)"
-                                             ondrop="handleDrop(event, ${setlistIndex}, ${setIndex}, ${songIndex})" 
-                                             ondragend="handleDragEnd(event)">
+                                        <div class="song-item">
                                             <div class="song-info">
                                                 <span class="song-number">${songIndex + 1}.</span>
                                                 ${song.link ? 
@@ -1669,563 +1620,88 @@
             }
         }
 
-        // Drag and drop functionality  
-        let draggedSetlistIndex = null;
-        let draggedSetIndex = null;
-        let draggedSongIndex = null;
 
-        // Auto-scroll variables
-        let autoScrollInterval = null;
-        let isDragging = false;
-        
-        // Enable mouse wheel scrolling during drag
-        document.addEventListener('wheel', function(e) {
-            if (isDragging) {
-                // Manually scroll the page
-                window.scrollBy({
-                    top: e.deltaY,
-                    behavior: 'auto'
-                });
-                // Update mouse position for auto-scroll detection
-                window.lastDragY = e.clientY;
-            }
-        }, { passive: true });
-        
-        // Also listen on document for better coverage
-        document.addEventListener('dragover', function(e) {
-            if (isDragging) {
-                // Store the mouse position
-                window.lastDragY = e.clientY;
-            }
-        });
-        
-        function handleDragStart(event, setlistIndex, setIndex, songIndex) {
-            draggedSetlistIndex = setlistIndex;
-            draggedSetIndex = setIndex;
-            draggedSongIndex = songIndex;
-            event.target.classList.add('dragging');
-            event.dataTransfer.effectAllowed = 'move';
-            isDragging = true;
-            
-            // Start auto-scroll detection
-            startAutoScroll();
-        }
-
-        function startAutoScroll() {
-            // Clear any existing interval
-            if (autoScrollInterval) {
-                clearInterval(autoScrollInterval);
-            }
-            
-            // Check scroll position more frequently for smoother scrolling
-            autoScrollInterval = setInterval(() => {
-                if (!isDragging) {
-                    clearInterval(autoScrollInterval);
-                    autoScrollInterval = null;
-                    return;
-                }
-                
-                // Get the mouse position from the last drag event
-                const mouseY = window.lastDragY || 0;
-                const scrollThreshold = 150; // Increased threshold for earlier trigger
-                const windowHeight = window.innerHeight;
-                
-                // Calculate scroll speed based on distance from edge (smoother acceleration)
-                let scrollSpeed = 0;
-                
-                // Scroll down if near bottom
-                if (mouseY > windowHeight - scrollThreshold) {
-                    const distanceFromEdge = windowHeight - mouseY;
-                    scrollSpeed = Math.max(5, (scrollThreshold - distanceFromEdge) / 5); // Smoother acceleration
-                    window.scrollBy({
-                        top: scrollSpeed,
-                        behavior: 'auto' // Instant, not smooth (for responsiveness)
-                    });
-                }
-                // Scroll up if near top
-                else if (mouseY < scrollThreshold) {
-                    scrollSpeed = Math.max(5, (scrollThreshold - mouseY) / 5); // Smoother acceleration
-                    window.scrollBy({
-                        top: -scrollSpeed,
-                        behavior: 'auto'
-                    });
-                }
-            }, 16); // ~60fps for smoother scrolling
-        }
-
-        function handleDragOver(event) {
-            event.preventDefault();
-            event.dataTransfer.dropEffect = 'move';
-            
-            // Store mouse position for auto-scroll
-            window.lastDragY = event.clientY;
-            
-            // Remove any existing preview
-            const existingPreview = document.querySelector('.drop-preview');
-            if (existingPreview) {
-                existingPreview.remove();
-            }
-            
-            // Remove drag-over class from all set containers
-            document.querySelectorAll('.set-container').forEach(el => {
-                el.classList.remove('drag-over');
-            });
-            
-            // Find the song item being hovered over
-            const songItem = event.target.closest('.song-item');
-            if (songItem && !songItem.classList.contains('dragging')) {
-                const rect = songItem.getBoundingClientRect();
-                const midpoint = rect.top + rect.height / 2;
-                const preview = document.createElement('div');
-                preview.className = 'drop-preview';
-                
-                // Insert preview above or below based on mouse position
-                if (event.clientY < midpoint) {
-                    songItem.parentNode.insertBefore(preview, songItem);
-                } else {
-                    songItem.parentNode.insertBefore(preview, songItem.nextSibling);
-                }
-                
-                // Highlight the set container if dragging to a different set
-                const setContainer = songItem.closest('.set-container');
-                if (setContainer) {
-                    setContainer.classList.add('drag-over');
-                }
-            }
-        }
-
-        function handleDrop(event, setlistIndex, setIndex, songIndex) {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            // Remove preview
-            const existingPreview = document.querySelector('.drop-preview');
-            if (existingPreview) {
-                existingPreview.remove();
-            }
-            
-            // Validate drag state
-            if (draggedSetlistIndex === null || draggedSetIndex === null || draggedSongIndex === null) {
-                return;
-            }
-            
-            // Only allow dragging within the same setlist
-            if (draggedSetlistIndex !== setlistIndex) return;
-
-            const sourceSet = setlists[draggedSetlistIndex].sets[draggedSetIndex];
-            const targetSet = setlists[setlistIndex].sets[setIndex];
-            
-            // Validate indices
-            if (draggedSongIndex < 0 || draggedSongIndex >= sourceSet.songs.length) {
-                draggedSetlistIndex = null;
-                draggedSetIndex = null;
-                draggedSongIndex = null;
-                return;
-            }
-            
-            const draggedSong = sourceSet.songs[draggedSongIndex];
-            
-            // Calculate drop position based on mouse position
-            const songItem = event.target.closest('.song-item');
-            let insertBeforeTarget = true;
-            
-            if (songItem) {
-                const rect = songItem.getBoundingClientRect();
-                const midpoint = rect.top + rect.height / 2;
-                insertBeforeTarget = event.clientY < midpoint;
-            }
-            
-            // Calculate target position
-            let targetPosition;
-            
-            if (insertBeforeTarget) {
-                targetPosition = songIndex;
-            } else {
-                targetPosition = songIndex + 1;
-            }
-            
-            // Remove the item from its current position
-            sourceSet.songs.splice(draggedSongIndex, 1);
-            
-            // If moving within the same set, adjust target position
-            if (draggedSetIndex === setIndex && draggedSongIndex < targetPosition) {
-                targetPosition--;
-            }
-            
-            // Ensure index is within bounds
-            targetPosition = Math.max(0, Math.min(targetPosition, targetSet.songs.length));
-            
-            // Insert at new position in target set
-            targetSet.songs.splice(targetPosition, 0, draggedSong);
-
-            // Clean up dragging class
-            document.querySelectorAll('.dragging').forEach(el => {
-                el.classList.remove('dragging');
-            });
-            
-            // Reset drag state
-            draggedSetlistIndex = null;
-            draggedSetIndex = null;
-            draggedSongIndex = null;
-
-            // Save and re-render
-            saveSetlistsToStorage();
-            renderSetlistCenter();
-        }
-
-        function handleDragEnd(event) {
-            // Stop dragging
-            isDragging = false;
-            
-            // Clean up auto-scroll
-            if (autoScrollInterval) {
-                clearInterval(autoScrollInterval);
-                autoScrollInterval = null;
-            }
-            
-            // Clean up
-            document.querySelectorAll('.dragging').forEach(el => {
-                el.classList.remove('dragging');
-            });
-            
-            document.querySelectorAll('.drop-preview').forEach(el => {
-                el.remove();
-            });
-            
-            document.querySelectorAll('.set-container').forEach(el => {
-                el.classList.remove('drag-over');
-            });
-            
-            // Reset state
-            draggedSetlistIndex = null;
-            draggedSetIndex = null;
-            draggedSongIndex = null;
-        }
-
-        function handleSetDragOver(event, setlistIndex, setIndex) {
-            event.preventDefault();
-            event.dataTransfer.dropEffect = 'move';
-            
-            // Highlight the set container
-            document.querySelectorAll('.set-container').forEach(el => {
-                el.classList.remove('drag-over');
-            });
-            
-            const setContainer = event.currentTarget.closest('.set-container');
-            if (setContainer) {
-                setContainer.classList.add('drag-over');
-            }
-        }
-
-        function handleDropOnSet(event, setlistIndex, setIndex) {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            // Remove preview and highlights
-            const existingPreview = document.querySelector('.drop-preview');
-            if (existingPreview) {
-                existingPreview.remove();
-            }
-            
-            document.querySelectorAll('.set-container').forEach(el => {
-                el.classList.remove('drag-over');
-            });
-            
-            // Validate drag state
-            if (draggedSetlistIndex === null || draggedSetIndex === null || draggedSongIndex === null) {
-                return;
-            }
-            
-            // Only allow dragging within the same setlist
-            if (draggedSetlistIndex !== setlistIndex) return;
-
-            const sourceSet = setlists[draggedSetlistIndex].sets[draggedSetIndex];
-            const targetSet = setlists[setlistIndex].sets[setIndex];
-            
-            // Validate source indices
-            if (draggedSongIndex < 0 || draggedSongIndex >= sourceSet.songs.length) {
-                draggedSetlistIndex = null;
-                draggedSetIndex = null;
-                draggedSongIndex = null;
-                return;
-            }
-            
-            const draggedSong = sourceSet.songs[draggedSongIndex];
-            
-            // Find the closest song item to determine drop position
-            const songItems = Array.from(event.currentTarget.querySelectorAll('.song-item:not(.dragging)'));
-            let targetPosition = targetSet.songs.length; // Default to end
-            
-            if (songItems.length > 0) {
-                // Find which song we're closest to
-                let closestItem = null;
-                let closestDistance = Infinity;
-                let insertBefore = true;
-                
-                songItems.forEach(item => {
-                    const rect = item.getBoundingClientRect();
-                    const itemCenter = rect.top + rect.height / 2;
-                    const distance = Math.abs(event.clientY - itemCenter);
-                    
-                    if (distance < closestDistance) {
-                        closestDistance = distance;
-                        closestItem = item;
-                        insertBefore = event.clientY < itemCenter;
-                    }
-                });
-                
-                if (closestItem) {
-                    // Get the song index from the closest item
-                    const songIndex = songItems.indexOf(closestItem);
-                    targetPosition = insertBefore ? songIndex : songIndex + 1;
-                }
-            }
-            
-            // Remove from source
-            sourceSet.songs.splice(draggedSongIndex, 1);
-            
-            // If moving within the same set, adjust target position
-            if (draggedSetIndex === setIndex && draggedSongIndex < targetPosition) {
-                targetPosition--;
-            }
-            
-            // Insert at calculated position
-            targetSet.songs.splice(targetPosition, 0, draggedSong);
-            
-            // Clean up dragging class
-            document.querySelectorAll('.dragging').forEach(el => {
-                el.classList.remove('dragging');
-            });
-            
-            // Reset drag state
-            draggedSetlistIndex = null;
-            draggedSetIndex = null;
-            draggedSongIndex = null;
-
-            // Save and re-render
-            saveSetlistsToStorage();
-            renderSetlistCenter();
-        }
-
-        // Drag and drop functionality for SET REORDERING
-        let draggedSetSetlistIndex = null;
-        let draggedSetSetIndex = null;
-        
-        // Enable dragging on the set-container when mousedown on handle
-        function enableSetDrag(event) {
-            event.stopPropagation();
-            const setContainer = event.target.closest('.set-container');
-            if (setContainer) {
-                setContainer.setAttribute('draggable', 'true');
-            }
-        }
-        
-        // Disable dragging when mouse is released
-        function disableSetDrag(event) {
-            const setContainer = event.target.closest('.set-container');
-            if (setContainer) {
-                setContainer.setAttribute('draggable', 'false');
-            }
-        }
-        
-        function handleSetDragStart(event, setlistIndex, setIndex) {
-            // Only proceed if dragging is enabled (via the handle)
-            const setContainer = event.target.closest('.set-container');
-            if (!setContainer || setContainer.getAttribute('draggable') !== 'true') {
-                event.preventDefault();
-                return;
-            }
-            
-            draggedSetSetlistIndex = setlistIndex;
-            draggedSetSetIndex = setIndex;
-            setContainer.classList.add('dragging-set');
-            event.dataTransfer.effectAllowed = 'move';
-            event.dataTransfer.setData('text/plain', ''); // Required for Firefox
-        }
-        
-        function handleSetDragEnter(event) {
-            // Only handle set dragging, not song dragging
-            if (draggedSetSetlistIndex === null || event.target.closest('.song-item')) {
-                return;
-            }
-            event.preventDefault();
-            const setContainer = event.target.closest('.set-container');
-            if (setContainer && !setContainer.classList.contains('dragging-set')) {
-                setContainer.classList.add('drag-over-set');
-            }
-        }
-        
-        function handleSetDragOver(event) {
-            // Only handle set dragging, not song dragging
-            if (draggedSetSetlistIndex === null || event.target.closest('.song-item')) {
-                return;
-            }
-            event.preventDefault();
-            event.dataTransfer.dropEffect = 'move';
-            
-            // Remove drag-over from all containers and previews
-            document.querySelectorAll('.set-container').forEach(el => {
-                el.classList.remove('drag-over-set');
-            });
-            document.querySelectorAll('.set-drop-preview').forEach(el => {
-                el.remove();
-            });
-            
-            // Find the set container we're hovering over
-            const setContainer = event.target.closest('.set-container');
-            if (setContainer && !setContainer.classList.contains('dragging-set')) {
-                // Calculate if we should insert before or after this set
-                const rect = setContainer.getBoundingClientRect();
-                const midpoint = rect.top + rect.height / 2;
-                const insertBefore = event.clientY < midpoint;
-                
-                // Create drop preview indicator
-                const preview = document.createElement('div');
-                preview.className = 'set-drop-preview';
-                preview.style.cssText = 'height: 3px; background: #ff6b3d; margin: 8px 0; border-radius: 2px; box-shadow: 0 0 10px rgba(255, 107, 61, 0.6);';
-                
-                if (insertBefore) {
-                    setContainer.parentNode.insertBefore(preview, setContainer);
-                } else {
-                    setContainer.parentNode.insertBefore(preview, setContainer.nextSibling);
-                }
-            }
-        }
-        
-        function handleSetDrop(event, setlistIndex, setIndex) {
-            console.log('handleSetDrop called', {setlistIndex, setIndex, draggedSetSetlistIndex, draggedSetSetIndex});
-            
-            // Only handle set dragging, not song dragging
-            if (draggedSetSetlistIndex === null) {
-                console.log('Ignoring - no set being dragged');
-                return;
-            }
-            
-            event.preventDefault();
-            event.stopPropagation();
-            
-            // Clean up visual feedback
-            document.querySelectorAll('.set-container').forEach(el => {
-                el.classList.remove('drag-over-set');
-                el.classList.remove('dragging-set');
-            });
-            document.querySelectorAll('.set-drop-preview').forEach(el => {
-                el.remove();
-            });
-            
-            // Validate drag state
-            if (draggedSetSetlistIndex === null || draggedSetSetIndex === null) {
-                console.log('Invalid drag state');
-                return;
-            }
-            
-            // Only allow reordering within the same setlist
-            if (draggedSetSetlistIndex !== setlistIndex) {
-                console.log('Different setlist - not allowed');
-                draggedSetSetlistIndex = null;
-                draggedSetSetIndex = null;
-                return;
-            }
+        // Move set up in order
+        function moveSetUp(setlistIndex, setIndex) {
+            if (setIndex === 0) return; // Already at top
             
             const setlist = setlists[setlistIndex];
             
-            // Calculate drop position based on mouse position
-            const setContainer = event.target.closest('.set-container');
-            let newPosition = setIndex;
+            // Swap with previous set
+            const temp = setlist.sets[setIndex];
+            setlist.sets[setIndex] = setlist.sets[setIndex - 1];
+            setlist.sets[setIndex - 1] = temp;
             
-            if (setContainer) {
-                const rect = setContainer.getBoundingClientRect();
-                const midpoint = rect.top + rect.height / 2;
-                const insertBefore = event.clientY < midpoint;
-                
-                console.log('Drop calculation', {setIndex, insertBefore, mouseY: event.clientY, midpoint});
-                
-                // Calculate target position
-                if (insertBefore) {
-                    newPosition = setIndex;
-                } else {
-                    newPosition = setIndex + 1;
-                }
-            }
-            
-            console.log('Before removal', {draggedSetSetIndex, newPosition, totalSets: setlist.sets.length});
-            
-            // Remove the dragged set from its current position first
-            const draggedSet = setlist.sets.splice(draggedSetSetIndex, 1)[0];
-            
-            // Adjust newPosition after removal (since array is now shorter)
-            if (draggedSetSetIndex < newPosition) {
-                newPosition--;
-            }
-            
-            console.log('After adjustment', {finalPosition: newPosition});
-            
-            // Don't do anything if the position hasn't changed
-            if (draggedSetSetIndex === newPosition) {
-                console.log('Position unchanged - putting back');
-                // Put it back
-                setlist.sets.splice(draggedSetSetIndex, 0, draggedSet);
-                draggedSetSetlistIndex = null;
-                draggedSetSetIndex = null;
-                return;
-            }
-            
-            console.log('Inserting at new position', newPosition);
-            
-            // Insert at new position
-            setlist.sets.splice(newPosition, 0, draggedSet);
-            
-            // Update set names based on new order
+            // Update set names
             updateSetNames(setlist);
             
-            // Update expanded state to match new indices
-            const newExpandedState = {};
-            Object.keys(expandedSets[setlistIndex] || {}).forEach(oldIndex => {
-                const oldIndexNum = parseInt(oldIndex);
-                let newIndex = oldIndexNum;
-                
-                // If this was the dragged set, it moves to newPosition
-                if (oldIndexNum === draggedSetSetIndex) {
-                    newIndex = newPosition;
+            // Update expanded state to match new positions
+            const oldExpanded = { ...expandedSets[setlistIndex] };
+            const newExpanded = {};
+            
+            // The moved set goes from setIndex to setIndex-1
+            if (oldExpanded[setIndex]) {
+                newExpanded[setIndex - 1] = true;
+            }
+            // The set that was at setIndex-1 goes to setIndex
+            if (oldExpanded[setIndex - 1]) {
+                newExpanded[setIndex] = true;
+            }
+            // All other sets keep their state
+            Object.keys(oldExpanded).forEach(idx => {
+                const numIdx = parseInt(idx);
+                if (numIdx !== setIndex && numIdx !== setIndex - 1) {
+                    newExpanded[numIdx] = oldExpanded[numIdx];
                 }
-                // If a set was between old and new position, shift it
-                else if (draggedSetSetIndex < newPosition && oldIndexNum > draggedSetSetIndex && oldIndexNum <= newPosition) {
-                    newIndex = oldIndexNum - 1;
-                }
-                else if (draggedSetSetIndex > newPosition && oldIndexNum >= newPosition && oldIndexNum < draggedSetSetIndex) {
-                    newIndex = oldIndexNum + 1;
-                }
-                
-                newExpandedState[newIndex] = expandedSets[setlistIndex][oldIndex];
             });
             
-            expandedSets[setlistIndex] = newExpandedState;
+            expandedSets[setlistIndex] = newExpanded;
             
             // Save and re-render
             saveSetlistsToStorage();
-            saveSessionState();
             renderSetlistCenter();
-            
-            // Reset state
-            draggedSetSetlistIndex = null;
-            draggedSetSetIndex = null;
+            saveSessionState();
         }
         
-        function handleSetDragEnd(event) {
-            console.log('handleSetDragEnd called');
-            // Clean up
-            document.querySelectorAll('.set-container').forEach(el => {
-                el.classList.remove('dragging-set');
-                el.classList.remove('drag-over-set');
-                el.setAttribute('draggable', 'false'); // Reset draggable state
-            });
-            document.querySelectorAll('.set-drop-preview').forEach(el => {
-                el.remove();
+        // Move set down in order
+        function moveSetDown(setlistIndex, setIndex) {
+            const setlist = setlists[setlistIndex];
+            if (setIndex === setlist.sets.length - 1) return; // Already at bottom
+            
+            // Swap with next set
+            const temp = setlist.sets[setIndex];
+            setlist.sets[setIndex] = setlist.sets[setIndex + 1];
+            setlist.sets[setIndex + 1] = temp;
+            
+            // Update set names
+            updateSetNames(setlist);
+            
+            // Update expanded state to match new positions
+            const oldExpanded = { ...expandedSets[setlistIndex] };
+            const newExpanded = {};
+            
+            // The moved set goes from setIndex to setIndex+1
+            if (oldExpanded[setIndex]) {
+                newExpanded[setIndex + 1] = true;
+            }
+            // The set that was at setIndex+1 goes to setIndex
+            if (oldExpanded[setIndex + 1]) {
+                newExpanded[setIndex] = true;
+            }
+            // All other sets keep their state
+            Object.keys(oldExpanded).forEach(idx => {
+                const numIdx = parseInt(idx);
+                if (numIdx !== setIndex && numIdx !== setIndex + 1) {
+                    newExpanded[numIdx] = oldExpanded[numIdx];
+                }
             });
             
-            // Reset state
-            draggedSetSetlistIndex = null;
-            draggedSetSetIndex = null;
+            expandedSets[setlistIndex] = newExpanded;
+            
+            // Save and re-render
+            saveSetlistsToStorage();
+            renderSetlistCenter();
+            saveSessionState();
         }
 
         // Export single setlist
