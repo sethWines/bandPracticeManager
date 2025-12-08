@@ -3857,8 +3857,11 @@
             // Encode song ID as artist|song
             const songId = encodeURIComponent(`${currentSong.artist}|${currentSong.song}`);
             
-            // Open Show Time in single-song mode
-            window.location.href = `show-time.html?mode=single&songId=${songId}`;
+            // Create return URL to come back to this chord chart
+            const returnUrl = encodeURIComponent(`chord-chart-editor.html?songId=${currentSongId}`);
+            
+            // Open Show Time in single-song mode with return URL
+            window.location.href = `show-time.html?mode=single&songId=${songId}&returnUrl=${returnUrl}`;
         };
 
         // ============================================================================

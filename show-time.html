@@ -483,10 +483,11 @@
         .autoscroll-controls {
             position: fixed;
             bottom: 80px; /* Raised to avoid blocking song status */
-            right: 30px;
+            right: 15px; /* More to the right */
             z-index: 10002;
             display: flex;
-            gap: 15px;
+            flex-direction: column; /* Vertical stack */
+            gap: 8px; /* Smaller gap for vertical layout */
             align-items: center;
         }
 
@@ -572,7 +573,7 @@
             backdrop-filter: blur(20px);
             border-left: 2px solid var(--primary-border);
             box-shadow: -10px 0 30px var(--primary-glow);
-            z-index: 9999; /* Below mobile menu */
+            z-index: 10003; /* Above autoscroll controls (10002) */
             transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-y: auto;
             padding: 20px;
@@ -830,8 +831,8 @@
             /* Adjust speed controls for mobile */
             .autoscroll-controls {
                 bottom: 70px; /* Raised to avoid blocking song status */
-                right: 20px;
-                gap: 10px;
+                right: 10px; /* More to the right */
+                gap: 6px; /* Smaller gap for mobile vertical layout */
             }
             
             .speed-orb {
@@ -1047,11 +1048,15 @@
         
         <!-- Autoscroll Controls -->
         <div class="autoscroll-controls" id="autoscrollControls">
-            <div class="speed-orb" onclick="decreaseSpeed()" title="Decrease Speed">
+            <!-- Speed Up (Top) -->
+            <div class="speed-orb" onclick="increaseSpeed()" title="Increase Speed">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
             </div>
+            
+            <!-- Play/Pause Button (Middle) -->
             <div class="autoscroll-play-btn" id="playPauseBtn" onclick="toggleAutoscroll()">
                 <svg id="playIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -1062,9 +1067,10 @@
                 </svg>
                 <span id="speedDisplay">1.0x</span>
             </div>
-            <div class="speed-orb" onclick="increaseSpeed()" title="Increase Speed">
+            
+            <!-- Speed Down (Bottom) -->
+            <div class="speed-orb" onclick="decreaseSpeed()" title="Decrease Speed">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
             </div>
@@ -1842,12 +1848,16 @@
             // Show back button
             document.getElementById('backButton').classList.add('show');
             
-            // Disable the mobile song wheel button and update its tooltip
+            // Hide the mobile song wheel button (no setlist to navigate)
             const mobileSongWheelBtn = document.getElementById('mobileSongWheelBtn');
             if (mobileSongWheelBtn) {
-                mobileSongWheelBtn.classList.add('disabled');
-                mobileSongWheelBtn.setAttribute('title', 'Single Song Mode - No Setlist');
-                mobileSongWheelBtn.style.pointerEvents = 'none'; // Prevent clicks
+                mobileSongWheelBtn.classList.add('hidden');
+            }
+            
+            // Hide mobile nav orbs (no songs to navigate between)
+            const mobileNavOrbs = document.getElementById('mobileNavOrbs');
+            if (mobileNavOrbs) {
+                mobileNavOrbs.classList.remove('show');
             }
             
             document.getElementById('songPosition').style.display = 'none';
