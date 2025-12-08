@@ -2550,6 +2550,12 @@
         let lastFilterState = null; // Cache last filter state to avoid redundant filtering
         let cachedFilteredSongs = null; // Cache filtered results
         
+        // Helper function to invalidate filter cache
+        function invalidateFilterCache() {
+            lastFilterState = null;
+            cachedFilteredSongs = null;
+        }
+        
         // Autocomplete system
         let autocompleteSelectedIndex = -1;
         let autocompleteSuggestions = [];
@@ -3755,6 +3761,10 @@ What would you like to do?
                 currentSort = JSON.parse(JSON.stringify(filter.sort));
             }
             
+            // Update both filter displays (PC and mobile)
+            updateFilterTags();
+            renderActiveFilters();
+            
             // Re-render
             invalidateFilterCache();
             applyFilters();
@@ -3953,12 +3963,14 @@ What would you like to do?
             // Add to active filters
             activeFilters.push({ column, value });
             
-            // Update UI and apply filters
+            // Update UI and apply filters - sync both PC and mobile displays
+            updateFilterTags();
             renderActiveFilters();
-            applyAdvancedFilters();
+            invalidateFilterCache();
+            applyFilters();
             closeFilterBuilderModal();
             
-            showToast(`✓ Filter added: ${column} = ${value}`);
+            showToast(`✓ Filter added: ${formatFieldName(column)} = ${value}`, 'success', 2000);
         }
         
         // Render active filter chips
@@ -3973,7 +3985,7 @@ What would you like to do?
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
                     </svg>
                     <span style="flex: 1; font-size: 13px;">
-                        <strong style="color: var(--primary-light);">${escapeHtml(filter.column)}:</strong> 
+                        <strong style="color: var(--primary-light);">${formatFieldName(filter.column)}:</strong> 
                         ${escapeHtml(filter.value)}
                     </span>
                     <button onclick="removeFilter(${index})" style="background: none; border: none; color: #ff6b6b; cursor: pointer; padding: 2px; display: flex; align-items: center;" title="Remove filter">
@@ -3989,55 +4001,13 @@ What would you like to do?
             if (mobileContainer) mobileContainer.innerHTML = filtersHTML;
         }
         
-        // Remove a filter
-        function removeFilter(index) {
-            activeFilters.splice(index, 1);
-            renderActiveFilters();
-            applyAdvancedFilters();
-            showToast('✓ Filter removed');
+        // Clear all filters (advanced filter modal version - redirects to main clearAllFilters)
+        function clearAllFiltersAdvanced() {
+            clearAllFilters();
         }
         
-        // Clear all filters
-        function clearAllFilters() {
-            activeFilters = [];
-            renderActiveFilters();
-            applyAdvancedFilters();
-            showToast('✓ All filters cleared');
-        }
-        
-        // Apply advanced filters
-        function applyAdvancedFilters() {
-            if (activeFilters.length === 0) {
-                // No filters: apply regular filters
-                applyFilters();
-                return;
-            }
-            
-            // Apply advanced filters
-            const filtered = applyFiltersToDataset(songs, activeFilters);
-            
-            // Also apply search if active
-            const searchBox = document.getElementById('searchBox');
-            const searchTerm = searchBox ? searchBox.value.toLowerCase().trim() : '';
-            let finalFiltered = filtered;
-            
-            if (searchTerm) {
-                finalFiltered = filtered.filter(song => {
-                    return (
-                        (song.artist && song.artist.toLowerCase().includes(searchTerm)) ||
-                        (song.song && song.song.toLowerCase().includes(searchTerm)) ||
-                        (song.album && song.album.toLowerCase().includes(searchTerm)) ||
-                        (song.band && song.band.toLowerCase().includes(searchTerm)) ||
-                        (song.key && song.key.toLowerCase().includes(searchTerm)) ||
-                        (song.tuning && song.tuning.toLowerCase().includes(searchTerm)) ||
-                        (song.tags && song.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
-                    );
-                });
-            }
-            
-            renderSongs(finalFiltered);
-            updateStats();
-        }
+        // NOTE: applyAdvancedFilters() has been removed - all filtering now uses the unified applyFilters() function
+        // which already handles OR logic within columns and AND logic between columns
 
         // Apply default sort (Artist → Album → Song)
         function applyDefaultSort() {
@@ -4247,8 +4217,7 @@ What would you like to do?
             localStorage.setItem('bandSongs', JSON.stringify(songs)); // Keep backup copy
             
             // Invalidate filter cache when songs change
-            lastFilterState = null;
-            cachedFilteredSongs = null;
+            invalidateFilterCache();
             
             // Performance: Invalidate stats cache
             invalidateStatsCache();
@@ -5291,22 +5260,30 @@ What would you like to do?
 
         // Update filter suggestions based on selected column
         function updateFilterSuggestions() {
-            // Support both desktop and mobile filter inputs
-            const columnElement = document.getElementById('filterColumn') || document.getElementById('mobileFilterColumn');
-            const datalistElement = document.getElementById('filterSuggestions') || document.getElementById('mobileFilterSuggestions');
-            const filterInputElement = document.getElementById('filterValue') || document.getElementById('mobileFilterValue');
+            // Get ALL elements (both PC and mobile)
+            const pcColumn = document.getElementById('filterColumn');
+            const pcDatalist = document.getElementById('filterSuggestions');
+            const pcInput = document.getElementById('filterValue');
             
-            if (!columnElement || !datalistElement || !filterInputElement) {
-                return; // Elements don't exist yet
-            }
+            const mobileColumn = document.getElementById('mobileFilterColumn');
+            const mobileDatalist = document.getElementById('mobileFilterSuggestions');
+            const mobileInput = document.getElementById('mobileFilterValue');
             
-            const column = columnElement.value;
+            // Determine which column was changed (whichever has a value)
+            const column = pcColumn?.value || mobileColumn?.value || '';
             
             if (!column) {
-                datalistElement.innerHTML = '';
-                filterInputElement.placeholder = 'Filter value...';
+                // Clear both datalists
+                if (pcDatalist) pcDatalist.innerHTML = '';
+                if (mobileDatalist) mobileDatalist.innerHTML = '';
+                if (pcInput) pcInput.placeholder = 'Filter value...';
+                if (mobileInput) mobileInput.placeholder = 'Enter filter value...';
                 return;
             }
+            
+            // Sync the column selection between PC and mobile
+            if (pcColumn && pcColumn.value !== column) pcColumn.value = column;
+            if (mobileColumn && mobileColumn.value !== column) mobileColumn.value = column;
 
             // Get songs filtered by OTHER columns (not the current one)
             // This gives cascading filter behavior
@@ -5372,23 +5349,33 @@ What would you like to do?
                 sortedValues.unshift('(empty)');
             }
 
-            // Populate datalist
-            datalistElement.innerHTML = sortedValues.map(value => 
+            // Populate BOTH datalists with the same values
+            const datalistHTML = sortedValues.map(value => 
                 `<option value="${escapeHtml(value)}"></option>`
             ).join('');
+            
+            if (pcDatalist) pcDatalist.innerHTML = datalistHTML;
+            if (mobileDatalist) mobileDatalist.innerHTML = datalistHTML;
 
             const filterCount = activeFilters.length > 0 ? ` (${sortedValues.length} matching)` : '';
-            filterInputElement.placeholder = `Select or type ${formatFieldName(column)}...${filterCount}`;
+            const placeholderText = `Select or type ${formatFieldName(column)}...${filterCount}`;
             
-            // Focus and trigger the dropdown
-            filterInputElement.focus();
+            if (pcInput) pcInput.placeholder = placeholderText;
+            if (mobileInput) mobileInput.placeholder = placeholderText;
             
-            // Trigger the datalist to show on mobile browsers
-            if (filterInputElement.value === '') {
-                // Click event can help trigger datalist on some mobile browsers
-                setTimeout(() => {
-                    filterInputElement.click();
-                }, 10);
+            // Focus the appropriate input (whichever one initiated the change)
+            const activeInput = (mobileColumn && mobileColumn === document.activeElement) ? mobileInput : 
+                               (pcColumn && pcColumn === document.activeElement) ? pcInput : null;
+            
+            if (activeInput) {
+                activeInput.focus();
+                
+                // Trigger the datalist to show on mobile browsers
+                if (activeInput.value === '') {
+                    setTimeout(() => {
+                        activeInput.click();
+                    }, 10);
+                }
             }
         }
 
@@ -5403,11 +5390,25 @@ What would you like to do?
             }
 
             activeFilters.push({ column, value });
-            document.getElementById('filterColumn').value = '';
-            document.getElementById('filterValue').value = '';
-            document.getElementById('filterSuggestions').innerHTML = '';
             
-            updateFilterTags();
+            // Clear BOTH PC and mobile inputs
+            const pcColumn = document.getElementById('filterColumn');
+            const pcValue = document.getElementById('filterValue');
+            const pcSuggestions = document.getElementById('filterSuggestions');
+            const mobileColumn = document.getElementById('mobileFilterColumn');
+            const mobileValue = document.getElementById('mobileFilterValue');
+            const mobileSuggestions = document.getElementById('mobileFilterSuggestions');
+            
+            if (pcColumn) pcColumn.value = '';
+            if (pcValue) pcValue.value = '';
+            if (pcSuggestions) pcSuggestions.innerHTML = '';
+            if (mobileColumn) mobileColumn.value = '';
+            if (mobileValue) mobileValue.value = '';
+            if (mobileSuggestions) mobileSuggestions.innerHTML = '';
+            
+            updateFilterTags(); // Update PC filter display
+            renderActiveFilters(); // Update mobile filter display
+            invalidateFilterCache(); // Clear filter cache
             applyFilters();
             showToast(`Filter added: ${formatFieldName(column)} = ${value}`, 'success', 2000);
         }
@@ -5415,41 +5416,92 @@ What would you like to do?
         // Remove filter
         function removeFilter(index) {
             activeFilters.splice(index, 1);
-            updateFilterTags();
+            updateFilterTags(); // Update PC filter display
+            renderActiveFilters(); // Update mobile filter display
+            invalidateFilterCache(); // Clear filter cache
             applyFilters();
+            showToast('✓ Filter removed', 'info', 2000);
         }
 
         function clearFilters() {
             activeFilters = [];
-            updateFilterTags();
+            updateFilterTags(); // Update PC filter display
+            renderActiveFilters(); // Update mobile filter display
+            invalidateFilterCache(); // Clear filter cache
             applyFilters();
+            showToast('✓ All filters cleared', 'info', 2000);
         }
 
         // Clear all filters
         function clearAllFilters() {
             activeFilters = [];
-            document.getElementById('searchBox').value = '';
-            document.getElementById('filterColumn').value = '';
-            document.getElementById('filterValue').value = '';
-            document.getElementById('filterSuggestions').innerHTML = '';
-            updateFilterTags();
+            
+            // Clear search box
+            const searchBox = document.getElementById('searchBox');
+            if (searchBox) searchBox.value = '';
+            
+            // Clear BOTH PC and mobile filter inputs
+            const pcColumn = document.getElementById('filterColumn');
+            const pcValue = document.getElementById('filterValue');
+            const pcSuggestions = document.getElementById('filterSuggestions');
+            const mobileColumn = document.getElementById('mobileFilterColumn');
+            const mobileValue = document.getElementById('mobileFilterValue');
+            const mobileSuggestions = document.getElementById('mobileFilterSuggestions');
+            
+            if (pcColumn) pcColumn.value = '';
+            if (pcValue) pcValue.value = '';
+            if (pcSuggestions) pcSuggestions.innerHTML = '';
+            if (mobileColumn) mobileColumn.value = '';
+            if (mobileValue) mobileValue.value = '';
+            if (mobileSuggestions) mobileSuggestions.innerHTML = '';
+            
+            updateFilterTags(); // Update PC filter display
+            renderActiveFilters(); // Update mobile filter display
+            invalidateFilterCache(); // Clear filter cache
             applyFilters();
+            showToast('✓ All filters and search cleared', 'info', 2000);
         }
 
         // Update filter tags display
         function updateFilterTags() {
             const container = document.getElementById('activeFilters');
+            const mobileContainer = document.getElementById('mobileActiveFilters');
+            
             if (activeFilters.length === 0) {
-                container.innerHTML = '';
+                if (container) container.innerHTML = '';
+                if (mobileContainer) mobileContainer.innerHTML = '<p style="color: #999; font-size: 13px; font-style: italic;">No active filters</p>';
                 return;
             }
 
-            container.innerHTML = activeFilters.map((filter, index) => `
+            const filtersHTML = activeFilters.map((filter, index) => `
                 <div class="filter-tag">
                     <strong>${formatFieldName(filter.column)}:</strong> ${escapeHtml(filter.value)}
                     <span class="filter-tag-remove" onclick="removeFilter(${index})">✕</span>
                 </div>
             `).join('');
+            
+            if (container) container.innerHTML = filtersHTML;
+            
+            // Also update mobile container with styled version
+            const mobileFiltersHTML = activeFilters.map((filter, index) => `
+                <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(40, 40, 40, 0.8); border: 2px solid var(--primary-color); border-radius: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                    <span style="flex: 1; font-size: 13px;">
+                        <strong style="color: var(--primary-light);">${formatFieldName(filter.column)}:</strong> 
+                        ${escapeHtml(filter.value)}
+                    </span>
+                    <button onclick="removeFilter(${index})" style="background: none; border: none; color: #ff6b6b; cursor: pointer; padding: 2px; display: flex; align-items: center;" title="Remove filter">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+            
+            if (mobileContainer) mobileContainer.innerHTML = mobileFiltersHTML;
         }
 
         // Apply all filters and sorting
@@ -7007,15 +7059,28 @@ What would you like to do?
             // Add to active filters
             activeFilters.push({ column, value });
             
-            // Clear inputs
-            document.getElementById('mobileFilterColumn').value = '';
-            document.getElementById('mobileFilterValue').value = '';
+            // Clear BOTH mobile and PC inputs
+            const pcColumn = document.getElementById('filterColumn');
+            const pcValue = document.getElementById('filterValue');
+            const pcSuggestions = document.getElementById('filterSuggestions');
+            const mobileColumn = document.getElementById('mobileFilterColumn');
+            const mobileValue = document.getElementById('mobileFilterValue');
+            const mobileSuggestions = document.getElementById('mobileFilterSuggestions');
             
-            // Update displays and apply filters
-            renderActiveFilters();
-            applyAdvancedFilters();
+            if (pcColumn) pcColumn.value = '';
+            if (pcValue) pcValue.value = '';
+            if (pcSuggestions) pcSuggestions.innerHTML = '';
+            if (mobileColumn) mobileColumn.value = '';
+            if (mobileValue) mobileValue.value = '';
+            if (mobileSuggestions) mobileSuggestions.innerHTML = '';
             
-            showToast(`✓ Filter added: ${column} = ${value}`);
+            // Update displays and apply filters - sync both PC and mobile displays
+            updateFilterTags(); // Update PC filter display
+            renderActiveFilters(); // Update mobile filter display
+            invalidateFilterCache(); // Clear filter cache
+            applyFilters(); // Apply the same filter logic as PC
+            
+            showToast(`✓ Filter added: ${formatFieldName(column)} = ${value}`, 'success', 2000);
         }
         
         // Close mobile menu when clicking outside or pressing escape
