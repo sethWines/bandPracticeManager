@@ -4920,9 +4920,21 @@ What would you like to do?
         }
 
         // Apply all filters and sorting
+        // Helper function to get current search value from either search box
+        function getSearchValue() {
+            // Try mobile search first (mobile takes precedence if both exist)
+            const mobileSearch = document.getElementById('mobileSearchInput');
+            if (mobileSearch && mobileSearch.offsetParent !== null) {
+                return mobileSearch.value.trim();
+            }
+            // Fall back to desktop search
+            const desktopSearch = document.getElementById('searchBox');
+            return desktopSearch ? desktopSearch.value.trim() : '';
+        }
+
         function applyFilters() {
             // Create a cache key from current filter state
-            const searchTerm = document.getElementById('searchBox').value.trim();
+            const searchTerm = getSearchValue();
             const filterState = JSON.stringify({
                 search: searchTerm,
                 filters: activeFilters,
@@ -5086,6 +5098,16 @@ What would you like to do?
         // Smart Autocomplete Functions
         function handleSearchInput(event) {
             const input = event.target.value;
+            
+            // Sync desktop and mobile search boxes
+            const desktopSearch = document.getElementById('searchBox');
+            const mobileSearch = document.getElementById('mobileSearchInput');
+            
+            if (event.target.id === 'searchBox' && mobileSearch) {
+                mobileSearch.value = input;
+            } else if (event.target.id === 'mobileSearchInput' && desktopSearch) {
+                desktopSearch.value = input;
+            }
             
             // Debounce the filter application
             debouncedApplyFilters();
