@@ -617,15 +617,6 @@
             Setlist Manager
         </h1>
         
-        <!-- Mobile Menu Button (Hamburger) -->
-        <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-        </button>
-        
         <div class="header-controls">
             <div class="nav-links">
                 <a href="song-manager.html" class="nav-link">
@@ -686,6 +677,15 @@
                 <option value="prism">Dark Prism</option>
             </select>
         </div>
+        
+        <!-- Mobile Menu Button (Hamburger) - Rightmost position -->
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
     </div>
 
     <!-- Mobile Command Menu (Full Screen Overlay) -->
@@ -724,7 +724,7 @@
             <!-- Bands Section (Shows sidebar) -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-section-title">Bands & Components</div>
-                <button class="btn-primary" onclick="toggleMobileSidebar(); toggleMobileMenu();">
+                <button class="btn btn-primary" onclick="toggleMobileSidebar(); toggleMobileMenu();">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="7" height="7"></rect>
                         <rect x="14" y="3" width="7" height="7"></rect>
@@ -738,7 +738,7 @@
             <!-- Data Management Section -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-section-title">Data Management</div>
-                <button class="btn-secondary" onclick="exportAllData(); toggleMobileMenu();">
+                <button class="btn btn-secondary" onclick="exportAllData(); toggleMobileMenu();">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
@@ -746,7 +746,7 @@
                     </svg>
                     Backup All Data
                 </button>
-                <button class="btn-secondary" onclick="importAllData(); toggleMobileMenu();">
+                <button class="btn btn-secondary" onclick="importAllData(); toggleMobileMenu();">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="17 8 12 3 7 8"/>

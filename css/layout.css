@@ -22,6 +22,7 @@
     min-height: 44px;
     min-width: 44px;
     justify-content: center;
+    margin-left: auto; /* Push to the far right */
 }
 
 .mobile-menu-btn:hover {

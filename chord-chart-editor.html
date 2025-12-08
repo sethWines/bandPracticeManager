@@ -1549,6 +1549,7 @@
             </svg>
             Chord Chart Editor
         </h1>
+        
         <div class="song-selector" style="display: flex; align-items: center; gap: 8px; margin: 0 10px; position: relative; z-index: 9999; flex: 1; min-width: 200px; max-width: 400px;">
             <label for="songSearch" style="color: var(--text-primary); font-weight: 500; font-size: 14px; flex-shrink: 0;">Song:</label>
             <div style="position: relative; flex: 1; z-index: 9999;">
@@ -1624,6 +1625,95 @@
                     </svg>
                     View/Print
                 </button>
+        </div>
+        
+        <!-- Mobile Menu Button (Hamburger) - Rightmost position -->
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile Command Menu (Full Screen Overlay) -->
+    <div class="mobile-menu-overlay" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <span class="mobile-menu-title">Menu</span>
+            <button class="mobile-menu-close" onclick="toggleMobileMenu()" aria-label="Close menu">✕</button>
+        </div>
+        <div class="mobile-menu-content">
+            <!-- Navigation Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Navigate</div>
+                <a href="song-manager.html" class="nav-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    Songs
+                </a>
+                <a href="setlist-manager.html" class="nav-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="8" y1="6" x2="21" y2="6"/>
+                        <line x1="8" y1="12" x2="21" y2="12"/>
+                        <line x1="8" y1="18" x2="21" y2="18"/>
+                        <line x1="3" y1="6" x2="3.01" y2="6"/>
+                        <line x1="3" y1="12" x2="3.01" y2="12"/>
+                        <line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                    Setlists
+                </a>
+                <a href="show-time.html" class="nav-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Show Time
+                </a>
+            </div>
+
+            <!-- Actions Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Actions</div>
+                <button class="btn btn-primary" onclick="togglePrintModal(); toggleMobileMenu();" style="width: 100%;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"/>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                        <rect x="6" y="14" width="12" height="8"/>
+                    </svg>
+                    View/Print
+                </button>
+                <button class="btn btn-secondary" onclick="saveChart(); toggleMobileMenu();" style="width: 100%;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Save Chart
+                </button>
+            </div>
+
+            <!-- Theme Section (Last) -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Theme</div>
+                <select id="mobileThemeSelector" class="theme-selector" onchange="changeTheme(this.value)">
+                    <option value="grey">Grey</option>
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="purple">Purple</option>
+                    <option value="cyan">Cyan</option>
+                    <option value="teal">Teal</option>
+                    <option value="copper">Copper</option>
+                    <option value="amber">Amber</option>
+                    <option value="pink">Pink</option>
+                    <option value="sunrise">Sunrise</option>
+                    <option value="sunset">Sunset</option>
+                    <option value="synthwave">Synth Wave</option>
+                    <option value="prism">Dark Prism</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -2316,6 +2406,24 @@
                     closeComponentSelector();
                 }
             });
+
+            // Mobile menu event listeners
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu) {
+                // Close on background click
+                mobileMenu.addEventListener('click', (e) => {
+                    if (e.target === mobileMenu) {
+                        toggleMobileMenu();
+                    }
+                });
+                
+                // Close on escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+                        toggleMobileMenu();
+                    }
+                });
+            }
         });
 
         // Update search box with current song
@@ -2621,6 +2729,20 @@
         function selectComponentType(type) {
             addComponent(type);
             closeComponentSelector();
+        }
+
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                menu.classList.toggle('active');
+                // Prevent body scroll when menu is open
+                if (menu.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            }
         }
 
         // Create component tile
@@ -3973,6 +4095,16 @@
             console.log('Changing theme to:', theme);
             localStorage.setItem('bandOrganizerTheme', theme);
             applyTheme(theme);
+            // Sync mobile theme selector
+            const mobileSelector = document.getElementById('mobileThemeSelector');
+            if (mobileSelector && mobileSelector.value !== theme) {
+                mobileSelector.value = theme;
+            }
+            // Sync desktop theme selector
+            const desktopSelector = document.getElementById('themeSelector');
+            if (desktopSelector && desktopSelector.value !== theme) {
+                desktopSelector.value = theme;
+            }
             console.log('Body data-theme attribute:', document.body.getAttribute('data-theme'));
         };
         

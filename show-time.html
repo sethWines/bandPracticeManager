@@ -338,7 +338,7 @@
         .performance-mode {
             display: none;
             position: fixed;
-            top: 0;
+            top: 60px; /* Start below header (approximate header height) */
             left: 0;
             right: 0;
             bottom: 0;
@@ -360,19 +360,19 @@
 
         .song-position {
             position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 120px; /* Above autoscroll controls */
+            right: 30px;
             background: rgba(26, 26, 26, 0.9);
             -webkit-backdrop-filter: blur(15px);
             backdrop-filter: blur(15px);
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 6px 12px;
+            border-radius: 6px;
             border: 2px solid var(--primary-color);
-            font-size: 14px;
+            font-size: 11px;
             color: var(--primary-light);
-            z-index: 10001;
+            z-index: 10002;
             box-shadow: 0 4px 20px var(--primary-glow);
+            font-weight: 600;
         }
 
         .performance-container {
@@ -527,7 +527,7 @@
         .song-wheel {
             position: fixed;
             right: -400px;
-            top: 0;
+            top: 60px; /* Start below header */
             bottom: 0;
             width: 350px;
             background: rgba(26, 26, 26, 0.95);
@@ -535,7 +535,7 @@
             backdrop-filter: blur(20px);
             border-left: 2px solid var(--primary-border);
             box-shadow: -10px 0 30px var(--primary-glow);
-            z-index: 10001;
+            z-index: 9999; /* Below mobile menu */
             transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-y: auto;
             padding: 20px;
@@ -617,6 +617,43 @@
             font-size: 12px;
             color: var(--text-tertiary);
         }
+        
+        /* Mobile Song Wheel Toggle Button */
+        .mobile-song-wheel-btn {
+            display: none; /* Hidden on desktop */
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(26, 26, 26, 0.9);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--primary-light);
+            color: var(--primary-light);
+            cursor: pointer;
+            z-index: 9998; /* Below song wheel but above content */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px var(--primary-glow);
+            transition: all 0.3s;
+        }
+        
+        .mobile-song-wheel-btn:hover {
+            background: rgba(40, 40, 40, 0.9);
+            transform: scale(1.05);
+        }
+        
+        .mobile-song-wheel-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .mobile-song-wheel-btn.hidden {
+            display: none;
+        }
 
         /* Empty state */
         .empty-state {
@@ -641,6 +678,71 @@
         .empty-state p {
             font-size: 16px;
             margin-bottom: 20px;
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            /* Show mobile song wheel button on small screens */
+            .mobile-song-wheel-btn {
+                display: flex !important;
+            }
+            
+            /* Make song wheel narrower on mobile */
+            .song-wheel {
+                width: 300px;
+                right: -320px;
+                top: 60px; /* Match desktop */
+            }
+            
+            /* Adjust speed controls for mobile */
+            .autoscroll-controls {
+                bottom: 20px;
+                right: 20px;
+                gap: 10px;
+            }
+            
+            .speed-orb {
+                width: 40px;
+                height: 40px;
+            }
+            
+            /* Song position stays in lower right */
+            .song-position {
+                bottom: 100px;
+                right: 20px;
+                font-size: 10px;
+                padding: 5px 10px;
+            }
+            
+            /* Adjust mobile song wheel button position */
+            .mobile-song-wheel-btn {
+                top: 70px; /* Account for slightly smaller header on mobile */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            /* Even narrower on very small screens */
+            .song-wheel {
+                width: 280px;
+                right: -300px;
+                top: 50px; /* Smaller header on tiny screens */
+            }
+            
+            /* Header is even more compact on very small screens */
+            .performance-mode {
+                top: 50px;
+            }
+            
+            .song-position {
+                bottom: 90px;
+                right: 15px;
+                font-size: 9px;
+                padding: 4px 8px;
+            }
+            
+            .mobile-song-wheel-btn {
+                top: 60px;
+            }
         }
     </style>
 </head>
@@ -671,6 +773,7 @@
                 <line x1="26" y1="14" x2="31" y2="14"/>
             </svg>
         </h1>
+        
         <div class="header-controls">
             <div class="nav-links">
                 <a href="song-manager.html" class="nav-link">Songs</a>
@@ -678,20 +781,91 @@
                 <a href="chord-chart-editor.html" class="nav-link">Editor</a>
             </div>
             <select class="theme-selector" onchange="changeTheme(this.value)" aria-label="Theme selector">
-                <option value="red">Red Heat</option>
-                <option value="blue">Blue Steel</option>
-                <option value="green">Forest Green</option>
-                <option value="purple">Purple Haze</option>
-                <option value="cyan">Cyan Wave</option>
-                <option value="amber">Amber Glow</option>
-                <option value="pink">Pink Pulse</option>
-                <option value="teal">Teal Dream</option>
-                <option value="copper">Copper Tone</option>
+                <option value="grey">Grey</option>
+                <option value="red">Red</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+                <option value="purple">Purple</option>
+                <option value="cyan">Cyan</option>
+                <option value="teal">Teal</option>
+                <option value="copper">Copper</option>
+                <option value="amber">Amber</option>
+                <option value="pink">Pink</option>
                 <option value="sunrise">Sunrise</option>
                 <option value="sunset">Sunset</option>
-                <option value="synthwave">Synthwave</option>
+                <option value="synthwave">Synth Wave</option>
                 <option value="prism">Dark Prism</option>
             </select>
+        </div>
+        
+        <!-- Mobile Menu Button (Hamburger) - Rightmost position -->
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile Command Menu (Full Screen Overlay) -->
+    <div class="mobile-menu-overlay" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <span class="mobile-menu-title">Menu</span>
+            <button class="mobile-menu-close" onclick="toggleMobileMenu()" aria-label="Close menu">✕</button>
+        </div>
+        <div class="mobile-menu-content">
+            <!-- Navigation Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Navigate</div>
+                <a href="song-manager.html" class="nav-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    Songs
+                </a>
+                <a href="setlist-manager.html" class="nav-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="8" y1="6" x2="21" y2="6"/>
+                        <line x1="8" y1="12" x2="21" y2="12"/>
+                        <line x1="8" y1="18" x2="21" y2="18"/>
+                        <line x1="3" y1="6" x2="3.01" y2="6"/>
+                        <line x1="3" y1="12" x2="3.01" y2="12"/>
+                        <line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                    Setlists
+                </a>
+                <a href="chord-chart-editor.html" class="nav-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                    Charts
+                </a>
+            </div>
+
+            <!-- Theme Section (Last) -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Theme</div>
+                <select id="mobileThemeSelector" class="theme-selector" onchange="changeTheme(this.value)">
+                    <option value="grey">Grey</option>
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="purple">Purple</option>
+                    <option value="cyan">Cyan</option>
+                    <option value="teal">Teal</option>
+                    <option value="copper">Copper</option>
+                    <option value="amber">Amber</option>
+                    <option value="pink">Pink</option>
+                    <option value="sunrise">Sunrise</option>
+                    <option value="sunset">Sunset</option>
+                    <option value="synthwave">Synth Wave</option>
+                    <option value="prism">Dark Prism</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -739,6 +913,18 @@
                 </svg>
             </div>
         </div>
+        
+        <!-- Mobile Song Wheel Toggle Button -->
+        <button class="mobile-song-wheel-btn" id="mobileSongWheelBtn" onclick="toggleSongWheel()" title="Open Song List">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6"/>
+                <line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/>
+                <line x1="3" y1="12" x2="3.01" y2="12"/>
+                <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+        </button>
 
         <!-- 3D Song Wheel Menu -->
         <div class="song-wheel" id="songWheel">
@@ -780,12 +966,67 @@
         function changeTheme(theme) {
             document.body.setAttribute('data-theme', theme);
             localStorage.setItem('bandOrganizerTheme', theme);
+            updateFaviconForTheme(theme);
+            // Sync mobile theme selector
+            const mobileSelector = document.getElementById('mobileThemeSelector');
+            if (mobileSelector && mobileSelector.value !== theme) {
+                mobileSelector.value = theme;
+            }
+            // Sync desktop theme selector
+            const desktopSelector = document.querySelector('.theme-selector');
+            if (desktopSelector && desktopSelector.value !== theme) {
+                desktopSelector.value = theme;
+            }
+        }
+        
+        function updateFaviconForTheme(theme) {
+            const link = document.querySelector("link[rel*='icon']");
+            if (!link) return;
+            
+            // Map themes to colors (hex codes need to be URL encoded with %23)
+            const themeColors = {
+                'grey': '%23d84315',
+                'red': '%23d84315',
+                'blue': '%231976d2',
+                'green': '%23388e3c',
+                'purple': '%237b1fa2',
+                'cyan': '%2300838f',
+                'amber': '%23f57c00',
+                'pink': '%23c2185b',
+                'teal': '%2314b8a6',
+                'copper': '%23b87333',
+                'sunrise': '%23ffb700',
+                'sunset': '%23ff8c00',
+                'synthwave': '%23a78bfa',
+                'prism': '%2314b8a6'
+            };
+            
+            const color = themeColors[theme] || '%23d84315';
+            
+            // Guitar icon for show-time.html favicon
+            link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='${color}' stroke-width='2.5' stroke-linecap='round'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>`;
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                menu.classList.toggle('active');
+                // Prevent body scroll when menu is open
+                if (menu.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                    // Close song wheel when hamburger menu opens
+                    closeSongWheel();
+                } else {
+                    document.body.style.overflow = '';
+                }
+            }
         }
 
         function loadTheme() {
             const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'red';
             if (savedTheme) {
                 document.body.setAttribute('data-theme', savedTheme);
+                updateFaviconForTheme(savedTheme);
                 const selector = document.querySelector('.theme-selector');
                 if (selector) {
                     selector.value = savedTheme;
@@ -1253,9 +1494,16 @@
             }
         }
 
-        // Mouse proximity detection for song wheel
+        // Mouse proximity detection for song wheel (Desktop only)
         let wheelTimeout = null;
+        function isMobileDevice() {
+            return window.innerWidth <= 768 || ('ontouchstart' in window);
+        }
+        
         document.addEventListener('mousemove', function(e) {
+            // Disable hover behavior on mobile devices
+            if (isMobileDevice()) return;
+            
             const wheel = document.getElementById('songWheel');
             if (!document.getElementById('performanceMode').classList.contains('active')) return;
             if (isSingleSongMode) return;
@@ -1272,6 +1520,20 @@
                 }, 500);
             }
         });
+        
+        // Manual toggle function for mobile button
+        function toggleSongWheel() {
+            const wheel = document.getElementById('songWheel');
+            wheel.classList.toggle('active');
+        }
+        
+        // Close song wheel helper function
+        function closeSongWheel() {
+            const wheel = document.getElementById('songWheel');
+            if (wheel) {
+                wheel.classList.remove('active');
+            }
+        }
 
         // Keyboard navigation
         document.addEventListener('keydown', function(e) {
@@ -1331,6 +1593,7 @@
             document.getElementById('selectionScreen').classList.add('hidden');
             document.getElementById('performanceMode').classList.add('active');
             document.getElementById('songWheel').classList.add('hidden');
+            document.getElementById('mobileSongWheelBtn').classList.add('hidden');
             document.getElementById('songPosition').style.display = 'none';
 
             // Parse songId (format: artist|song)
@@ -1352,6 +1615,41 @@
             
             if (!isSingleSongMode) {
                 renderSetlistGrid();
+            }
+
+            // Mobile menu event listeners
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu) {
+                // Close on background click
+                mobileMenu.addEventListener('click', (e) => {
+                    if (e.target === mobileMenu) {
+                        toggleMobileMenu();
+                    }
+                });
+                
+                // Close on escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+                        toggleMobileMenu();
+                    }
+                });
+            }
+            
+            // Close song wheel when clicking in performance content
+            const performanceContent = document.getElementById('performanceContent');
+            if (performanceContent) {
+                performanceContent.addEventListener('click', (e) => {
+                    // Close song wheel if it's open
+                    closeSongWheel();
+                });
+            }
+            
+            // Prevent clicks on song wheel itself from closing it
+            const songWheel = document.getElementById('songWheel');
+            if (songWheel) {
+                songWheel.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
             }
         }
 
