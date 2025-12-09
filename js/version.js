@@ -5,15 +5,21 @@
 
 // Get version from git branch or fallback
 async function getVersion() {
-    try {
-        // Try to get version from a generated version file (if exists)
-        const response = await fetch('./version.txt').catch(() => null);
-        if (response && response.ok) {
-            const version = await response.text();
-            return version.trim();
+    // Check if we're on file:// protocol (local files)
+    const isFileProtocol = window.location.protocol === 'file:';
+    
+    // Only try to fetch if we're on http/https (not file://)
+    if (!isFileProtocol) {
+        try {
+            // Try to get version from a generated version file (if exists)
+            const response = await fetch('./version.txt').catch(() => null);
+            if (response && response.ok) {
+                const version = await response.text();
+                return version.trim();
+            }
+        } catch (e) {
+            // Silently fail - will use fallback below
         }
-    } catch (e) {
-        // Fallback handled below
     }
     
     // Fallback: try to parse from git branch in document
