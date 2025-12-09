@@ -227,6 +227,13 @@ start song-manager.html
 
 ## Technical Details
 
+### Version Management
+The application displays the current git branch as a version tag in the browser tab title:
+- **Version Tag**: Automatically appended to page titles (e.g., "Song Manager [v2.1.0]")
+- **Version File**: `version.txt` contains the current branch/version
+- **Update Script**: Run `update-version.bat` (Windows) or `update-version.sh` (Mac/Linux) to sync version with git branch
+- **Meta Tag**: `<meta name="app-version" content="v2.1.0">` in each HTML file
+
 ### Technology Stack
 - **HTML5** - Semantic markup
 - **CSS3** - Modern styling with CSS Variables for theming
