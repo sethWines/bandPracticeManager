@@ -508,6 +508,14 @@
             color: #e0e0e0;
         }
 
+        .tab-line {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: nowrap; /* Prevent wrapping for tablature */
+            overflow-x: auto; /* Allow horizontal scrolling if needed */
+            color: #ffb74d; /* Orange color to distinguish tabs */
+        }
+
         /* Autoscroll Controls */
         .autoscroll-controls {
             position: fixed;
@@ -1631,7 +1639,23 @@
                             return;
                         }
 
-                        // Check if it's a chord line (simple detection)
+                        // Check if we have metadata for this line (from grid editor)
+                        const lineMetadata = comp.lyricsMetadata && comp.lyricsMetadata[i];
+                        
+                        if (lineMetadata) {
+                            if (lineMetadata.type === 'chord') {
+                                html += `<div class="chord-line">${escapeHtml(line)}</div>`;
+                                return;
+                            } else if (lineMetadata.type === 'lyric') {
+                                html += `<div class="lyric-line">${escapeHtml(line)}</div>`;
+                                return;
+                            } else if (lineMetadata.type === 'tab') {
+                                html += `<div class="tab-line">${escapeHtml(line)}</div>`;
+                                return;
+                            }
+                        }
+
+                        // Fallback: Check if it's a chord line (simple detection)
                         const isChordLine = /^[A-G](#|b)?(m|maj|min|sus|aug|dim|add)?[0-9]?(\s+[A-G](#|b)?(m|maj|min|sus|aug|dim|add)?[0-9]?)*$/.test(line.trim());
                         
                         if (isChordLine) {
