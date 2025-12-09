@@ -550,6 +550,33 @@
             box-shadow: 0 6px 25px var(--primary-glow);
         }
 
+        /* Font Size Controls */
+        .font-size-orb {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-light);
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .font-size-orb:hover {
+            background: rgba(0, 0, 0, 0.5);
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+            transform: scale(1.15);
+            box-shadow: 0 6px 25px var(--primary-glow);
+        }
+
         .autoscroll-play-btn {
             width: 75px;
             height: 75px;
@@ -874,6 +901,12 @@
                 height: 40px;
             }
             
+            .font-size-orb {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
             /* Song position stays in lower right */
             .song-position {
                 bottom: 15px;
@@ -1131,7 +1164,13 @@
         
         <!-- Autoscroll Controls -->
         <div class="autoscroll-controls" id="autoscrollControls">
-            <!-- Speed Up (Top) -->
+            <!-- Font Size Increase (Top) -->
+            <div class="font-size-orb" onclick="increaseFontSize()" title="Increase Font Size">A+</div>
+            
+            <!-- Font Size Decrease -->
+            <div class="font-size-orb" onclick="decreaseFontSize()" title="Decrease Font Size">A-</div>
+            
+            <!-- Speed Up -->
             <div class="speed-orb" onclick="increaseSpeed()" title="Increase Speed">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -1197,6 +1236,7 @@
         let isSingleSongMode = false;
         let returnUrl = null; // Track where to go back to
         let accumulatedScroll = 0; // For fractional scrolling at low speeds
+        let baseFontSize = 1.0; // Base font size multiplier (1em = 1.0)
 
         // Load data from localStorage
         function loadData() {
@@ -1624,15 +1664,30 @@
         function loadPreferredSpeedForSong(songData) {
             const song = findSong(songData.artist, songData.song);
             
-            if (song && song.chordChart && song.chordChart.preferredScrollSpeed) {
-                scrollSpeed = song.chordChart.preferredScrollSpeed;
-                console.log(`Loaded preferred speed for ${song.song}: ${scrollSpeed}x`);
+            if (song && song.chordChart) {
+                // Load scroll speed
+                if (song.chordChart.preferredScrollSpeed) {
+                    scrollSpeed = song.chordChart.preferredScrollSpeed;
+                    console.log(`Loaded preferred speed for ${song.song}: ${scrollSpeed}x`);
+                } else {
+                    scrollSpeed = 1.0; // Default speed
+                }
+                
+                // Load font size
+                if (song.chordChart.preferredFontSize) {
+                    baseFontSize = song.chordChart.preferredFontSize;
+                    console.log(`Loaded preferred font size for ${song.song}: ${baseFontSize}x`);
+                } else {
+                    baseFontSize = 1.0; // Default font size
+                }
             } else {
-                // Default speed if no preference saved
+                // Default values if no preferences saved
                 scrollSpeed = 1.0;
+                baseFontSize = 1.0;
             }
             
             updateSpeedDisplay();
+            applyFontSize();
         }
 
         // Render song wheel
@@ -1817,13 +1872,64 @@
         }
 
         function decreaseSpeed() {
-            scrollSpeed = Math.max(parseFloat((scrollSpeed - 0.1).toFixed(1)), 0.5);
+            scrollSpeed = Math.max(parseFloat((scrollSpeed - 0.1).toFixed(1)), 0.1); // Changed minimum from 0.5 to 0.1
             updateSpeedDisplay();
             saveSpeedForCurrentSong();
         }
 
         function updateSpeedDisplay() {
             document.getElementById('speedDisplay').textContent = scrollSpeed.toFixed(1) + 'x';
+        }
+
+        // Font size control functions
+        function increaseFontSize() {
+            baseFontSize = Math.min(parseFloat((baseFontSize + 0.1).toFixed(1)), 3.0); // Max 3.0x
+            applyFontSize();
+            saveFontSizeForCurrentSong();
+        }
+
+        function decreaseFontSize() {
+            baseFontSize = Math.max(parseFloat((baseFontSize - 0.1).toFixed(1)), 0.5); // Min 0.5x
+            applyFontSize();
+            saveFontSizeForCurrentSong();
+        }
+
+        function applyFontSize() {
+            const chordLines = document.querySelectorAll('.chord-line');
+            const lyricLines = document.querySelectorAll('.lyric-line');
+            
+            chordLines.forEach(line => {
+                line.style.fontSize = `${baseFontSize}em`;
+            });
+            
+            lyricLines.forEach(line => {
+                line.style.fontSize = `${baseFontSize}em`;
+            });
+        }
+
+        // Save font size preference for current song
+        function saveFontSizeForCurrentSong() {
+            if (currentSongIndex < 0 || currentSongIndex >= allSongs.length) return;
+            
+            const songData = allSongs[currentSongIndex];
+            const song = findSong(songData.artist, songData.song);
+            
+            if (song && song.chordChart) {
+                // Update the chordChart object
+                song.chordChart.preferredFontSize = baseFontSize;
+                
+                // Save back to localStorage
+                const allSongs = JSON.parse(localStorage.getItem('songDatabase')) || [];
+                const songIndex = allSongs.findIndex(s => 
+                    s.artist === song.artist && s.song === song.song
+                );
+                
+                if (songIndex >= 0) {
+                    allSongs[songIndex] = song;
+                    localStorage.setItem('songDatabase', JSON.stringify(allSongs));
+                    console.log(`Saved font size ${baseFontSize}x for ${song.song}`);
+                }
+            }
         }
 
         // Save speed preference for current song
