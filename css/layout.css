@@ -228,8 +228,8 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    flex-shrink: 0;
-    flex-wrap: nowrap;
+    flex-shrink: 1; /* Changed from 0 to allow shrinking */
+    flex-wrap: wrap; /* Changed from nowrap to allow wrapping */
     min-width: 0; /* Allow shrinking */
 }
 
@@ -1074,6 +1074,81 @@ label:has(input[type="checkbox"]) {
 @media (max-width: 1200px) {
     .header h1 {
         font-size: 18px;
+    }
+    
+    /* Allow header controls to wrap on smaller screens */
+    .header-controls {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    
+    /* Make compact stats smaller */
+    .compact-stats {
+        font-size: 11px;
+        gap: 6px;
+    }
+    
+    /* Reduce button padding */
+    .header-controls .btn,
+    .header-controls .btn-secondary {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+    
+    /* Make nav links more compact */
+    .header-controls .nav-link {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+    
+    /* Reduce theme selector size */
+    .header-controls .theme-selector {
+        font-size: 12px;
+        padding: 5px 6px;
+        min-width: 60px;
+        max-width: 80px;
+    }
+    
+    /* Make search box take less space */
+    .header-controls .search-box {
+        max-width: 250px !important;
+        font-size: 12px !important;
+        padding: 5px 10px !important;
+    }
+}
+
+@media (max-width: 1000px) {
+    /* Further compression for medium screens */
+    .compact-stats {
+        display: none; /* Hide stats to save space */
+    }
+    
+    .header-controls .search-box {
+        max-width: 180px !important;
+        font-size: 12px !important;
+    }
+    
+    /* Stack nav links if needed */
+    .header-controls .nav-links {
+        flex-shrink: 1;
+    }
+    
+    .header-controls .nav-link {
+        padding: 4px 6px;
+        font-size: 11px;
+    }
+    
+    .header-controls .btn,
+    .header-controls .btn-secondary {
+        padding: 4px 6px;
+        font-size: 11px;
+    }
+    
+    .header-controls .theme-selector {
+        font-size: 11px;
+        padding: 4px 5px;
+        min-width: 50px;
+        max-width: 70px;
     }
 }
 

@@ -6,6 +6,20 @@
 
 ---
 
+## 🎯 New! Interactive Mobile Guide Wizard
+
+**Prefer a step-by-step interactive guide?**
+
+Access the **Mobile Guide Wizard** from the Song Manager mobile menu (☰ → 📱 Mobile Guide). The wizard:
+- Auto-detects your device type (iPhone, iPad, Android)
+- Provides interactive step-by-step instructions
+- Offers action buttons to trigger file operations directly
+- Guides you through importing CSV files or backing up data
+
+This document serves as a comprehensive reference. For quick, device-specific guidance, use the wizard!
+
+---
+
 ## Table of Contents
 
 1. [Introduction](#introduction)
@@ -207,6 +221,219 @@ Want your setlists on both your iPad and phone?
    - All your data is now on Device 2!
 
 **Note:** This is a manual process. Data doesn't sync automatically.
+
+---
+
+## Working with Files on iPhone & iPad
+
+### Understanding iOS File Access
+
+When you tap "Import from CSV File" in the app, iOS will open the **Files app picker**. This lets you browse and select files from various locations on your device.
+
+### File Locations on iOS
+
+**1. iCloud Drive** (Recommended)
+- Files sync across all your Apple devices automatically
+- Accessible even if you clear browser data
+- Requires iCloud storage space
+- Survives device upgrades and resets
+- Path: Files app → "iCloud Drive"
+
+**2. On My iPhone/iPad** (Local Storage)
+- Files stored directly on the device
+- Faster access (no internet needed)
+- Organized by app (Downloads, Files, etc.)
+- Deleted if you uninstall apps or reset device
+- Path: Files app → "On My iPhone" or "On My iPad"
+
+**3. Third-Party Cloud Services**
+- Google Drive, Dropbox, OneDrive, etc.
+- Available if you have their apps installed
+- Requires internet connection
+- Cross-platform compatible
+
+### How to Import CSV Files on iOS
+
+**Step 1: Get Your CSV File onto Your Device**
+
+**Option A - Email Method:**
+1. Open the email containing the CSV file on your iPhone/iPad
+2. **Long-press** the CSV attachment
+3. Tap **"Save to Files"**
+4. Choose location:
+   - **iCloud Drive** (recommended for safety)
+   - **On My iPhone/iPad** → **Downloads** (faster access)
+5. Tap **"Save"**
+6. Remember where you saved it!
+
+**Option B - Cloud Storage Method:**
+1. Open your cloud storage app (Google Drive, Dropbox, etc.)
+2. Navigate to your CSV file
+3. Tap the **"..."** or **"Share"** menu
+4. Select **"Export"** or **"Save to Files"**
+5. Choose a location (iCloud Drive recommended)
+6. Tap **"Save"**
+
+**Option C - AirDrop Method:**
+1. On your Mac: Right-click CSV file → **Share** → **AirDrop**
+2. Select your iPhone/iPad
+3. On iOS device: Accept the file
+4. File automatically goes to **Downloads** folder
+5. Access via Files app → "On My iPhone" → "Downloads"
+
+**Step 2: Import in Band Practice Manager**
+
+1. Open **Song Manager** in Safari or Chrome
+2. Tap the mobile menu button (**☰**)
+3. Tap **"Import Songs"** or use the **Mobile Guide Wizard**
+4. Tap **"Import from CSV File"**
+5. iOS Files picker will open
+6. Navigate to where you saved the file:
+   - Tap "iCloud Drive" or "On My iPhone/iPad"
+   - Navigate to the folder (e.g., Downloads)
+7. Tap your CSV file to select it
+8. The import preview will show in Band Practice Manager
+
+**Step 3: Confirm Import**
+
+1. Review the songs in the preview table
+2. Check/uncheck songs you want to include
+3. Tap **"✓ Confirm Import"**
+4. Your songs are now loaded!
+
+### How to Save Backup Files on iOS
+
+**Where Backup Files Go:**
+
+When you tap "Backup" in Song Manager:
+- **Safari**: File goes to **Downloads** (On My iPhone/iPad → Downloads)
+- **Chrome**: File also goes to **Downloads**
+
+**Step 1: Download Backup**
+
+1. In Song Manager, tap **"Backup"** button
+2. File downloads automatically
+3. Look for: `band-practice-manager-backup-2024-12-08.json`
+
+**Step 2: Move to iCloud Drive (Recommended)**
+
+To protect your backup:
+
+1. Open the **Files** app
+2. Tap **"Browse"** at the bottom
+3. Navigate to **"On My iPhone"** or **"On My iPad"**
+4. Tap **"Downloads"**
+5. Find your backup file (starts with `band-practice-manager-backup-`)
+6. **Long-press** the backup file
+7. Tap **"Move"** from the menu
+8. Navigate to **"iCloud Drive"**
+9. (Optional) Create a new folder:
+   - Tap the **folder icon** with "+"
+   - Name it **"Band Manager Backups"**
+   - Tap **"Done"**
+10. Tap **"Move"** to confirm
+
+**Now your backup is safe in iCloud!**
+
+**Step 3: Organize Old Backups**
+
+To keep your storage clean:
+
+1. Open **Files** app
+2. Navigate to your backup folder
+3. View your backups by date (newest first)
+4. **Swipe left** on old backups
+5. Tap **"Delete"**
+6. Keep the last 3-4 backups (in case one is corrupted)
+
+**Deleted files go to "Recently Deleted" for 30 days before permanent deletion.**
+
+### Troubleshooting iOS File Operations
+
+**Problem: "No files found" when trying to import**
+
+**Solutions:**
+- Ensure the file has `.csv` extension (not `.txt` or `.numbers`)
+- Check that the file is in an accessible location (not in a restricted app folder)
+- Try moving the file to iCloud Drive first, then import from there
+- Open the file in Numbers app to verify it's valid, then export as CSV
+
+**Problem: "Cannot open file" error**
+
+**Solutions:**
+- The CSV file might be corrupted
+- Open it in Numbers or Excel on your device to verify
+- If corrupted, re-download from the source
+- Check file permissions (long-press → "Get Info")
+
+**Problem: Files app picker doesn't show iCloud Drive**
+
+**Solutions:**
+1. Go to **Settings** → **[Your Name]** → **iCloud**
+2. Ensure **iCloud Drive** is turned **ON**
+3. Scroll down to **Files** app
+4. Ensure it has permission to access iCloud Drive
+5. Restart your device if needed
+
+**Problem: Downloaded backup file disappeared**
+
+**Solutions:**
+1. Open **Files** app → **Browse**
+2. Check **"On My iPhone"** → **"Downloads"**
+3. Check **"Recently Deleted"** folder (files stay 30 days)
+4. Check **iCloud Drive** if you moved it earlier
+5. If not found, re-download from Band Practice Manager
+
+**Problem: File picker is too slow or unresponsive**
+
+**Solutions:**
+1. Close other apps running in background
+2. Restart your iPhone/iPad
+3. Ensure you have free storage space (Settings → General → iPhone Storage)
+4. Try using a different browser (Safari vs Chrome)
+
+### iOS Best Practices
+
+**For CSV Imports:**
+- Always save CSV files to **iCloud Drive** for easy access
+- Create a dedicated folder: "Band Manager CSV Files"
+- Keep original CSV files even after importing (for re-importing later)
+- Test small CSV files first to verify format
+
+**For Backups:**
+- Set a weekly reminder to backup your data
+- Store backups in **iCloud Drive** for safety
+- Keep multiple backup versions (last 3-4)
+- Email yourself a backup copy for extra safety
+- Before iOS updates, create a fresh backup
+
+**File Management:**
+- Organize files into folders by date or purpose
+- Delete old backups to free up storage
+- Use iCloud Drive for important files
+- Use "On My iPhone" for temporary files
+
+### iOS Files App Tips
+
+**Quick Actions:**
+- **Long-press** a file for options (Move, Delete, Share, etc.)
+- **Swipe left** on a file to quickly delete
+- **Drag and drop** files between folders (iPad only)
+- **Two-finger pinch** to zoom thumbnail size
+
+**Sorting:**
+- Tap **"..."** menu → **"Sort By"**
+- Options: Name, Date, Size, Tags
+- View as: Grid or List
+
+**Search:**
+- Pull down on any folder view to reveal search bar
+- Search by filename, date, or tags
+- Works across all locations (iCloud, local, cloud services)
+
+**Favorites:**
+- **Long-press** a folder → **"Favorite"**
+- Access favorites from sidebar for quick navigation
 
 ---
 

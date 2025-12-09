@@ -304,6 +304,71 @@ async function importCSV(file) {
 }
 ```
 
+## iOS File Management
+
+### 📱 Mobile Guide Wizard
+
+**Quick Access:** Song Manager → Mobile Menu (☰) → 📱 Mobile Guide
+
+The interactive wizard provides device-specific, step-by-step guidance for:
+- Importing CSV files on iPhone/iPad
+- Managing backup files
+- Understanding iOS file locations
+
+### Importing CSV on iPhone/iPad
+
+**Quick Steps:**
+1. Save CSV to Files app (iCloud Drive or On My iPhone)
+2. Song Manager → Import → Import from CSV File
+3. Navigate to file location in Files picker
+4. Select CSV file → Review → Confirm Import
+
+**File Locations:**
+- **iCloud Drive** (recommended): Syncs across devices, survives resets
+- **On My iPhone/iPad → Downloads**: Local storage, faster access
+
+### Saving Backups on iOS
+
+**Where downloads go:**
+- Safari: Files app → "On My iPhone" → "Downloads"
+- Chrome: Files app → "On My iPhone" → "Downloads"
+
+**Best practice:**
+1. Download backup from Band Practice Manager
+2. Open Files app → Navigate to Downloads
+3. Long-press backup file → "Move"
+4. Move to iCloud Drive → Create folder "Band Manager Backups"
+5. Delete old backups (keep last 3-4)
+
+### Troubleshooting
+
+**Can't find downloaded file:**
+- Check: Files app → "On My iPhone" → "Downloads"
+- Check: Files app → "Recently Deleted" (30-day retention)
+- Re-download if not found
+
+**File picker doesn't show iCloud:**
+- Settings → [Your Name] → iCloud → iCloud Drive → ON
+- Settings → Files app → Enable iCloud access
+
+**CSV import fails:**
+- Ensure file has `.csv` extension
+- Try opening in Numbers app first to verify format
+- Save from Numbers as CSV if needed
+
+### Quick Actions
+
+**Long-press file for:**
+- Move, Copy, Delete
+- Share, Rename
+- Get Info (permissions, size, date)
+
+**Files app tips:**
+- Swipe left to quickly delete
+- Pull down to search
+- Two-finger pinch to zoom thumbnails (iPad)
+- Favorite frequently used folders
+
 ## Performance Tips
 
 1. **Always use debounced methods** for user input (search, filters)

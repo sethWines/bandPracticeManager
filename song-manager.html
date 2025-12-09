@@ -323,6 +323,39 @@
         input[type="file"] {
             display: none;
         }
+        
+        /* Import Option Boxes */
+        .import-option {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid var(--primary-border);
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-height: 80px;
+        }
+
+        .import-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(var(--primary-color-rgb, 255, 107, 61), 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .import-option {
+                padding: 16px;
+                min-height: 88px;
+                margin-bottom: 12px;
+            }
+            
+            #importModal .modal-content {
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
 
         .search-box {
             width: 100%;
@@ -1316,6 +1349,17 @@
             flex: 1;
             overflow-y: auto;
             position: relative;
+            cursor: grab;
+            padding: 0; /* Remove padding to bring table closer to header */
+        }
+        
+        .center-pane.dragging {
+            cursor: grabbing;
+            user-select: none;
+        }
+        
+        .center-pane table {
+            margin: 0; /* Remove top margin */
         }
     </style>
 </head>
@@ -1377,7 +1421,7 @@
             <!-- Search bar -->
             <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search..." oninput="handleSearchInput(event)" onkeydown="handleSearchKeydown(event)" style="flex: 1; max-width: 400px; padding: 6px 12px; font-size: 13px;">
 
-        <div class="nav-links">
+            <div class="nav-links">
                 <a href="setlist-manager.html" class="nav-link">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="8" y1="6" x2="21" y2="6"/>
@@ -1386,26 +1430,26 @@
                         <line x1="3" y1="6" x2="3.01" y2="6"/>
                         <line x1="3" y1="12" x2="3.01" y2="12"/>
                         <line x1="3" y1="18" x2="3.01" y2="18"/>
-                </svg>
+                    </svg>
                     Setlists
-            </a>
+                </a>
                 <a href="chord-chart-editor.html" class="nav-link">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 18V5l12-2v13"/>
-                    <circle cx="6" cy="18" r="3"/>
-                    <circle cx="18" cy="16" r="3"/>
-                </svg>
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
                     Charts
-            </a>
+                </a>
                 <a href="show-time.html" class="nav-link">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"/>
                     </svg>
                     Show Time
-            </a>
-        </div>
+                </a>
+            </div>
 
-            <button class="btn-secondary" onclick="exportAllData()" title="Export all songs, setlists, and settings for backup" style="padding: 6px 12px; font-size: 13px;">
+            <button class="btn-secondary" onclick="exportAllData()" title="Export all songs, setlists, and settings for backup">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/>
@@ -1414,7 +1458,7 @@
                 Backup
             </button>
             
-            <button class="btn-secondary" onclick="importAllData()" title="Import backup file to restore all data" style="padding: 6px 12px; font-size: 13px;">
+            <button class="btn-secondary" onclick="importAllData()" title="Import backup file to restore all data">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="17 8 12 3 7 8"/>
@@ -1449,7 +1493,7 @@
                 <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
         </button>
-        </div>
+    </div>
 
     <!-- Mobile Command Menu (Full Screen Overlay) -->
     <div class="mobile-menu-overlay" id="mobileMenu">
@@ -1518,6 +1562,18 @@
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
                     Import
+                </button>
+                
+                <!-- Mobile Guide Button -->
+                <button class="btn btn-secondary" onclick="openMobileGuide(); toggleMobileMenu();" style="width: 100%; margin-bottom: 10px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <line x1="10" y1="9" x2="8" y2="9"/>
+                    </svg>
+                    📱 Mobile Guide
                 </button>
                 
                 <!-- Spotify Setup Button -->
@@ -2312,33 +2368,29 @@
                 </p>
                 
                 <!-- CSV Import Option -->
-                <div class="import-option" onclick="document.getElementById('csvFile').click(); closeImportModal();" style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; border: 2px solid var(--primary-border); margin-bottom: 15px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.background='rgba(var(--primary-color-rgb, 255, 107, 61), 0.1)'" onmouseout="this.style.borderColor='var(--primary-border)'; this.style.background='rgba(0,0,0,0.3)'">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="12" y1="18" x2="12" y2="12"/>
-                            <line x1="9" y1="15" x2="15" y2="15"/>
-                        </svg>
-                        <div>
-                            <h3 style="color: var(--primary-light); margin: 0 0 5px 0; font-size: 1.1em;">Import from CSV File</h3>
-                            <p style="color: #999; margin: 0; font-size: 0.9em;">Upload a CSV file from your computer</p>
-                        </div>
+                <div class="import-option" onclick="document.getElementById('csvFile').click(); closeImportModal();">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                    <div>
+                        <h3 style="color: var(--primary-light); margin: 0 0 5px 0; font-size: 1.1em;">Import from CSV File</h3>
+                        <p style="color: #999; margin: 0; font-size: 0.9em;">Upload a CSV file from your computer</p>
                     </div>
                 </div>
                 
                 <!-- Paste Import Option -->
-                <div class="import-option" onclick="closeImportModal(); openPasteImportModal();" style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; border: 2px solid var(--primary-border); cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.background='rgba(var(--primary-color-rgb, 255, 107, 61), 0.1)'" onmouseout="this.style.borderColor='var(--primary-border)'; this.style.background='rgba(0,0,0,0.3)'">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                            <rect x="9" y="2" width="6" height="4" rx="1"/>
-                            <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/>
-                            <path d="M12 11v6m-3-3h6"/>
-                        </svg>
-                        <div>
-                            <h3 style="color: var(--primary-light); margin: 0 0 5px 0; font-size: 1.1em;">Paste from Clipboard</h3>
-                            <p style="color: #999; margin: 0; font-size: 0.9em;">Paste tab/comma-separated text from anywhere</p>
-                        </div>
+                <div class="import-option" onclick="closeImportModal(); openPasteImportModal();">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
+                        <rect x="9" y="2" width="6" height="4" rx="1"/>
+                        <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/>
+                        <path d="M12 11v6m-3-3h6"/>
+                    </svg>
+                    <div>
+                        <h3 style="color: var(--primary-light); margin: 0 0 5px 0; font-size: 1.1em;">Paste from Clipboard</h3>
+                        <p style="color: #999; margin: 0; font-size: 0.9em;">Paste tab/comma-separated text from anywhere</p>
                     </div>
                 </div>
             </div>
@@ -4405,6 +4457,15 @@ What would you like to do?
                 document.querySelector('.left-sidebar').classList.add('collapsed');
             }
             
+            // Check for pending CSV import from Mobile Guide Wizard
+            checkPendingImport();
+            
+            // Check for URL parameters (like ?action=backup)
+            checkUrlParameters();
+            
+            // Enable drag-to-scroll on the table
+            enableDragScroll();
+            
             // Check if we need to search for a song from setlist manager
             const editSongSearch = localStorage.getItem('editSongSearch');
             if (editSongSearch) {
@@ -4431,43 +4492,101 @@ What would you like to do?
                 console.log('Window resized');
             }, 150);
             window.addEventListener('resize', handleResize);
-            
-            // Performance: Smooth scrolling with requestAnimationFrame
-            const tableContainer = document.querySelector('.table-container');
-            if (tableContainer) {
-                let ticking = false;
-                
-                tableContainer.addEventListener('scroll', () => {
-                    if (!ticking) {
-                        window.requestAnimationFrame(() => {
-                            // Handle scroll-dependent updates here
-                            // Currently passive - just ensures smooth rendering
-                            ticking = false;
-                        });
-                        ticking = true;
-                    }
-                }, { passive: true });
-            }
-            
-            // Performance: Register Service Worker for PWA capabilities
-            // Only works on http/https protocols, not file://
-            if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
-                navigator.serviceWorker.register('./sw.js')
-                    .then((registration) => {
-                        console.log('[PWA] Service Worker registered:', registration.scope);
-                        
-                        // Check for updates periodically
-                        setInterval(() => {
-                            registration.update();
-                        }, 60000); // Check every minute
-                    })
-                    .catch((error) => {
-                        console.error('[PWA] Service Worker registration failed:', error);
-                    });
-            } else if (window.location.protocol === 'file:') {
-                console.log('[PWA] Service Worker not available on file:// protocol. App will work but won\'t be available offline.');
-            }
         };
+        
+        // Check for pending CSV import from Mobile Guide Wizard
+        function checkPendingImport() {
+            const pendingCSV = localStorage.getItem('pendingCSVImport');
+            const pendingFilename = localStorage.getItem('pendingCSVFilename');
+            
+            if (pendingCSV) {
+                // Clear the pending import
+                localStorage.removeItem('pendingCSVImport');
+                localStorage.removeItem('pendingCSVFilename');
+                
+                // Show notification
+                const filename = pendingFilename || 'file';
+                showToast(`📥 Importing ${filename} from Mobile Guide...`, 'info');
+                
+                // Parse and import the CSV
+                setTimeout(() => {
+                    parseCSV(pendingCSV);
+                }, 500);
+            }
+        }
+        
+        // Check URL parameters for actions
+        function checkUrlParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            
+            if (action === 'backup') {
+                // Trigger backup after a short delay
+                setTimeout(() => {
+                    exportAllData();
+                    showToast('💾 Creating backup...', 'info');
+                }, 1000);
+            }
+        }
+        
+        // Enable drag-to-scroll on center pane (desktop) - Horizontal only, optimized
+        function enableDragScroll() {
+            const centerPane = document.querySelector('.center-pane');
+            if (!centerPane) return;
+            
+            let isDragging = false;
+            let startX = 0;
+            let scrollLeft = 0;
+            let offsetLeft = 0; // Cache this to avoid forced reflow
+            
+            centerPane.addEventListener('mousedown', (e) => {
+                // Only enable drag on the container itself or on non-interactive elements
+                const target = e.target;
+                if (
+                    target.tagName === 'BUTTON' ||
+                    target.tagName === 'INPUT' ||
+                    target.tagName === 'A' ||
+                    target.tagName === 'SELECT' ||
+                    target.closest('button') ||
+                    target.closest('a') ||
+                    target.closest('input') ||
+                    target.closest('select') ||
+                    target.closest('.sortable')
+                ) {
+                    return;
+                }
+                
+                isDragging = true;
+                centerPane.classList.add('dragging');
+                
+                // Cache offsetLeft once at the start to avoid forced reflow on every move
+                offsetLeft = centerPane.offsetLeft;
+                startX = e.pageX - offsetLeft;
+                scrollLeft = centerPane.scrollLeft;
+            });
+            
+            centerPane.addEventListener('mouseleave', () => {
+                isDragging = false;
+                centerPane.classList.remove('dragging');
+            });
+            
+            centerPane.addEventListener('mouseup', () => {
+                isDragging = false;
+                centerPane.classList.remove('dragging');
+            });
+            
+            centerPane.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                // Use cached offsetLeft instead of reading it on every move
+                const x = e.pageX - offsetLeft;
+                const walkX = (x - startX);
+                
+                // Only scroll horizontally
+                centerPane.scrollLeft = scrollLeft - walkX;
+            });
+        }
 
         // Load and apply watermark preference
         function loadWatermark() {
@@ -4694,17 +4813,17 @@ What would you like to do?
                         </div>
                     </td>
                     <td class="col-link ${colClasses.link}">${song.link ? `<a href="${escapeHtml(song.link)}" target="_blank" class="link-icon">🔗</a>` : '-'}</td>
-                    <td class="col-artist editable-cell ${colClasses.artist}" ondblclick="startInlineEdit(this, ${originalIndex}, 'artist')" title="Double-click to edit">${escapeHtml(song.artist)}</td>
-                    <td class="col-song editable-cell ${colClasses.song}" ondblclick="startInlineEdit(this, ${originalIndex}, 'song')" title="Double-click to edit">${escapeHtml(song.song)}</td>
-                    <td class="col-album editable-cell ${colClasses.album}" ondblclick="startInlineEdit(this, ${originalIndex}, 'album')" title="Double-click to edit">${escapeHtml(song.album || '-')}</td>
-                    <td class="col-duration editable-cell ${colClasses.duration}" ondblclick="startInlineEdit(this, ${originalIndex}, 'duration')" title="Double-click to edit">${escapeHtml(song.duration || '-')}</td>
-                    <td class="col-practiceStatus editable-cell ${colClasses.practiceStatus}" ondblclick="startInlineEdit(this, ${originalIndex}, 'practiceStatus')" title="Double-click to edit">${getPracticeStatusBadge(song.practiceStatus)}</td>
-                    <td class="col-tuning editable-cell ${colClasses.tuning}" ondblclick="startInlineEdit(this, ${originalIndex}, 'tuning')" title="Double-click to edit">${escapeHtml(song.tuning || '-')}</td>
-                    <td class="col-bands editable-cell ${colClasses.bands}" ondblclick="startInlineEdit(this, ${originalIndex}, 'bands')" title="Double-click to edit">${escapeHtml(song.bands || '-')}</td>
-                    <td class="col-tags editable-cell ${colClasses.tags}" ondblclick="startInlineEdit(this, ${originalIndex}, 'tags')" title="Double-click to edit">${escapeHtml(song.tags || '-')}</td>
-                    <td class="col-key editable-cell ${colClasses.key}" ondblclick="startInlineEdit(this, ${originalIndex}, 'key')" title="Double-click to edit">${escapeHtml(song.key || '-')}</td>
-                    <td class="col-firstNote editable-cell ${colClasses.firstNote}" ondblclick="startInlineEdit(this, ${originalIndex}, 'firstNote')" title="Double-click to edit">${escapeHtml(song.firstNote || '-')}</td>
-                    <td class="col-lastNote editable-cell ${colClasses.lastNote}" ondblclick="startInlineEdit(this, ${originalIndex}, 'lastNote')" title="Double-click to edit">${escapeHtml(song.lastNote || '-')}</td>
+                    <td class="col-artist ${colClasses.artist}">${escapeHtml(song.artist)}</td>
+                    <td class="col-song ${colClasses.song}">${escapeHtml(song.song)}</td>
+                    <td class="col-album ${colClasses.album}">${escapeHtml(song.album || '-')}</td>
+                    <td class="col-duration ${colClasses.duration}">${escapeHtml(song.duration || '-')}</td>
+                    <td class="col-practiceStatus ${colClasses.practiceStatus}">${getPracticeStatusBadge(song.practiceStatus)}</td>
+                    <td class="col-tuning ${colClasses.tuning}">${escapeHtml(song.tuning || '-')}</td>
+                    <td class="col-bands ${colClasses.bands}">${escapeHtml(song.bands || '-')}</td>
+                    <td class="col-tags ${colClasses.tags}">${escapeHtml(song.tags || '-')}</td>
+                    <td class="col-key ${colClasses.key}">${escapeHtml(song.key || '-')}</td>
+                    <td class="col-firstNote ${colClasses.firstNote}">${escapeHtml(song.firstNote || '-')}</td>
+                    <td class="col-lastNote ${colClasses.lastNote}">${escapeHtml(song.lastNote || '-')}</td>
                     <td class="col-chordChart ${colClasses.chordChart}">${song.chordChart ? `<a href="chord-chart-editor.html?songId=${originalIndex}" target="_blank" title="Edit Chord Chart" style="color: var(--primary-light); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> Edit</a>` : `<a href="chord-chart-editor.html?songId=${originalIndex}" target="_blank" title="Create Chord Chart" style="color: var(--text-tertiary); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</a>`}</td>
                     <td class="col-playCount ${colClasses.playCount}">${song.playCount || 0}</td>
                 </tr>`);
@@ -5158,7 +5277,9 @@ What would you like to do?
             return result;
         }
 
-        // Inline Editing Functions
+        // Inline Editing Functions - DISABLED FOR BETTER DRAG SCROLLING
+        // Use the Edit button to modify songs instead
+        /*
         let currentEditCell = null;
 
         function startInlineEdit(cell, index, field) {
@@ -5282,6 +5403,8 @@ What would you like to do?
             // Re-render to restore original content
             applyFilters();
         }
+        */
+
 
         // Open add modal
         function openAddModal() {
@@ -7433,6 +7556,11 @@ What would you like to do?
                     document.body.style.overflow = '';
                 }
             }
+        }
+        
+        // Open Mobile Guide wizard
+        function openMobileGuide() {
+            window.open('mobile-guide-wizard.html', '_blank');
         }
         
         // Toggle mobile column visibility section
