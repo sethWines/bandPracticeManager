@@ -732,3 +732,97 @@ body {
     }
 }
 
+/* Configuration Manager Styles */
+.config-manager-section {
+    animation: fadeIn 0.3s ease-in;
+}
+
+.config-manager-card {
+    transition: all 0.3s ease;
+}
+
+.config-manager-card:hover {
+    border-color: var(--primary-light) !important;
+    box-shadow: 0 4px 20px var(--primary-glow);
+}
+
+#configSelector {
+    transition: all 0.3s ease;
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+#configSelector option {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    padding: 8px;
+}
+
+#configSelector:hover {
+    border-color: var(--primary-lighter);
+    box-shadow: 0 0 10px var(--primary-glow);
+}
+
+#configSelector:focus {
+    outline: none;
+    border-color: var(--primary-lighter);
+    box-shadow: 0 0 15px var(--primary-glow);
+}
+
+/* Input styles for modals */
+.filename-input {
+    transition: all 0.3s ease;
+}
+
+.filename-input:focus {
+    outline: none;
+    border-color: var(--primary-lighter) !important;
+    box-shadow: 0 0 15px var(--primary-glow);
+}
+
+.filename-input:hover {
+    border-color: var(--primary-light) !important;
+}
+
+/* Configuration action buttons */
+.config-actions button {
+    transition: all 0.3s ease;
+}
+
+.config-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px var(--primary-glow);
+}
+
+/* Mobile responsiveness for config manager */
+@media (max-width: 768px) {
+    .config-manager-section {
+        padding: 15px !important;
+        margin: 15px auto !important;
+    }
+    
+    .config-manager-card {
+        padding: 15px !important;
+    }
+    
+    .config-actions {
+        flex-direction: column !important;
+    }
+    
+    .config-actions button {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+

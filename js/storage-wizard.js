@@ -8,15 +8,89 @@ let currentDevice = 'Desktop';
 let actionCallbacks = [];
 let pendingImportData = null;
 
+// Configuration Manager
+let configManager = {
+    activeConfigId: null,
+    configurations: []
+};
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadTheme();
     detectAndDisplayDevice();
+    loadConfigManager();
+    
+    // If no configurations exist, create a default one from current data
+    if (configManager.configurations.length === 0) {
+        createInitialConfiguration();
+    }
+    
+    updateConfigSelector();
+    
+    // Auto-save current state to active config when page loads
+    // (in case user made changes on another page and came back)
+    if (configManager.activeConfigId) {
+        saveToActiveConfig();
+        console.log('Auto-saved on page load');
+    }
+    
+    // Set up periodic auto-save (every 30 seconds)
+    setInterval(function() {
+        if (configManager.activeConfigId) {
+            saveToActiveConfig();
+            console.log('Periodic auto-save triggered');
+        }
+    }, 30000); // 30 seconds
+});
+
+// Create initial configuration from current data
+function createInitialConfiguration() {
+    const songs = localStorage.getItem('songDatabase') || localStorage.getItem('bandSongs');
+    const setlists = localStorage.getItem('bandSetlists');
+    
+    // Check if there's any data to save
+    const hasSongs = songs && JSON.parse(songs).length > 0;
+    const hasSetlists = setlists && JSON.parse(setlists).length > 0;
+    
+    let configName = 'My Configuration';
+    if (hasSongs || hasSetlists) {
+        configName = 'Current Data';
+    }
+    
+    const configId = generateConfigId();
+    const newConfig = {
+        id: configId,
+        name: configName,
+        filename: `${configName.replace(/\s+/g, '-').toLowerCase()}.json`,
+        lastModified: new Date().toISOString(),
+        data: {
+            songs: songs || '[]',
+            setlists: setlists || '[]',
+            theme: localStorage.getItem('bandOrganizerTheme'),
+            watermark: localStorage.getItem('watermark'),
+            columnVisibility: localStorage.getItem('columnVisibility'),
+            rightSidebarCollapsed: localStorage.getItem('rightSidebarCollapsed')
+        }
+    };
+    
+    configManager.configurations.push(newConfig);
+    configManager.activeConfigId = configId;
+    saveConfigManager();
+    
+    console.log('Created initial configuration:', configName);
+}
+
+// Save before leaving the page
+window.addEventListener('beforeunload', function() {
+    if (configManager.activeConfigId) {
+        saveToActiveConfig();
+        console.log('Auto-saved before page unload');
+    }
 });
 
 // Load theme from localStorage (same as Song Manager)
 function loadTheme() {
-    const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'grey';
+    const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'red';
     document.documentElement.setAttribute('data-theme', savedTheme);
     
     // Sync both theme selectors
@@ -685,8 +759,13 @@ function handleJSONImport(event) {
                 setlists = JSON.parse(setlists);
             }
             
-            // Show preview
-            showImportPreview({ songs, setlists, data }, 'json');
+            // Store pending import data temporarily
+            pendingImportData = { songs, setlists, data, type: 'json', filename: file.name };
+            
+            // Show config name modal
+            const defaultName = file.name.replace('.json', '').replace(/^band-practice-manager-backup-/, '');
+            document.getElementById('configNameInput').value = defaultName;
+            document.getElementById('configNameModal').style.display = 'flex';
             
         } catch (error) {
             console.error('JSON Import error:', error);
@@ -698,38 +777,167 @@ function handleJSONImport(event) {
     event.target.value = '';
 }
 
-// JSON Export
-function triggerJSONExport() {
-    const songs = localStorage.getItem('songDatabase') || localStorage.getItem('bandSongs');
-    const setlists = localStorage.getItem('bandSetlists');
-    const theme = localStorage.getItem('bandOrganizerTheme');
-    const watermark = localStorage.getItem('watermark');
-    const columnVisibility = localStorage.getItem('columnVisibility');
-    const rightSidebarCollapsed = localStorage.getItem('rightSidebarCollapsed');
+// Confirm configuration name and proceed with import
+function confirmConfigName() {
+    let configName = document.getElementById('configNameInput').value.trim();
     
-    const exportData = {
-        version: '1.0.0',
-        exportDate: new Date().toISOString(),
-        songs: songs,
-        setlists: setlists,
-        theme: theme,
-        watermark: watermark,
-        columnVisibility: columnVisibility,
-        rightSidebarCollapsed: rightSidebarCollapsed
+    if (!configName) {
+        showNotification('Please enter a configuration name!', 'error');
+        return;
+    }
+    
+    // Check configuration limit
+    if (!checkConfigurationLimit()) {
+        return;
+    }
+    
+    // Check for duplicate names and append number if needed
+    let finalName = configName;
+    let counter = 1;
+    while (configManager.configurations.find(c => c.name === finalName)) {
+        finalName = `${configName} (${counter})`;
+        counter++;
+    }
+    
+    // If name was changed due to duplicate, show warning
+    if (finalName !== configName) {
+        const proceed = confirm(`A configuration named "${configName}" already exists.\n\nWould you like to use "${finalName}" instead?`);
+        if (!proceed) {
+            return;
+        }
+    }
+    
+    // Hide modal
+    document.getElementById('configNameModal').style.display = 'none';
+    
+    // Validate pending import data
+    if (!pendingImportData || !pendingImportData.songs) {
+        showNotification('Invalid import data!', 'error');
+        return;
+    }
+    
+    // Create new configuration
+    const configId = generateConfigId();
+    const newConfig = {
+        id: configId,
+        name: finalName,
+        filename: pendingImportData.filename,
+        lastModified: new Date().toISOString(),
+        data: {
+            songs: typeof pendingImportData.songs === 'string' ? pendingImportData.songs : JSON.stringify(pendingImportData.songs),
+            setlists: typeof pendingImportData.setlists === 'string' ? pendingImportData.setlists : JSON.stringify(pendingImportData.setlists),
+            theme: pendingImportData.data.theme || localStorage.getItem('bandOrganizerTheme'),
+            watermark: pendingImportData.data.watermark || localStorage.getItem('watermark'),
+            columnVisibility: pendingImportData.data.columnVisibility,
+            rightSidebarCollapsed: pendingImportData.data.rightSidebarCollapsed
+        }
     };
     
-    const jsonString = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `band-practice-manager-backup-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Add to configurations
+    configManager.configurations.push(newConfig);
+    configManager.activeConfigId = configId;
+    saveConfigManager();
     
-    showNotification('✓ Backup downloaded successfully!', 'success');
+    // Load the configuration
+    loadConfiguration(configId);
+    
+    // Update UI
+    updateConfigSelector();
+    
+    showSuccessPanel(
+        '✓ Configuration Imported!',
+        `Configuration "${finalName}" has been imported and activated.`
+    );
+    
+    pendingImportData = null;
+}
+
+// Cancel config name modal
+function cancelConfigNameModal() {
+    document.getElementById('configNameModal').style.display = 'none';
+    pendingImportData = null;
+    backToTaskSelection();
+}
+
+// JSON Export
+function triggerJSONExport() {
+    // Show filename modal first
+    const defaultFilename = `band-practice-manager-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.getElementById('filenameInput').value = defaultFilename;
+    document.getElementById('filenameModal').style.display = 'flex';
+}
+
+// Confirm filename and proceed with export
+function confirmFilenameAndExport() {
+    let filename = document.getElementById('filenameInput').value.trim();
+    
+    if (!filename) {
+        showNotification('Please enter a filename!', 'error');
+        return;
+    }
+    
+    // Sanitize filename - remove invalid characters
+    filename = filename.replace(/[<>:"/\\|?*]/g, '-');
+    
+    // Ensure .json extension
+    if (!filename.endsWith('.json')) {
+        filename += '.json';
+    }
+    
+    // Validate filename length
+    if (filename.length > 255) {
+        showNotification('Filename is too long! Please use a shorter name.', 'error');
+        return;
+    }
+    
+    // Hide modal
+    document.getElementById('filenameModal').style.display = 'none';
+    
+    try {
+        // Proceed with export
+        const songs = localStorage.getItem('songDatabase') || localStorage.getItem('bandSongs');
+        const setlists = localStorage.getItem('bandSetlists');
+        const theme = localStorage.getItem('bandOrganizerTheme');
+        const watermark = localStorage.getItem('watermark');
+        const columnVisibility = localStorage.getItem('columnVisibility');
+        const rightSidebarCollapsed = localStorage.getItem('rightSidebarCollapsed');
+        
+        const exportData = {
+            version: '1.0.0',
+            exportDate: new Date().toISOString(),
+            songs: songs,
+            setlists: setlists,
+            theme: theme,
+            watermark: watermark,
+            columnVisibility: columnVisibility,
+            rightSidebarCollapsed: rightSidebarCollapsed
+        };
+        
+        const jsonString = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        // Note: We do NOT update activeConfig.filename here
+        // The original imported filename is preserved for reference
+        
+        showNotification('✓ Backup downloaded successfully!', 'success');
+    } catch (error) {
+        console.error('Export error:', error);
+        showNotification('Error creating backup: ' + error.message, 'error');
+    }
+}
+
+// Cancel filename modal
+function cancelFilenameModal() {
+    document.getElementById('filenameModal').style.display = 'none';
+    backToTaskSelection();
 }
 
 // CSV Export
@@ -792,6 +1000,9 @@ function executeClearAll() {
         return;
     }
     
+    // Ask if user wants to keep configurations
+    const keepConfigs = confirm('Would you like to keep your saved configurations?\n\nClick "OK" to keep them, or "Cancel" to delete everything including configurations.');
+    
     // Clear all localStorage
     localStorage.removeItem('songDatabase');
     localStorage.removeItem('bandSongs');
@@ -799,9 +1010,28 @@ function executeClearAll() {
     localStorage.removeItem('songTrash');
     localStorage.removeItem('bandSongsTrash');
     
+    let message = 'All songs, chord charts, setlists, and trash have been permanently deleted.';
+    
+    if (!keepConfigs) {
+        // Also clear configurations
+        localStorage.removeItem('configManager');
+        configManager = {
+            activeConfigId: null,
+            configurations: []
+        };
+        updateConfigSelector();
+        message += ' All configurations have also been deleted.';
+    } else {
+        // Reset active config to default
+        configManager.activeConfigId = null;
+        saveConfigManager();
+        updateConfigSelector();
+        message += ' Your saved configurations have been preserved.';
+    }
+    
     showSuccessPanel(
         '🗑️ All Data Cleared',
-        'All songs, chord charts, setlists, and trash have been permanently deleted.'
+        message
     );
 }
 
@@ -1028,5 +1258,283 @@ function changeTheme(theme) {
     
     // Update favicon to match new theme
     updateFaviconForTheme(theme);
+}
+
+// ===========================
+// Configuration Manager
+// ===========================
+
+// Load configuration manager from localStorage
+function loadConfigManager() {
+    const stored = localStorage.getItem('configManager');
+    if (stored) {
+        try {
+            configManager = JSON.parse(stored);
+        } catch (e) {
+            console.error('Error loading config manager:', e);
+            configManager = {
+                activeConfigId: null,
+                configurations: []
+            };
+        }
+    }
+}
+
+// Save configuration manager to localStorage
+function saveConfigManager() {
+    localStorage.setItem('configManager', JSON.stringify(configManager));
+}
+
+// Update configuration selector dropdown
+function updateConfigSelector() {
+    const selector = document.getElementById('configSelector');
+    if (!selector) return;
+    
+    // Clear existing options
+    selector.innerHTML = '';
+    
+    // If no configurations exist, show placeholder
+    if (configManager.configurations.length === 0) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'No configurations - Import or create one';
+        option.disabled = true;
+        option.selected = true;
+        selector.appendChild(option);
+        return;
+    }
+    
+    // Add configurations
+    configManager.configurations.forEach(config => {
+        const option = document.createElement('option');
+        option.value = config.id;
+        option.textContent = config.name;
+        if (config.id === configManager.activeConfigId) {
+            option.selected = true;
+        }
+        selector.appendChild(option);
+    });
+    
+    // If no active config, select the first one
+    if (!configManager.activeConfigId && configManager.configurations.length > 0) {
+        configManager.activeConfigId = configManager.configurations[0].id;
+        saveConfigManager();
+        selector.value = configManager.activeConfigId;
+    }
+}
+
+// Generate unique ID for configuration
+function generateConfigId() {
+    return 'config-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+}
+
+// Get active configuration
+function getActiveConfig() {
+    if (!configManager.activeConfigId) return null;
+    return configManager.configurations.find(c => c.id === configManager.activeConfigId);
+}
+
+// Save current state to active configuration
+function saveToActiveConfig() {
+    const activeConfig = getActiveConfig();
+    if (!activeConfig) return;
+    
+    // Get current data
+    const songs = localStorage.getItem('songDatabase') || localStorage.getItem('bandSongs');
+    const setlists = localStorage.getItem('bandSetlists');
+    const theme = localStorage.getItem('bandOrganizerTheme');
+    const watermark = localStorage.getItem('watermark');
+    const columnVisibility = localStorage.getItem('columnVisibility');
+    const rightSidebarCollapsed = localStorage.getItem('rightSidebarCollapsed');
+    
+    // Update configuration data
+    activeConfig.data = {
+        songs: songs,
+        setlists: setlists,
+        theme: theme,
+        watermark: watermark,
+        columnVisibility: columnVisibility,
+        rightSidebarCollapsed: rightSidebarCollapsed
+    };
+    activeConfig.lastModified = new Date().toISOString();
+    
+    saveConfigManager();
+}
+
+// Auto-save functionality with debounce
+let autoSaveTimeout = null;
+function scheduleAutoSave() {
+    if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+    }
+    
+    autoSaveTimeout = setTimeout(() => {
+        saveToActiveConfig();
+        const activeConfig = getActiveConfig();
+        if (activeConfig) {
+            showNotification(`Auto-saved to ${activeConfig.name}`, 'success');
+        }
+    }, 2000); // 2 second debounce
+}
+
+// Monitor localStorage changes for auto-save
+if (window.addEventListener) {
+    window.addEventListener('storage', function(e) {
+        if ((e.key === 'songDatabase' || e.key === 'bandSetlists') && configManager.activeConfigId) {
+            scheduleAutoSave();
+        }
+    });
+}
+
+// Load a configuration into active localStorage
+function loadConfiguration(configId) {
+    const config = configManager.configurations.find(c => c.id === configId);
+    if (!config) {
+        showNotification('Configuration not found!', 'error');
+        return;
+    }
+    
+    try {
+        // Load configuration data into localStorage
+        if (config.data.songs) {
+            localStorage.setItem('songDatabase', config.data.songs);
+            localStorage.setItem('bandSongs', config.data.songs);
+        }
+        
+        if (config.data.setlists) {
+            localStorage.setItem('bandSetlists', config.data.setlists);
+        }
+        
+        if (config.data.theme) {
+            localStorage.setItem('bandOrganizerTheme', config.data.theme);
+            changeTheme(config.data.theme);
+        }
+        
+        if (config.data.watermark) {
+            localStorage.setItem('watermark', config.data.watermark);
+        }
+        
+        if (config.data.columnVisibility) {
+            localStorage.setItem('columnVisibility', config.data.columnVisibility);
+        }
+        
+        if (config.data.rightSidebarCollapsed) {
+            localStorage.setItem('rightSidebarCollapsed', config.data.rightSidebarCollapsed);
+        }
+        
+        // Set as active
+        configManager.activeConfigId = configId;
+        saveConfigManager();
+    } catch (error) {
+        console.error('Error loading configuration:', error);
+        showNotification('Error loading configuration: ' + error.message, 'error');
+    }
+}
+
+// Switch configuration
+function switchConfiguration(configId) {
+    // Ignore if no valid config selected
+    if (!configId) return;
+    
+    // Save current state to active config before switching (if there is one)
+    if (configManager.activeConfigId) {
+        saveToActiveConfig();
+        console.log('Saved current state before switching');
+    }
+    
+    const config = configManager.configurations.find(c => c.id === configId);
+    if (!config) return;
+    
+    // Load new configuration
+    loadConfiguration(configId);
+    updateConfigSelector();
+    showNotification(`Switched to configuration: ${config.name}`, 'success');
+    
+    // Reload page to apply all changes
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+// Export active configuration with remembered filename
+function exportActiveConfig() {
+    const activeConfig = getActiveConfig();
+    if (!activeConfig) {
+        showNotification('No active configuration to export! Please select a configuration first.', 'error');
+        return;
+    }
+    
+    // Save current state first
+    saveToActiveConfig();
+    
+    // Create filename with config name + date
+    const dateStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const configNameSlug = activeConfig.name.replace(/\s+/g, '-').toLowerCase().replace(/[^a-z0-9-]/g, '');
+    const filename = `${configNameSlug}-${dateStr}.json`;
+    
+    // Show filename modal with pre-filled name
+    document.getElementById('filenameInput').value = filename;
+    document.getElementById('filenameModal').style.display = 'flex';
+}
+
+// Delete configuration with safeguards
+function deleteConfiguration() {
+    const selector = document.getElementById('configSelector');
+    if (!selector) return;
+    
+    const configId = selector.value;
+    if (!configId) {
+        showNotification('No configuration selected!', 'error');
+        return;
+    }
+    
+    const config = configManager.configurations.find(c => c.id === configId);
+    if (!config) {
+        showNotification('Configuration not found!', 'error');
+        return;
+    }
+    
+    // Check if this is the last configuration
+    if (configManager.configurations.length === 1) {
+        showNotification('Cannot delete the last configuration! Create another one first.', 'error');
+        return;
+    }
+    
+    // Confirmation
+    const confirmed = confirm(`Are you sure you want to delete the configuration "${config.name}"?\n\nThis action cannot be undone.`);
+    if (!confirmed) return;
+    
+    // Remove configuration
+    configManager.configurations = configManager.configurations.filter(c => c.id !== configId);
+    
+    // If deleting active config, switch to the first remaining config
+    if (configManager.activeConfigId === configId) {
+        if (configManager.configurations.length > 0) {
+            const newActiveConfig = configManager.configurations[0];
+            configManager.activeConfigId = newActiveConfig.id;
+            loadConfiguration(newActiveConfig.id);
+            showNotification(`Configuration "${config.name}" deleted. Switched to "${newActiveConfig.name}"`, 'success');
+            
+            // Reload to apply new configuration
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            configManager.activeConfigId = null;
+        }
+    }
+    
+    saveConfigManager();
+    updateConfigSelector();
+}
+
+// Validate configuration limit
+function checkConfigurationLimit() {
+    const limit = 20; // Maximum 20 configurations
+    if (configManager.configurations.length >= limit) {
+        showNotification(`Maximum of ${limit} configurations reached. Please delete unused configurations.`, 'error');
+        return false;
+    }
+    return true;
 }
 

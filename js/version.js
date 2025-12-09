@@ -101,3 +101,65 @@ window.BandPracticeManager = window.BandPracticeManager || {};
 window.BandPracticeManager.getVersion = getVersion;
 window.BandPracticeManager.addVersionToTitle = addVersionToTitle;
 
+// ===========================
+// Configuration Auto-Save
+// ===========================
+// This ensures that when a user has an active configuration and makes changes
+// on any page (song manager, setlist manager, etc.), those changes are saved
+// to the active configuration when they navigate away or periodically.
+
+function autoSaveActiveConfig() {
+    try {
+        // Load config manager
+        const configManagerData = localStorage.getItem('configManager');
+        if (!configManagerData) return;
+        
+        const configManager = JSON.parse(configManagerData);
+        if (!configManager.activeConfigId) return;
+        
+        // Find active config
+        const activeConfig = configManager.configurations.find(c => c.id === configManager.activeConfigId);
+        if (!activeConfig) return;
+        
+        // Get current data
+        const songs = localStorage.getItem('songDatabase') || localStorage.getItem('bandSongs');
+        const setlists = localStorage.getItem('bandSetlists');
+        const theme = localStorage.getItem('bandOrganizerTheme');
+        const watermark = localStorage.getItem('watermark');
+        const columnVisibility = localStorage.getItem('columnVisibility');
+        const rightSidebarCollapsed = localStorage.getItem('rightSidebarCollapsed');
+        
+        // Update configuration data
+        activeConfig.data = {
+            songs: songs,
+            setlists: setlists,
+            theme: theme,
+            watermark: watermark,
+            columnVisibility: columnVisibility,
+            rightSidebarCollapsed: rightSidebarCollapsed
+        };
+        activeConfig.lastModified = new Date().toISOString();
+        
+        // Save back to localStorage
+        localStorage.setItem('configManager', JSON.stringify(configManager));
+        console.log('Auto-saved to active configuration:', activeConfig.name);
+    } catch (error) {
+        console.error('Error auto-saving config:', error);
+    }
+}
+
+// Save before leaving the page (any page in the app)
+window.addEventListener('beforeunload', function() {
+    autoSaveActiveConfig();
+});
+
+// Periodic auto-save every 30 seconds (for long editing sessions)
+setInterval(autoSaveActiveConfig, 30000);
+
+// Auto-save on page load (to capture changes from previous session)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoSaveActiveConfig);
+} else {
+    autoSaveActiveConfig();
+}
+

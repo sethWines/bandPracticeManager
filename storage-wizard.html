@@ -151,6 +151,73 @@
         </div>
     </div>
 
+    <!-- Mobile Command Menu (Full Screen Overlay) -->
+    <div class="mobile-menu-overlay" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <span class="mobile-menu-title">Menu</span>
+            <button class="mobile-menu-close" onclick="toggleMobileMenu()" aria-label="Close menu">✕</button>
+        </div>
+        <div class="mobile-menu-content">
+            <!-- Navigation Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Navigate</div>
+                <a href="song-manager.html" class="nav-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    Songs
+                </a>
+                <a href="setlist-manager.html" class="nav-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="8" y1="6" x2="21" y2="6"/>
+                        <line x1="8" y1="12" x2="21" y2="12"/>
+                        <line x1="8" y1="18" x2="21" y2="18"/>
+                        <line x1="3" y1="6" x2="3.01" y2="6"/>
+                        <line x1="3" y1="12" x2="3.01" y2="12"/>
+                        <line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                    Setlists
+                </a>
+                <a href="chord-chart-editor.html" class="nav-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                    Charts
+                </a>
+                <a href="show-time.html" class="nav-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Show Time
+                </a>
+            </div>
+
+            <!-- Theme Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Theme</div>
+                <select id="mobileThemeSelector" class="theme-selector" onchange="changeTheme(this.value)">
+                    <option value="grey">Grey</option>
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="purple">Purple</option>
+                    <option value="cyan">Cyan</option>
+                    <option value="teal">Teal</option>
+                    <option value="copper">Copper</option>
+                    <option value="amber">Amber</option>
+                    <option value="pink">Pink</option>
+                    <option value="sunrise">Sunrise</option>
+                    <option value="sunset">Sunset</option>
+                    <option value="synthwave">Synth Wave</option>
+                    <option value="prism">Dark Prism</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <!-- Device Detection Display -->
     <div class="device-info">
         <div id="detectedDevice" style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
@@ -160,6 +227,44 @@
             <div style="text-align: center;">
                 <div style="font-size: 14px; color: var(--text-tertiary); margin-bottom: 5px;">Detected Device:</div>
                 <div id="deviceName" style="font-size: 20px; font-weight: bold; color: var(--primary-light);">Detecting your device...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Manager Section -->
+    <div class="config-manager-section" style="padding: 20px; margin: 20px auto; max-width: 800px;">
+        <div class="config-manager-card" style="background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(15px); border: 2px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 20px;">
+            <h3 style="color: var(--primary-light); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                Configuration Manager
+            </h3>
+            <div class="active-config-display" style="margin-bottom: 15px;">
+                <label for="configSelector" style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-weight: 600;">
+                    Active Configuration:
+                </label>
+                <select id="configSelector" onchange="switchConfiguration(this.value)" style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid var(--primary-color); border-radius: 6px; cursor: pointer;">
+                    <!-- Dynamically populated -->
+                </select>
+            </div>
+            <div class="config-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="exportActiveConfig()" class="btn-primary" style="flex: 1; min-width: 150px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Export Active Config
+                </button>
+                <button onclick="deleteConfiguration()" class="btn-secondary" style="flex: 1; min-width: 150px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    Delete Config
+                </button>
             </div>
         </div>
     </div>
@@ -361,6 +466,66 @@
                     ✓ Confirm Import
                 </button>
                 <button onclick="cancelImportPreview()" class="btn-secondary">
+                    ✗ Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filename Edit Modal -->
+    <div id="filenameModal" class="import-preview-panel" style="display: none;">
+        <div class="preview-content">
+            <h3 style="color: var(--primary-light); margin-bottom: 20px;">💾 Name Your Backup</h3>
+            <div style="margin-bottom: 20px;">
+                <label for="filenameInput" style="display: block; margin-bottom: 10px; color: var(--text-secondary); font-weight: 600;">
+                    Backup Filename:
+                </label>
+                <input 
+                    type="text" 
+                    id="filenameInput" 
+                    class="filename-input"
+                    placeholder="band-practice-manager-backup-YYYY-MM-DD.json"
+                    style="width: 100%; padding: 12px; font-size: 14px; border: 2px solid var(--primary-color); border-radius: 6px; background: var(--card-bg); color: var(--text-primary); font-family: monospace;"
+                />
+                <small style="display: block; margin-top: 8px; color: var(--text-tertiary);">
+                    Tip: Use descriptive names like "friday-night-gig.json" or "practice-setup-2024.json"
+                </small>
+            </div>
+            <div class="preview-actions">
+                <button onclick="confirmFilenameAndExport()" class="btn-primary">
+                    ✓ Download Backup
+                </button>
+                <button onclick="cancelFilenameModal()" class="btn-secondary">
+                    ✗ Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Config Name Modal -->
+    <div id="configNameModal" class="import-preview-panel" style="display: none;">
+        <div class="preview-content">
+            <h3 style="color: var(--primary-light); margin-bottom: 20px;">📦 Name Your Configuration</h3>
+            <div style="margin-bottom: 20px;">
+                <label for="configNameInput" style="display: block; margin-bottom: 10px; color: var(--text-secondary); font-weight: 600;">
+                    Configuration Name:
+                </label>
+                <input 
+                    type="text" 
+                    id="configNameInput" 
+                    class="filename-input"
+                    placeholder="My Configuration"
+                    style="width: 100%; padding: 12px; font-size: 14px; border: 2px solid var(--primary-color); border-radius: 6px; background: var(--card-bg); color: var(--text-primary);"
+                />
+                <small style="display: block; margin-top: 8px; color: var(--text-tertiary);">
+                    Give this configuration a memorable name (e.g., "Tuesday Practice", "Friday Night Gig")
+                </small>
+            </div>
+            <div class="preview-actions">
+                <button onclick="confirmConfigName()" class="btn-primary">
+                    ✓ Import Configuration
+                </button>
+                <button onclick="cancelConfigNameModal()" class="btn-secondary">
                     ✗ Cancel
                 </button>
             </div>
