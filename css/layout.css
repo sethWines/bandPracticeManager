@@ -226,7 +226,7 @@
 
 .header-controls {
     display: flex;
-    gap: 8px;
+    gap: 4px; /* Reduced from 8px to match nav-links spacing */
     align-items: center;
     flex-shrink: 1; /* Changed from 0 to allow shrinking */
     flex-wrap: wrap; /* Changed from nowrap to allow wrapping */
@@ -253,12 +253,12 @@
 
 .nav-links {
     display: flex;
-    gap: 6px; /* Reduced from 10px */
+    gap: 4px; /* Reduced from 6px for tighter spacing */
     flex-wrap: nowrap;
 }
 
 .nav-link {
-    padding: 6px 12px;
+    padding: 6px 10px; /* Reduced from 6px 12px */
     background: var(--primary-dark);
     border: 2px solid var(--primary-light);
     color: var(--primary-light);
@@ -270,6 +270,7 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     display: inline-flex;
     align-items: center;
+    gap: 4px; /* Tighter gap between icon and text */
 }
 
 .nav-link:hover {
@@ -719,8 +720,8 @@ label:has(input[type="checkbox"]) {
    ======================================== */
 
 ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 14px; /* Increased from 10px for easier targeting */
+    height: 14px;
 }
 
 ::-webkit-scrollbar-track {
@@ -740,7 +741,7 @@ label:has(input[type="checkbox"]) {
 
 /* Firefox */
 * {
-    scrollbar-width: thin;
+    scrollbar-width: auto; /* Changed from thin to auto for thicker scrollbar */
     scrollbar-color: var(--primary-color) rgba(0, 0, 0, 0.3);
 }
 
