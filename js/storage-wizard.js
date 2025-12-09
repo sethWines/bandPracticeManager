@@ -18,6 +18,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadTheme() {
     const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'grey';
     document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    // Sync both theme selectors
+    const desktopSelector = document.getElementById('themeSelector');
+    const mobileSelector = document.getElementById('mobileThemeSelector');
+    if (desktopSelector) desktopSelector.value = savedTheme;
+    if (mobileSelector) mobileSelector.value = savedTheme;
 }
 
 // Device detection
@@ -911,5 +917,72 @@ function goBack() {
     } else {
         window.location.href = 'song-manager.html';
     }
+}
+
+// ===========================
+// Section Toggle for Grouped UI
+// ===========================
+function toggleSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    const header = section.previousElementSibling;
+    
+    if (section.style.display === 'none' || !section.style.display) {
+        section.style.display = 'block';
+        section.classList.add('show');
+        header.classList.add('expanded');
+    } else {
+        section.style.display = 'none';
+        section.classList.remove('show');
+        header.classList.remove('expanded');
+    }
+}
+
+// ===========================
+// Clear All Data Confirmation
+// ===========================
+function confirmClearAll() {
+    const confirmation = confirm(
+        '⚠️ WARNING: This will permanently delete ALL data:\n\n' +
+        '• All songs and chord charts\n' +
+        '• All setlists\n' +
+        '• All application settings\n\n' +
+        'This action CANNOT be undone!\n\n' +
+        'Are you absolutely sure you want to continue?'
+    );
+    
+    if (confirmation) {
+        // Ask for second confirmation
+        const secondConfirmation = confirm(
+            'This is your FINAL WARNING!\n\n' +
+            'Clicking OK will delete everything.\n\n' +
+            'Continue?'
+        );
+        
+        if (secondConfirmation) {
+            startClearAllWizard();
+        }
+    }
+}
+
+// ===========================
+// Mobile Menu Toggle
+// ===========================
+function toggleMobileMenu() {
+    const menu = document.getElementById('mobileMenu');
+    menu.classList.toggle('active');
+}
+
+// ===========================
+// Theme Changer
+// ===========================
+function changeTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('bandOrganizerTheme', theme);
+    
+    // Sync both selectors
+    const desktopSelector = document.getElementById('themeSelector');
+    const mobileSelector = document.getElementById('mobileThemeSelector');
+    if (desktopSelector) desktopSelector.value = theme;
+    if (mobileSelector) mobileSelector.value = theme;
 }
 

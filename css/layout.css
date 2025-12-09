@@ -1233,9 +1233,11 @@ label:has(input[type="checkbox"]) {
     .header-controls,
     .header-controls *,
     .header .nav-links,
+    .header > .nav-link,
     .header .search-box,
     .header .compact-stats,
     .header .btn-secondary,
+    .header > .theme-selector,
     .header .theme-selector {
         display: none !important;
     }
