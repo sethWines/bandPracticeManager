@@ -4529,7 +4529,7 @@ What would you like to do?
             }
         }
         
-        // Enable drag-to-scroll on center pane (desktop) - Horizontal only, optimized
+        // Enable drag-to-scroll on center pane (desktop) - Horizontal only, fully optimized
         function enableDragScroll() {
             const centerPane = document.querySelector('.center-pane');
             if (!centerPane) return;
@@ -4537,7 +4537,12 @@ What would you like to do?
             let isDragging = false;
             let startX = 0;
             let scrollLeft = 0;
-            let offsetLeft = 0; // Cache this to avoid forced reflow
+            
+            function stopDragging() {
+                isDragging = false;
+                centerPane.classList.remove('dragging');
+                document.body.style.userSelect = '';
+            }
             
             centerPane.addEventListener('mousedown', (e) => {
                 // Only enable drag on the container itself or on non-interactive elements
@@ -4558,33 +4563,37 @@ What would you like to do?
                 
                 isDragging = true;
                 centerPane.classList.add('dragging');
+                document.body.style.userSelect = 'none';
                 
-                // Cache offsetLeft once at the start to avoid forced reflow on every move
-                offsetLeft = centerPane.offsetLeft;
-                startX = e.pageX - offsetLeft;
+                // Use clientX which is relative to viewport (more reliable)
+                startX = e.clientX;
                 scrollLeft = centerPane.scrollLeft;
             });
             
-            centerPane.addEventListener('mouseleave', () => {
-                isDragging = false;
-                centerPane.classList.remove('dragging');
+            // Use window-level events to catch mouse activity outside the element
+            window.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    stopDragging();
+                }
             });
             
-            centerPane.addEventListener('mouseup', () => {
-                isDragging = false;
-                centerPane.classList.remove('dragging');
-            });
-            
-            centerPane.addEventListener('mousemove', (e) => {
+            window.addEventListener('mousemove', (e) => {
                 if (!isDragging) return;
                 e.preventDefault();
                 
-                // Use cached offsetLeft instead of reading it on every move
-                const x = e.pageX - offsetLeft;
-                const walkX = (x - startX);
+                // Use clientX for viewport-relative position (no offset calculations needed)
+                const x = e.clientX;
+                const walk = (x - startX);
                 
-                // Only scroll horizontally
-                centerPane.scrollLeft = scrollLeft - walkX;
+                // Direct scroll update - simple and fast
+                centerPane.scrollLeft = scrollLeft - walk;
+            });
+            
+            // Also handle when mouse leaves the entire window/document
+            document.addEventListener('mouseleave', () => {
+                if (isDragging) {
+                    stopDragging();
+                }
             });
         }
 
