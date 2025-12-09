@@ -921,6 +921,32 @@
             }
         }
         
+        /* Landscape mode adjustments for mobile devices */
+        @media (max-width: 768px) and (orientation: landscape) {
+            /* Hide font size controls in landscape to save space */
+            .font-size-orb {
+                display: none !important;
+            }
+            
+            /* Restore speed controls to original mobile position */
+            .autoscroll-controls {
+                bottom: 70px;
+                right: 10px;
+            }
+            
+            /* Keep song wheel button on right edge */
+            .mobile-song-wheel-btn {
+                right: 10px;
+                top: 60px;
+            }
+            
+            /* Ensure song position doesn't overlap */
+            .song-position {
+                bottom: 10px;
+                right: 15px;
+            }
+        }
+        
         @media (max-width: 480px) {
             /* Even narrower on very small screens */
             .song-wheel {

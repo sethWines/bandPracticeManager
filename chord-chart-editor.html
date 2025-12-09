@@ -1558,7 +1558,7 @@
 
         /* Mobile Add Component Button */
         .mobile-add-component-btn {
-            display: none; /* Hidden on desktop */
+            display: block; /* Show on all devices */
             width: 100%;
             padding: 20px;
             margin-top: 15px;
@@ -1587,12 +1587,8 @@
             margin-right: 8px;
         }
 
-        /* Show add button on mobile */
+        /* Mobile responsive adjustments */
         @media (max-width: 768px) {
-            .mobile-add-component-btn {
-                display: block;
-            }
-
             /* Simplify component selector for mobile */
             .component-selector-grid {
                 grid-template-columns: repeat(2, 1fr);
