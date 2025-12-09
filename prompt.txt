@@ -1,107 +1,232 @@
 ===========================================
-BAND MANAGER - APPLICATION RECREATION GUIDE
+BAND PRACTICE MANAGER - APPLICATION RECREATION GUIDE
 ===========================================
 
-VERSION: 1.0
-CREATED: 2024
-PURPOSE: Guide for recreating the Band Manager application from scratch
+VERSION: 2.1.0
+LAST UPDATED: December 2025
+PURPOSE: Complete guide for recreating the Band Practice Manager application from scratch
 
 ===========================================
 OVERVIEW
 ===========================================
 
-Band Manager is a complete song and setlist management system with two main components:
-1. Song Manager (song-manager.html) - Main song database and organization tool
-2. Setlist Manager (setlist-manager.html) - Tool for creating and managing performance setlists
+Band Practice Manager is a comprehensive song and setlist management system with five main pages:
+1. Song Manager (song-manager.html) - Main song database with advanced filtering
+2. Setlist Manager (setlist-manager.html) - Performance setlist creation and management
+3. Chord Chart Editor (chord-chart-editor.html) - Interactive chord chart builder
+4. Show Time (show-time.html) - Live performance mode with fullscreen song display
+5. Storage Wizard (storage-wizard.html) - Backup, restore, and data management
 
 The application uses localStorage for data persistence and operates entirely client-side (no backend required).
+All pages feature responsive mobile-first design with hamburger menus and consistent navigation.
 
 ===========================================
 CORE TECHNOLOGIES
 ===========================================
 
-- HTML5
-- CSS3 (with CSS Variables for theming)
+- HTML5 with semantic markup
+- CSS3 with CSS Variables for theming
 - Vanilla JavaScript (ES6+)
 - localStorage API for data persistence
-- Print API for setlist printing
+- Print API for professional setlist printing
+- SVG for all icons (no emojis)
+- Fetch API for version management (with file:// protocol fallback)
+- Responsive design with mobile hamburger menus
 
 ===========================================
-CUSTOM ICONS
+VERSION MANAGEMENT SYSTEM
 ===========================================
 
-GUITAR ICON (used as favicon and in Song Manager title):
-- SVG-based custom icon resembling a guitar
-- Hollow circle (guitar body) with radius 4.5
-- Vertical line from top of circle (guitar neck)
-- Two horizontal lines crossing the neck (frets/strings)
-- Used as favicon for both pages (data URI format)
-- Appears next to "Song Manager" title with theme color and glow effect
-- Color: uses theme's --primary-color
-- **CLICKABLE**: Clicking this icon switches the background watermark to the guitar icon
-- Has `cursor: pointer` and `onclick="switchWatermark('guitar')"` attributes
-- Active state: opacity 1, Inactive state: opacity 0.5
+**Files:**
+- `js/version.js` - Version detection and display module
+- `version.txt` - Current version/branch name
+- `update-version.bat` - Windows script to sync version from git
+- `update-version.sh` - Unix script to sync version from git
 
-DRUM ICON (used in Setlist Manager for band names and Song Manager title):
-- SVG-based custom icon resembling a drumset
-- Center bass/floor tom: circle (r=4.5) with vertical stand
-- Left vertical stand extends down to bottom of drum
-- Low tom line (horizontal) at top of bass drum
-- Mid tom line reaching toward right
-- Right cymbal stand (vertical line, no drum)
-- Multiple horizontal lines representing cymbals at different heights
-- Snare rim line on right side
-- Width: 60px, Height: 60px in Song Manager title
-- Width: 44px, Height: 24px in Setlist Manager cards
+**Implementation:**
+- Each HTML page has: `<meta name="app-version" content="v2.1.0">`
+- Each HTML page includes: `<script src="./js/version.js"></script>`
+- Version appears in browser tab title: "Song Manager [v2.1.0]"
+- Version appears as subtle badge below H1 title (right-aligned)
+- Badge styling: 0.45em font, 0.7 opacity, font-weight 600, right-aligned under title text
+- Protocol detection: Skips fetch on file:// to avoid CORS errors
+- Fallback chain: version.txt → meta tag → default "v2.1.0"
+
+**Visual Layout:**
+```
+<h1>
+  Song Manager
+  v2.1.0       ← right-aligned, subtle, below title
+</h1>
+```
+
+**Update Process:**
+```bash
+# Windows
+update-version.bat
+
+# Mac/Linux
+./update-version.sh
+```
+
+===========================================
+CUSTOM ICONS & WATERMARKS
+===========================================
+
+GUITAR ICON:
+- Size: 20x20px (matches h1 font-size)
+- ViewBox: 0 0 24 24
+- Stroke: var(--primary-color), width 2
+- Elements: Circle (body, r=4.5), vertical line (neck), 2 horizontal lines (frets)
+- Used as favicon and in Song Manager/Show Time titles
+- **CLICKABLE**: `onclick="switchWatermark('guitar')"`
+- Active: opacity 1, Inactive: opacity 0.5-0.8
+- Filter: drop-shadow(0 0 8px var(--primary-glow))
+
+DRUM ICON:
+- Size: 40x20px (2x width for aspect ratio)
 - ViewBox: 0 0 40 24
-- Color: uses currentColor (inherits from parent text color) or var(--primary-color)
-- Positioned before band name in setlist cards
-- Appears to the right of "Song Manager" title with theme color and glow effect
-- **CLICKABLE in Song Manager**: Clicking this icon switches the background watermark to the drum icon
-- Has `cursor: pointer` and `onclick="switchWatermark('drum')"` attributes
-- Active state: opacity 1, Inactive state: opacity 0.5
+- Stroke: var(--primary-color), width 2
+- Elements: Circle (bass drum), vertical stands, horizontal cymbals/toms
+- Used in Song Manager/Show Time titles and setlist cards
+- **CLICKABLE**: `onclick="switchWatermark('drum')"`
+- Active: opacity 1, Inactive: opacity 0.5-0.8
+- Filter: drop-shadow(0 0 8px var(--primary-glow))
 
-WATERMARK FEATURE (Song Manager Page):
-- **Interactive Background Watermarks**: Users can toggle between guitar and drum watermarks
-- **How to Toggle**: Click either the guitar icon (left) or drum icon (right) in the page title
-- **Persistence**: Watermark preference saved in localStorage as 'watermark' (values: 'guitar' or 'drum')
-- **Cross-Page Synchronization**: Setlist Manager automatically inherits the watermark choice from Song Manager
-- **Favicon Synchronization**: Browser tab favicon changes to match the selected watermark (guitar or drum icon)
-- **Visual Feedback**: Active watermark's icon shown at full opacity (1), inactive at 0.5 opacity (Song Manager only)
+BLACKDOUBT ICON (Easter Egg):
+- Size: 32x32px
+- ViewBox: 0 0 40 40
+- Elements:
+  * Diamond: `<path d="M 20 3 L 37 20 L 20 37 L 3 20 Z"/>` (rotated square)
+  * Circle: `<circle cx="20" cy="20" r="13"/>` (intertwined with diamond)
+  * B Character: `<text>𝔅</text>` (Unicode U+1D505, font-size 20, centered)
+- Stroke: var(--primary-color), width 1.8
+- **CLICKABLE**: `onclick="switchWatermark('blackdoubt')"`
+- **Visibility**: Only appears when setlist named "BlackDoubt" exists (case-insensitive)
+- **Detection Function**: `checkForBlackDoubt()` - checks localStorage 'bandSetlists' array for setlist.name === "blackdoubt"
+- **Position**: In Song Manager h1, between title and drum icon
+- Active: opacity 1, Inactive: opacity 0.5
+- Title: "Show BlackDoubt Watermark"
+
+WATERMARK SYSTEM:
+- Three watermark types: guitar (default), drum, blackdoubt
 - **CSS Implementation**:
-  - `body::before` - Guitar watermark (default, 15% opacity, white stroke)
-  - `body::after` - Drum watermark (hidden by default, fades in when active)
-  - `body.drum-watermark::before` - Fades out guitar watermark (opacity: 0)
-  - `body.drum-watermark::after` - Fades in drum watermark (opacity: 1)
-  - Both positioned: top 0%, right -20%, width/height 100%, z-index 0
-  - Smooth transitions: `transition: opacity 0.3s ease`
-- **JavaScript Functions (Song Manager)**:
-  - `loadWatermark()` - Loads saved preference on page load, applies to watermark and favicon
-  - `switchWatermark(type)` - Switches watermark and saves preference to localStorage, updates favicon
-  - `updateIconStyles(activeType)` - Updates icon opacity to indicate active/inactive state
-  - `updateFavicon(type)` - Dynamically changes the browser favicon to match watermark (guitar or drum)
-- **JavaScript Functions (Setlist Manager)**:
-  - `loadWatermark()` - Reads and applies watermark preference from localStorage (no toggle functionality), updates favicon
-  - `updateFavicon(type)` - Dynamically changes the browser favicon to match watermark (guitar or drum)
+  * `body::before` - Guitar watermark (15% opacity, default visible)
+  * `body::after` - Drum watermark (15% opacity, hidden by default)
+  * `.blackdoubt-watermark-overlay` - BlackDoubt watermark (12% opacity, div overlay)
+- **Classes**:
+  * `body.drum-watermark` - Shows drum, hides guitar/blackdoubt
+  * `body.blackdoubt-watermark` - Shows blackdoubt, hides guitar/drum
+- **Positioning**: Fixed, top: 0%, right: -20%, width/height: 100%, z-index: 0
+- **Transitions**: opacity 0.3s ease
+- **localStorage**: Key 'watermark', values: 'guitar', 'drum', 'blackdoubt'
+- **Persistence**: Watermark choice syncs across all pages
+- **Favicon Sync**: Browser favicon updates to match selected watermark
+
+WATERMARK JAVASCRIPT FUNCTIONS:
+- `loadWatermark()` - Load and apply watermark preference on page load
+- `switchWatermark(type)` - Change watermark, update body classes, save to localStorage
+- `updateIconStyles(activeType)` - Set active icon to opacity 1, others to 0.5
+- `updateFavicon(type)` - Update favicon to match watermark
+- `updateFaviconForTheme(theme)` - Generate favicon SVG with theme color
+- `checkForBlackDoubt()` - Check if "BlackDoubt" setlist exists, show/hide icon
+
+===========================================
+RESPONSIVE HEADER & NAVIGATION
+===========================================
+
+ALL PAGES use consistent header structure:
+
+**Desktop Header (>768px):**
+```html
+<div class="header">
+  <h1>
+    <svg>...</svg> Title
+  </h1>
+  <div class="header-controls">
+    <div class="nav-links">
+      <a href="..." class="nav-link">Songs</a>
+      <a href="..." class="nav-link">Setlists</a>
+      <a href="..." class="nav-link">Charts</a>
+      <a href="..." class="nav-link">Show Time</a>
+      <a href="..." class="nav-link">Storage</a>
+    </div>
+    <select class="theme-selector">...</select>
+  </div>
+  <button class="mobile-menu-btn">☰</button>
+</div>
+```
+
+**Mobile Menu Overlay:**
+```html
+<div class="mobile-menu-overlay" id="mobileMenu">
+  <div class="mobile-menu-header">
+    <span class="mobile-menu-title">Menu</span>
+    <button class="mobile-menu-close">✕</button>
+  </div>
+  <div class="mobile-menu-content">
+    <div class="mobile-menu-section">
+      <div class="mobile-menu-section-title">Navigate</div>
+      <!-- Nav links with SVG icons -->
+    </div>
+    <div class="mobile-menu-section">
+      <div class="mobile-menu-section-title">Theme</div>
+      <select id="mobileThemeSelector">...</select>
+    </div>
+  </div>
+</div>
+```
+
+**Mobile Behavior (≤768px):**
+- `.header-controls`, `.nav-links`, `.theme-selector` hidden
+- `.mobile-menu-btn` visible
+- Tapping hamburger shows full-screen overlay
+- Mobile menu has sections: Navigate, Theme
+- All nav links use SVG icons
+
+**JavaScript Functions:**
+- `toggleMobileMenu()` - Show/hide mobile menu overlay
+- `changeTheme(theme)` - Sync desktop and mobile theme selectors
+
+**CSS Classes (in layout.css):**
+- `.header` - Main header container
+- `.header h1` - Title with font-size: 20px, icons 20x20
+- `.nav-link` - Navigation links with hover effects
+- `.mobile-menu-btn` - Hamburger icon (hidden on desktop)
+- `.mobile-menu-overlay` - Full-screen overlay (hidden by default)
+- `.mobile-menu-overlay.active` - Visible mobile menu
+- `.theme-selector` - Dropdown for theme selection
 
 ===========================================
 PART 1: SONG MANAGER (Main Song Database)
 ===========================================
 
 FILE: song-manager.html
-BROWSER TAB TITLE: "Song Manager"
+BROWSER TAB TITLE: "Song Manager [v2.1.0]"
+
+UNIQUE FEATURES:
+- Guitar, Drum, and BlackDoubt watermark toggle icons in h1
+- BlackDoubt icon appears only when "BlackDoubt" setlist exists
+- Version tag displayed below title (right-aligned)
 
 CORE FEATURES TO IMPLEMENT:
 
 1. SONG DATABASE MANAGEMENT
-   - Store songs with fields: artist, song, album, link, tuning, bands, key, firstNote, lastNote, duration
-   - localStorage key: "bandSongs"
+   - Store songs with fields: artist, song, album, link, tuning, bands, key, firstNote, lastNote, duration, chordChart
+   - localStorage key: "songDatabase" or "bandSongs" (support both for backward compatibility)
    - Add/Edit/Delete individual songs
    - Bulk edit capabilities (edit multiple songs at once)
    - Bulk delete capabilities (delete multiple songs at once)
-   - CSV import/export functionality
+   - Auto-save indicator (shows "Saved ✓" briefly after changes)
 
-2. SEARCH AND FILTERING
+2. CHORD CHART INTEGRATION
+   - Each song can have embedded chord chart data
+   - chordChart object: { capo, tuning, components[], preferredScrollSpeed }
+   - "Edit Chart" button in actions column (opens Chord Chart Editor)
+   - Chart icon indicator shows when song has chord chart
+   - Data structure: song.chordChart = { capo: 0, tuning: "Standard", components: [...], preferredScrollSpeed: 30 }
+
+3. SEARCH AND FILTERING
    - Multi-word search that progressively narrows results
    - Search across all fields (artist, song, album, bands, key, tuning, etc.)
    - Support for quoted phrases: "drop d" searches as a single phrase
@@ -116,13 +241,13 @@ CORE FEATURES TO IMPLEMENT:
    - Real-time results counter showing "Showing X of Y songs" in theme color
    - Search result counts for Artists and Bands in theme color
 
-3. TABLE DISPLAY
+4. TABLE DISPLAY
    - **Column Order**: Actions (first), Link, Artist, Song, Album, Bands, Key, Tuning, First Note, Last Note, Duration
-   - **Actions Column**: Compact icons - pencil for edit, 'x' for delete, with tooltips
+   - **Actions Column**: Compact icons - pencil for edit, chart for chord chart, 'x' for delete, with tooltips
    - **Link Column**: Styled SVG link icon that opens in new tab
    - Sortable columns (click to sort ascending/descending)
    - **Column Visibility Toggle**: Show/hide any column via "Columns" button
-   - Column visibility persisted in localStorage
+   - Column visibility persisted in localStorage (key: "columnVisibility")
    - Hidden columns still exist in data, just not displayed
    - Responsive table with horizontal and vertical scrolling
    - Table max-height: calc(100vh - 520px) for viewport-based scrolling
@@ -132,7 +257,7 @@ CORE FEATURES TO IMPLEMENT:
    - Min table width: 1000px to prevent column squishing
    - Checkbox selection for bulk operations
 
-4. BULK OPERATIONS
+5. BULK OPERATIONS
    - Select/deselect individual songs via checkboxes
    - "Select All" checkbox in table header
    - Select All only affects currently filtered/visible songs
@@ -142,92 +267,48 @@ CORE FEATURES TO IMPLEMENT:
    - Bulk Delete with confirmation
    - Clear selection button
 
-5. STATISTICS DASHBOARD
+6. STATISTICS DASHBOARD
    - Display at top of page in card layout
    - Total Songs count
    - Total Bands count (unique bands)
    - Total Artists count (unique artists)
    - Auto-update when songs added/removed
 
-6. THEMING SYSTEM
-   - 9 color themes: Grey (default), Red/Orange, Blue, Green, Purple, Cyan, Teal, Amber, Copper, Pink
-   - CSS Variables for dynamic theming:
-     * --primary-color, --primary-light, --primary-lighter
-     * --primary-dark, --primary-darker
-     * --primary-glow, --primary-border, --primary-bg
-   - Theme selector dropdown in top controls
-   - localStorage persistence (key: "bandOrganizerTheme")
-   - Synchronized between song manager and setlist manager
-   - Custom checkbox styling that matches theme colors
-   - All icons and buttons use theme colors
-   - "Clear All Data" button always stays red regardless of theme
+7. WATERMARK TOGGLE (Song Manager Only)
+   - Three clickable icons in h1: Guitar, Drum, BlackDoubt
+   - Clicking switches background watermark and favicon
+   - Visual feedback: active icon at opacity 1, others at 0.5
+   - BlackDoubt icon only visible when "BlackDoubt" setlist exists
 
-7. UI STYLING GUIDELINES
-   - Dark background (#000000)
-   - Light text (#e0e0e0)
-   - **Glassmorphism Effect**: Control panes and containers with semi-transparent backgrounds
-     * background: rgba(0, 0, 0, 0.15)
-     * backdrop-filter: blur(10px)
-     * border: 1px solid rgba(255, 255, 255, 0.2)
-   - **Background Watermark**: Large, subtle icon watermark (guitar or drum)
-     * 15% opacity white stroke
-     * Positioned top: 0%, right: -20%, width/height: 100%
-     * Toggle between guitar and drum via clickable title icons
-   - SVG icons throughout (not emojis) with drop-shadow effects
-   - All control buttons use styled SVG icons with theme colors
-   - Buttons styled with theme colors (no glow effects)
-   - Modal dialogs with theme-colored headers
-   - Smooth transitions and hover effects
-   - Container max-width: 1920px
-   - No gradients on titles (solid colors only)
-   - Compact control panes (reduced padding and margins)
-
-8. MODAL DIALOGS
-   - Add Song Modal: Form to add new songs
-   - Edit Song Modal: Pre-populated form to edit existing songs
-   - Bulk Edit Modal: Update multiple songs at once
-   - Import Modal: Show preview of CSV data before importing
-   - All modals have theme-colored headers
-   - Close button (×) in top right
-   - Modal overlay with semi-transparent background
-
-9. DATA PERSISTENCE
-   - Save to localStorage after every add/edit/delete
-   - Load data on page load
-   - Handle missing/corrupted data gracefully
-
-10. CSV IMPORT/EXPORT
-    - Export all songs to CSV file
-    - Import CSV with header mapping
-    - Support common field name variations (band/bands, firstNote/first note)
-    - Show preview modal before confirming import
-    - Validate data during import
-
-11. NAVIGATION
-    - Link to Setlist Manager
-    - Link to Main Hub (if exists)
-    - Styled with theme colors
+8. BLACKDOUBT EASTER EGG
+   - Secret feature triggered by creating setlist named "BlackDoubt" (case-insensitive)
+   - Icon appears in Song Manager h1 between title and drum icon
+   - `checkForBlackDoubt()` runs on page load and after setlist changes
+   - Icon is clickable to activate BlackDoubt watermark/favicon
+   - Detection: `bandSetlists.some(setlist => setlist.name.toLowerCase() === 'blackdoubt')`
 
 ===========================================
 PART 2: SETLIST MANAGER
 ===========================================
 
 FILE: setlist-manager.html
+BROWSER TAB TITLE: "Setlist Manager [v2.1.0]"
 
 CORE FEATURES TO IMPLEMENT:
 
 1. SETLIST MANAGEMENT
-   - Create setlists with: name, band, number of sets
+   - Create setlists with: name (setlist name), band, number of sets
+   - Data structure: setlists array with name, band, sets[]
    - Each setlist can have multiple sets (1st Set, 2nd Set, etc.)
-   - localStorage key: "setlists"
+   - localStorage key: "bandSetlists"
    - Edit setlist metadata (name, band)
-   - Delete entire setlists
+   - Delete entire setlists with confirmation
    - Export individual setlists to CSV
    - Export all setlists to CSV
    - Print individual setlists or selected setlists
 
 2. SONG SELECTION MODAL
-   - Loads songs from Song Manager's localStorage
+   - Loads songs from Song Manager's localStorage ("songDatabase" or "bandSongs")
    - Multi-word search functionality (same as Song Manager)
    - Display all songs in selectable list
    - Checkbox selection for multiple songs
@@ -249,7 +330,7 @@ CORE FEATURES TO IMPLEMENT:
    - Add songs to specific sets
    - Remove songs from sets
    - Drag-drop reordering within sets
-   - Display song details: artist, song, album, key, tuning
+   - Display song details: artist, song, album, key, tuning, duration
 
 5. PRINT FUNCTIONALITY
    - "Print Setlists" button opens selection modal
@@ -261,63 +342,204 @@ CORE FEATURES TO IMPLEMENT:
    - @media print rules for proper page breaks
    - Theme-aware colors in print output
 
-6. THEMING
-   - Same 8 themes as Song Manager
-   - Synchronized via shared localStorage key
-   - All UI elements match theme colors
-   - Print output uses theme colors for headers/accents
-
-7. UI LAYOUT
-   - Card-based layout for setlists
-   - Each setlist card shows: name, band, set count, total songs
-   - Action buttons: Edit, Delete, Export, Print
-   - Expandable sets within each setlist
-   - Song items with drag handles and remove buttons
-
-8. DATA STRUCTURE
-   ```javascript
-   setlists = [
-     {
-       name: "Setlist Name",
-       band: "Band Name",
-       sets: [
-         {
-           name: "1st Set",
-           songs: [
-             {
-               artist: "Artist Name",
-               song: "Song Title",
-               album: "Album Name",
-               key: "G",
-               tuning: "Standard",
-               bands: "Band Tag",
-               // ... other fields
-             }
-           ]
-         }
-       ]
-     }
-   ]
-   ```
-
-9. NAVIGATION
-   - Link back to Song Manager
-   - Link to Main Hub (if exists)
-   - Styled with theme colors
+6. SESSION STATE MANAGEMENT
+   - Tracks expanded/collapsed state of setlists
+   - Persists scroll position
+   - Restores state on page load
+   - localStorage key: "setlistManagerSession"
 
 ===========================================
-KEY JAVASCRIPT FUNCTIONS TO IMPLEMENT
+PART 3: CHORD CHART EDITOR
+===========================================
+
+FILE: chord-chart-editor.html
+BROWSER TAB TITLE: "Chord Chart Editor [v2.1.0]"
+
+CORE FEATURES:
+
+1. SONG SELECTOR
+   - Dropdown to select song from database
+   - Shows: Song Title - Artist (Album)
+   - Loads existing chord chart if available
+   - Creates new chart if none exists
+
+2. CHART METADATA
+   - Capo position selector (0-7)
+   - Tuning selector (Standard, Drop D, Drop C, etc.)
+   - Preferred scroll speed (BPM)
+   - Save metadata with chart
+
+3. COMPONENT SYSTEM
+   - Multiple component types: lyrics, chords, tab, section header, blank line, spacer
+   - Add/Edit/Delete components
+   - Drag-and-drop reordering
+   - Each component has type-specific properties
+
+4. COMPONENT TYPES:
+   - **Lyrics**: Plain text lines with optional formatting
+   - **Chords**: Chord symbols with positioning
+   - **Tab**: Guitar tablature notation
+   - **Section Header**: Bold section markers (Verse, Chorus, etc.)
+   - **Blank Line**: Spacing between sections
+   - **Spacer**: Visual separator
+
+5. CHORD CHART STORAGE
+   - Embedded in song object: song.chordChart
+   - Structure: { capo, tuning, components[], preferredScrollSpeed }
+   - Auto-save to song database
+   - Load from song database
+
+6. PREVIEW MODE
+   - Live preview of chart as you edit
+   - Shows formatted chords, lyrics, and structure
+   - Scrollable preview pane
+
+===========================================
+PART 4: SHOW TIME (Performance Mode)
+===========================================
+
+FILE: show-time.html
+BROWSER TAB TITLE: "Show Time - Band Practice Manager [v2.1.0]"
+
+CORE FEATURES:
+
+1. SETLIST SELECTION
+   - Load all setlists from storage
+   - Display setlist cards with name, band, songs count
+   - Select setlist to perform
+
+2. PERFORMANCE MODE
+   - Fullscreen song display
+   - Large, readable text
+   - Shows: Song title, artist, key, tuning, duration
+   - Displays chord chart if available
+   - Auto-scroll feature (based on preferredScrollSpeed)
+   - Previous/Next navigation
+   - Progress indicator (song X of Y)
+
+3. WATERMARK TOGGLE
+   - Guitar and drum icons in header
+   - Clickable to switch watermark
+   - Syncs with Song Manager preference
+   - Has drum-watermark-overlay div for drum watermark
+
+4. AUTO-SCROLL
+   - Configurable scroll speed
+   - Start/Stop button
+   - Smooth scrolling animation
+   - Speed adjustable during performance
+
+5. NAVIGATION
+   - Back to setlist selection
+   - Previous song
+   - Next song
+   - Exit performance mode
+   - Keyboard shortcuts
+
+===========================================
+PART 5: STORAGE WIZARD
+===========================================
+
+FILE: storage-wizard.html
+BROWSER TAB TITLE: "Storage Wizard - Band Practice Manager [v2.1.0]"
+
+CORE FEATURES:
+
+1. EXPORT FUNCTIONS
+   - **CSV Export (Songs)**: All songs exported to CSV
+   - **CSV Export (Setlists)**: All setlists exported to CSV
+   - **JSON Export (Full Backup)**: Complete data export including:
+     * Songs (songDatabase)
+     * Setlists (bandSetlists)
+     * Theme (bandOrganizerTheme)
+     * Watermark preference (watermark)
+     * Column visibility (columnVisibility)
+     * Sidebar state (rightSidebarCollapsed)
+     * Chord charts (embedded in songs)
+   - All exports include timestamp in filename
+   - Mobile-friendly file download
+
+2. IMPORT FUNCTIONS
+   - **CSV Import**: Upload and parse CSV files
+   - **JSON Import**: Restore complete backup
+   - Preview before import
+   - Validation checks
+   - Duplicate handling options
+
+3. DATA MANAGEMENT
+   - View storage usage stats
+   - Clear all data option (with confirmation)
+   - Reset to defaults
+   - Data validation and repair
+
+4. DEVICE COMPATIBILITY
+   - Optimized for iPhone, iPad, tablet, Android
+   - Touch-friendly buttons (min 44x44px)
+   - File picker works on mobile Safari/Chrome
+   - Download triggers work on iOS
+
+===========================================
+THEMING SYSTEM (14 Themes)
+===========================================
+
+localStorage Key: "bandOrganizerTheme"
+Default: "grey"
+
+THEMES:
+1. Grey (default)
+2. Red/Orange (#d84315)
+3. Blue (#1976d2)
+4. Green (#388e3c)
+5. Purple (#7b1fa2)
+6. Cyan (#00838f)
+7. Teal (#14b8a6)
+8. Copper (#b87333)
+9. Amber (#f57c00)
+10. Pink (#c2185b)
+11. Sunrise (#ffb700)
+12. Sunset (#ff8c00)
+13. Synth Wave (#a78bfa)
+14. Dark Prism (#14b8a6)
+
+CSS VARIABLES (per theme):
+- --primary-color: Main theme color
+- --primary-light: Lighter shade
+- --primary-lighter: Lightest shade
+- --primary-dark: Darker shade
+- --primary-darker: Darkest shade
+- --primary-glow: Glow effect color (with alpha)
+- --primary-border: Border color
+- --primary-bg: Background tint
+- --text-primary: Main text color (#e0e0e0)
+- --text-secondary: Secondary text (#b0b0b0)
+- --text-tertiary: Tertiary text (#808080)
+
+THEME IMPLEMENTATION:
+- Defined in css/themes.css
+- Applied via data-theme attribute on <html> or <body>
+- Grey theme uses :root (no attribute)
+- Other themes use [data-theme="themename"]
+- Synchronized across all pages via localStorage
+- Theme selector in desktop header and mobile menu
+- Both selectors sync when changed
+
+THEME FUNCTIONS:
+- `loadTheme()` - Load from localStorage, apply to document, sync selectors
+- `changeTheme(theme)` - Set theme, save to localStorage, sync all selectors, update favicon
+
+===========================================
+KEY JAVASCRIPT FUNCTIONS
 ===========================================
 
 SONG MANAGER:
 
 1. Data Management:
-   - loadSongs() - Load from localStorage
-   - saveSongs() - Save to localStorage
-   - addSong(songData) - Add new song
+   - loadSongs() - Load from localStorage (try "songDatabase" then "bandSongs")
+   - saveSongs() - Save to localStorage as "songDatabase"
+   - addSong(songData) - Add new song with validation
    - editSong(index, songData) - Update existing song
-   - deleteSong(index) - Remove song
-   - clearAllData() - Delete all songs with confirmation
+   - deleteSong(index) - Remove song with confirmation
+   - clearAllData() - Delete all songs with double confirmation
 
 2. Search & Filter:
    - applyFilters() - Main filtering function
@@ -334,6 +556,7 @@ SONG MANAGER:
 3. Sorting:
    - sortTable(column) - Toggle sort direction and apply
    - Store currentSort: { column, direction }
+   - Handle null/undefined values (sort to end)
 
 4. Bulk Operations:
    - toggleSongSelection(index) - Toggle individual checkbox
@@ -348,34 +571,22 @@ SONG MANAGER:
    - updateStats() - Update statistics cards
    - updateSongCounts(filteredCount) - Update "Showing X of Y"
    - updateBulkActionsVisibility() - Show/hide bulk actions panel
+   - showToast(message) - Show auto-save indicator
 
-6. CSV Operations:
-   - handleCSVImport(event) - Process uploaded CSV file
-   - parseCSV(csv) - Parse CSV string into objects
-   - exportToCSV() - Generate CSV and download
-   - parseCSVLine(line) - Handle CSV line parsing with quotes
+6. Watermark & Icons:
+   - loadWatermark() - Load and apply watermark preference
+   - switchWatermark(type) - Toggle guitar/drum/blackdoubt
+   - updateIconStyles(activeType) - Update icon opacity
+   - updateFavicon(type) - Update favicon to match watermark
+   - updateFaviconForTheme(theme) - Generate themed favicon
+   - checkForBlackDoubt() - Check for BlackDoubt setlist, show/hide icon
 
-7. Theme:
-   - loadTheme() - Load theme from localStorage
-   - applyTheme(theme) - Set data-theme attribute
-
-8. Watermark:
-   - loadWatermark() - Load and apply watermark preference (inherited from Song Manager)
-   - updateFavicon(type) - Dynamically change browser favicon to match watermark
-   - No toggle functionality (only Song Manager can change watermark)
-
-8. Watermark Management:
-   - loadWatermark() - Load watermark preference from localStorage
-   - switchWatermark(type) - Toggle between guitar/drum watermarks
-   - updateIconStyles(activeType) - Update icon opacity for active/inactive state
-   - updateFavicon(type) - Dynamically change browser favicon to match watermark
-
-9. Column Visibility:
+7. Column Visibility:
    - loadColumnVisibility() - Load column preferences from localStorage
    - toggleColumn(columnName) - Show/hide specific column
    - saveColumnVisibility() - Save preferences to localStorage
 
-10. Drag-to-Scroll:
+8. Drag-to-Scroll:
    - initializeDragScroll() - Set up mouse event listeners
    - Handle mousedown, mousemove, mouseup, mouseleave
    - Track isDown, startX, startY, scrollLeft, scrollTop
@@ -383,7 +594,7 @@ SONG MANAGER:
 SETLIST MANAGER:
 
 1. Data Management:
-   - loadSetlists() - Load from localStorage
+   - loadSetlists() - Load from localStorage ("bandSetlists")
    - saveSetlistsToStorage() - Save to localStorage
    - loadSongsFromOrganizer() - Import from Song Manager
    - createSetlist(name, band, numSets) - Create new setlist
@@ -404,126 +615,122 @@ SETLIST MANAGER:
    - Calculate targetPosition based on mouse position
    - Adjust for array removal when dropping
 
-4. Search & Filter:
-   - filterSongs() - Filter song list in modal
-   - getCurrentFilteredSongs() - Get filtered results
-   - Multi-word search support
-
-5. Rendering:
-   - renderSetlists() - Display all setlists
-   - renderSongSelector() - Display song selection modal
-
-6. Export:
+4. Print & Export:
+   - openPrintSelectionModal() - Open setlist selector
+   - printSelectedSetlists() - Print selected setlists
    - exportSetlist(index) - Export single setlist as CSV
    - exportAllSetlists() - Export all setlists as CSV
 
-7. Print:
-   - openPrintSelectionModal() - Open setlist selector
-   - printSelectedSetlists() - Print selected setlists
-   - printSetlist(index) - Print single setlist
-   - getThemeColor(theme) - Get hex color for theme
-   - Generate HTML with @media print styles
-   - Page breaks for each set
+STORAGE WIZARD:
+
+1. Export Functions:
+   - triggerCSVExport() - Export songs to CSV
+   - triggerSetlistCSVExport() - Export setlists to CSV
+   - triggerJSONExport() - Full backup with all data and chord charts
+   - downloadFile(content, filename, mimeType) - Trigger file download
+
+2. Import Functions:
+   - triggerJSONImport() - Open file picker for JSON
+   - handleJSONImport(file) - Parse and restore JSON backup
+   - validateImportData(data) - Check data integrity
+
+3. Storage Management:
+   - calculateStorageUsage() - Show storage stats
+   - clearAllData() - Wipe all localStorage data
+
+SHOW TIME:
+
+1. Performance Functions:
+   - loadSetlist(index) - Load selected setlist for performance
+   - startPerformance() - Enter fullscreen performance mode
+   - nextSong() - Navigate to next song
+   - previousSong() - Navigate to previous song
+   - exitPerformance() - Return to setlist selection
+
+2. Auto-Scroll:
+   - startAutoScroll() - Begin scrolling based on BPM
+   - stopAutoScroll() - Pause scrolling
+   - adjustSpeed(bpm) - Change scroll speed
+
+3. Watermark:
+   - Inherits watermark preference from Song Manager
+   - Guitar/drum icons in header (clickable)
+   - Has both drum-watermark-overlay and blackdoubt-watermark-overlay divs
+
+CHORD CHART EDITOR:
+
+1. Chart Management:
+   - loadChartForSong(songKey) - Load existing chart
+   - saveChart() - Save chart to song object
+   - addComponent(type) - Add new chart component
+   - deleteComponent(index) - Remove component
+   - reorderComponents() - Drag-and-drop ordering
+
+2. Component Editing:
+   - editComponent(index) - Open edit modal for component
+   - updateComponent(index, data) - Update component data
 
 ===========================================
 CSS STYLING GUIDELINES
 ===========================================
 
-1. COLOR THEMES (CSS Variables):
-   
-   Grey (Default):
-   - primary-color: #6b7280
-   - primary-light: #9ca3af
-   - primary-lighter: #d1d5db
-   - primary-dark: #374151
-   - primary-darker: #4b5563
-   
-   Red/Orange:
-   - primary-color: #d84315
-   - primary-light: #ff6b3d
-   - primary-lighter: #ffa580
-   
-   Blue:
-   - primary-color: #1976d2
-   - primary-light: #42a5f5
-   
-   Green:
-   - primary-color: #388e3c
-   - primary-light: #66bb6a
-   
-   Purple:
-   - primary-color: #7b1fa2
-   - primary-light: #ab47bc
-   
-   Cyan:
-   - primary-color: #00838f
-   - primary-light: #00acc1
-   
-   Teal:
-   - primary-color: #14b8a6
-   - primary-light: #2dd4bf
-   - primary-lighter: #5eead4
-   
-   Amber:
-   - primary-color: #f57c00
-   - primary-light: #ff9800
-   
-   Copper:
-   - primary-color: #b87333
-   - primary-light: #d4944e
-   - primary-lighter: #e8b67a
-   
-   Pink:
-   - primary-color: #c2185b
-   - primary-light: #e91e63
+1. LAYOUT (css/layout.css):
+   - `.header` - Fixed top header with glassmorphism
+   - `.header h1` - Font-size: 20px, flex display, gap: 8px
+   - `.header h1 svg` - All icons 20x20px (except drum 40x20)
+   - `.container` - Max-width: 1400px, centered
+   - `.nav-link` - Styled navigation links with hover
+   - `.mobile-menu-btn` - Hidden on desktop, visible on mobile
+   - `.mobile-menu-overlay` - Full-screen mobile menu
+   - `.theme-selector` - Dropdown for theme selection
 
-2. BUTTON STYLES:
-   - .btn-primary: Theme-colored button for primary actions
-   - .btn-success: Green button for add/create actions
-   - .btn-secondary: Grey button for secondary actions
-   - .btn-danger: Red button for delete actions
-   - All buttons have hover effects with box-shadow glow
+2. GLASSMORPHISM:
+   - Control panes: rgba(0, 0, 0, 0.15) + backdrop-filter: blur(10px)
+   - Borders: 1px solid rgba(255, 255, 255, 0.2)
+   - Applied to: header, control panels, modals, cards
 
-3. TABLE STYLES:
-   - Dark background, light text
-   - Sticky header with theme background
-   - Hover effect on rows
-   - Border colors match theme
-   - Scrollable container with custom scrollbar
+3. WATERMARKS:
+   - `body::before` - Guitar (default, opacity 1)
+   - `body::after` - Drum (hidden, opacity 0)
+   - `.blackdoubt-watermark-overlay` - BlackDoubt (div element, opacity 0)
+   - Active watermark: opacity 0.12-0.15
+   - Inactive: opacity 0
+   - Transitions: 0.3s ease
+   - Fixed positioning: top 0%, right -20%
+   - Background SVG with white stroke
 
-4. MODAL STYLES:
-   - Dark background with theme borders
-   - Header with theme color
-   - Form inputs with theme borders
-   - Backdrop overlay with blur effect
+4. BUTTONS:
+   - `.btn` - Base button style
+   - `.btn-primary` - Theme-colored
+   - `.btn-success` - Green for add/create
+   - `.btn-secondary` - Grey for cancel
+   - `.btn-danger` - Red for delete (always red, never themed)
+   - Hover: box-shadow glow effect
 
-5. CUSTOM CHECKBOX STYLES:
+5. MOBILE RESPONSIVE (≤768px):
+   - Hide: `.header-controls`, `.nav-links`, `.theme-selector`
+   - Show: `.mobile-menu-btn`
+   - H1 font-size: 18px → 16px
+   - Icons: 20px → 18px
+   - Padding reduced
+   - Touch targets minimum 44x44px
+
+6. CUSTOM CHECKBOXES:
    - appearance: none
-   - Border color matches theme
-   - Checked state uses theme background
-   - White checkmark (CSS ::after pseudo-element)
-   - Hover effects with glow
+   - width/height: 18px
+   - border: 2px solid theme color
+   - Checked: background theme color, white checkmark
+   - Hover: box-shadow glow
+   - Indeterminate state: horizontal line
 
-6. SVG ICONS:
-   - Use inline SVG (not emojis)
-   - currentColor or var(--primary-color) for fill/stroke
-   - filter: drop-shadow(0 0 8px var(--primary-glow)) for glow effect
-   - Consistent sizing throughout
-   - **Control Icons**: All control buttons use custom SVG icons
-     * Add Song: Plus icon in circle
-     * Import CSV: Upload/download icon
-     * Export CSV: Download icon
-     * Columns: Eye icon
-     * Clear All Data: Trash icon
-     * Add Filter: Funnel/filter icon
-     * Clear All Filters: X in circle
-   - **Action Icons**: 
-     * Edit: Pencil icon (styled with theme colors)
-     * Delete: X icon
-     * Link: Chain link icon
-   - **Title Icons**:
-     * Guitar icon (left of title, clickable for watermark)
-     * Drum icon (right of title, clickable for watermark)
+7. SVG ICON GUIDELINES:
+   - All icons inline SVG (no emojis)
+   - Use currentColor or var(--primary-color)
+   - Consistent stroke-width: 2
+   - Apply drop-shadow filter for glow
+   - Title icons: 20x20 (guitar), 40x20 (drum), 32x32 (blackdoubt)
+   - Action icons: 14-16px
+   - Navigation icons: 16-18px
 
 ===========================================
 DATA PERSISTENCE STRUCTURE
@@ -531,7 +738,7 @@ DATA PERSISTENCE STRUCTURE
 
 localStorage Keys:
 
-1. "bandSongs" - Array of song objects
+1. **"songDatabase"** or **"bandSongs"** - Array of song objects
    ```javascript
    [
      {
@@ -540,46 +747,63 @@ localStorage Keys:
        album: "Album Name",
        link: "https://...",
        tuning: "Standard",
-       bands: "Band Tag",
+       bands: "Band Tag1, Band Tag2",
        key: "G",
        firstNote: "G",
        lastNote: "D",
-       duration: "3:45"
+       duration: "3:45",
+       chordChart: {
+         capo: 0,
+         tuning: "Standard",
+         components: [
+           { type: "section", text: "Verse 1" },
+           { type: "chords", text: "G D Em C" },
+           { type: "lyrics", text: "Song lyrics here..." }
+         ],
+         preferredScrollSpeed: 30
+       }
      }
    ]
    ```
 
-2. "setlists" - Array of setlist objects
+2. **"bandSetlists"** - Array of setlist objects
    ```javascript
    [
      {
-       name: "Summer Tour 2024",
-       band: "The Rock Band",
+       name: "Summer Tour 2024",  // Setlist name (NOT band name)
+       band: "The Rock Band",      // Band name
        sets: [
          {
            name: "1st Set",
-           songs: [ /* song objects copied from bandSongs */ ]
+           songs: [ /* full song objects */ ]
          },
          {
            name: "2nd Set",
-           songs: [ /* song objects */ ]
+           songs: [ /* full song objects */ ]
          }
        ]
      }
    ]
    ```
 
-3. "bandOrganizerTheme" - String (theme name)
-   - Values: "grey", "red", "blue", "green", "purple", "cyan", "teal", "amber", "copper", "pink"
+3. **"bandOrganizerTheme"** - String (theme name)
+   - Values: "grey", "red", "blue", "green", "purple", "cyan", "teal", "amber", "copper", "pink", "sunrise", "sunset", "synthwave", "prism"
 
-4. "watermark" - String (watermark preference)
-   - Values: "guitar" (default), "drum"
-   - Synchronized between Song Manager and Setlist Manager
+4. **"watermark"** - String (watermark preference)
+   - Values: "guitar" (default), "drum", "blackdoubt"
+   - Synchronized across all pages
+   - Affects background watermark and favicon
 
-5. "columnVisibility" - Object (column show/hide state)
+5. **"columnVisibility"** - Object (column show/hide state)
    - Keys: column names (artist, song, album, link, tuning, bands, key, firstNote, lastNote, duration)
    - Values: true (visible) or false (hidden)
    - Actions column always visible (not in this object)
+
+6. **"rightSidebarCollapsed"** - Boolean
+   - Track sidebar state
+
+7. **"setlistManagerSession"** - Object
+   - Track expanded setlists, scroll position
 
 ===========================================
 IMPORTANT IMPLEMENTATION NOTES
@@ -624,46 +848,101 @@ IMPORTANT IMPLEMENTATION NOTES
    - Special (empty) value to filter for missing/blank fields
    - Filter suggestions always generated from full dataset (not filtered results)
 
-5. RESPONSIVE TABLE:
+6. RESPONSIVE TABLE:
    - overflow-x: auto on container
-   - min-width on table
-   - max-height: calc(100vh - Xpx) for vertical scroll
+   - min-width on table (1000px)
+   - max-height: calc(100vh - 520px) for vertical scroll
    - position: sticky on thead for fixed header
-   - Column visibility: Use display: none on th/td elements based on columnVisibility state
+   - Column visibility: Use display: none on th/td elements
 
-6. GLASSMORPHISM & WATERMARKS:
+7. GLASSMORPHISM & WATERMARKS:
    - Control panes: background: rgba(0, 0, 0, 0.15), backdrop-filter: blur(10px)
    - Border: 1px solid rgba(255, 255, 255, 0.2)
-   - Watermark: body::before for guitar, body::after for drum
-   - Both watermarks at 15% opacity, positioned identically
-   - body.drum-watermark class toggles which is visible
+   - Guitar watermark: body::before (visible by default)
+   - Drum watermark: body::after (hidden by default)
+   - BlackDoubt watermark: .blackdoubt-watermark-overlay div (hidden by default)
+   - Toggle visibility via body classes: .drum-watermark, .blackdoubt-watermark
    - Smooth opacity transitions (0.3s ease)
 
-6. THEME SYNCHRONIZATION:
-   - Both files read from same localStorage key ("bandOrganizerTheme")
-   - Load theme on page load (window.onload)
-   - Apply by setting data-theme attribute on <body>
+8. THEME SYNCHRONIZATION:
+   - All pages read from same localStorage key ("bandOrganizerTheme")
+   - Load theme on page load
+   - Apply by setting data-theme attribute on document.documentElement
    - Grey theme = no data-theme attribute (uses :root variables)
+   - Sync both desktop and mobile theme selectors
 
-7. WATERMARK SYNCHRONIZATION:
-   - Both files read from same localStorage key ("watermark")
-   - Song Manager: Interactive toggle via clickable title icons
-   - Setlist Manager: Passive - reads and applies preference only
-   - Load watermark on page load (window.onload)
-   - Apply by adding/removing 'drum-watermark' class on <body>
+9. WATERMARK SYNCHRONIZATION:
+   - All pages read from same localStorage key ("watermark")
+   - Song Manager: Interactive toggle via clickable title icons (guitar, drum, blackdoubt)
+   - Other pages: Passive - read and apply preference only
+   - Load watermark on page load
+   - Apply by adding/removing classes on <body>: .drum-watermark, .blackdoubt-watermark
+   - Update favicon to match watermark type
+
+10. FAVICON MANAGEMENT:
+    - Dynamically generated SVG favicons
+    - Updates based on: current theme color + watermark type
+    - Three favicon types: guitar, drum, blackdoubt
+    - URL-encoded colors: %23 prefix (e.g., %23d84315 for red)
+    - Applied to: `<link rel="icon" type="image/svg+xml">`
+    - Updates on theme change and watermark change
+
+11. MOBILE MENU:
+    - `toggleMobileMenu()` - Toggle .active class on overlay
+    - CSS handles visibility and animation
+    - Close button removes .active class
+    - Menu sections: Navigate, Theme, (optional) Storage Management
+    - All navigation links include SVG icons
+
+12. VERSION DISPLAY:
+    - Load version from version.txt (if http/https) or meta tag
+    - Add to <title>: "Page Name [v2.1.0]"
+    - Add to h1: Create wrapper with title text + version badge
+    - Version badge: right-aligned under title, 0.45em, opacity 0.7, font-weight 600
+    - Check for file:// protocol to avoid CORS errors
+
+13. BLACKDOUBT EASTER EGG:
+    - Icon only visible when setlist named "BlackDoubt" exists
+    - Check: `bandSetlists.some(s => s.name.toLowerCase() === 'blackdoubt')`
+    - Call `checkForBlackDoubt()` on page load
+    - Icon positioned between title and drum icon in h1
+    - Clickable to activate BlackDoubt watermark
+    - All pages support BlackDoubt watermark (overlay div + CSS)
 
 ===========================================
 FILE STRUCTURE
 ===========================================
 
-/music/
-  ├── song-manager.html      (Song Manager - main page)
-  ├── setlist-manager.html     (Setlist Manager)
-  └── prompt.txt               (this file)
-
-Optional:
-  └── /main_hub/
-      └── _main.html           (Hub page with links to both)
+/bandPracticeManager/
+  ├── song-manager.html           (Main song database - 7585 lines)
+  ├── setlist-manager.html        (Setlist creation - 2527 lines)
+  ├── chord-chart-editor.html     (Chart builder - 4313 lines)
+  ├── show-time.html              (Performance mode - 2064 lines)
+  ├── storage-wizard.html         (Backup/restore - 401 lines)
+  ├── version.txt                 (Current version/branch)
+  ├── update-version.bat          (Windows version updater)
+  ├── update-version.sh           (Unix version updater)
+  ├── /css/
+  │   ├── themes.css              (Theme definitions with CSS variables)
+  │   ├── layout.css              (Page layout, header, mobile menu - 1528 lines)
+  │   ├── common.css              (Shared styles)
+  │   └── mobile-wizard.css       (Storage Wizard mobile styles)
+  ├── /js/
+  │   ├── song-manager.js         (Song Manager logic)
+  │   ├── storage-wizard.js       (Storage Wizard logic)
+  │   ├── version.js              (Version display module)
+  │   ├── chord-chart.js          (Chord chart components)
+  │   ├── performance.js          (Show Time performance mode)
+  │   ├── theme.js                (Theme utilities)
+  │   ├── storage.js              (localStorage wrapper)
+  │   └── utils.js                (Shared utilities)
+  ├── /samples/
+  │   └── sample-songs.csv        (Example CSV import file)
+  ├── README.md                   (Documentation - 403 lines)
+  ├── CHANGELOG.md                (Version history)
+  ├── MOBILE_GUIDE.md             (Mobile usage guide)
+  ├── QUICK_REFERENCE.md          (Feature quick reference)
+  └── prompt.txt                  (This file)
 
 ===========================================
 TESTING CHECKLIST
@@ -686,24 +965,27 @@ Song Manager:
 ☐ Select All only selects filtered songs
 ☐ Bulk edit updates selected songs
 ☐ Bulk delete removes selected songs
-☐ CSV import/export works correctly
 ☐ Statistics update automatically
-☐ Search result counters show in theme color (Songs, Artists, Bands)
+☐ Search result counters show in theme color
 ☐ Theme changes apply throughout
 ☐ Theme persists on page reload
-☐ Watermark toggle works (guitar/drum icons clickable)
-☐ Watermark preference persists on page reload
+☐ Watermark toggle works (guitar/drum/blackdoubt icons clickable)
+☐ Watermark preference persists across pages
+☐ Favicon updates to match watermark
+☐ BlackDoubt icon appears when "BlackDoubt" setlist exists
+☐ BlackDoubt icon disappears when setlist deleted
 ☐ Table scrolls horizontally and vertically
 ☐ Drag-to-scroll works
 ☐ Checkboxes styled with theme colors
-☐ Results counter shows correct filtered/total
-☐ Actions column shows compact icons (pencil, x)
-☐ All control buttons show styled SVG icons
-☐ Glassmorphism effect visible on control panes
-☐ Watermark visible in background
+☐ Mobile menu works on small screens
+☐ Navigation links work from all pages
+☐ Version tag appears below title (right-aligned)
+☐ Version appears in browser tab
+☐ Guitar/drum icons are 20x20 and 40x20 respectively
 
 Setlist Manager:
 ☐ Create setlists with multiple sets
+☐ Setlist name field for setlist name (not band)
 ☐ Edit setlist name/band
 ☐ Delete setlists (with confirmation)
 ☐ Add songs to sets from Song Manager
@@ -717,10 +999,546 @@ Setlist Manager:
 ☐ Export single setlist to CSV
 ☐ Export all setlists to CSV
 ☐ Theme synchronized with Song Manager
-☐ Watermark inherited from Song Manager (guitar or drum)
-☐ Glassmorphism effect visible on setlist cards
-☐ Watermark visible in background
-☐ Drum icon displayed before band names in setlist cards
+☐ Watermark inherited from Song Manager (guitar/drum/blackdoubt)
+☐ Mobile menu works
+☐ Version tag appears below title
+☐ BlackDoubt watermark displays when active
+
+Chord Chart Editor:
+☐ Song selector loads all songs
+☐ Create new chord chart
+☐ Edit existing chord chart
+☐ Add components (lyrics, chords, tabs, etc.)
+☐ Reorder components via drag-and-drop
+☐ Delete components
+☐ Set capo position
+☐ Set tuning
+☐ Set preferred scroll speed
+☐ Save chart to song object
+☐ Chart embedded in song.chordChart
+☐ Mobile menu works
+☐ Version tag appears
+☐ BlackDoubt watermark displays when active
+
+Show Time:
+☐ Display all setlists for selection
+☐ Start performance mode
+☐ Navigate between songs (prev/next)
+☐ Display chord charts if available
+☐ Auto-scroll works
+☐ Adjust scroll speed
+☐ Watermark icons clickable
+☐ Exit performance mode
+☐ Mobile menu works
+☐ Version tag appears
+☐ BlackDoubt watermark displays when active
+
+Storage Wizard:
+☐ Export songs to CSV
+☐ Export setlists to CSV
+☐ Export full backup to JSON
+☐ JSON includes chord charts
+☐ Import JSON backup
+☐ Restore all data from backup
+☐ Clear all data with confirmation
+☐ Mobile-friendly on iPhone/iPad
+☐ File downloads work on mobile
+☐ Mobile menu works
+☐ Navigation links work
+☐ Version tag appears
+☐ Favicon updates with watermark preference
+
+Cross-Page:
+☐ Theme persists across all pages
+☐ Watermark persists across all pages
+☐ Favicon correct on all pages
+☐ Mobile menu consistent on all pages
+☐ Navigation works between all pages
+☐ Version tag on all pages
+☐ All icons consistent size (20x20 or 40x20)
+☐ BlackDoubt detection works
+☐ BlackDoubt watermark on all pages
+
+===========================================
+SVG ICON LIBRARY
+===========================================
+
+**Guitar Icon (20x20):**
+```html
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+  <circle cx="12" cy="17" r="4.5"/>
+  <line x1="12" y1="12.5" x2="12" y2="2"/>
+  <line x1="9" y1="5" x2="15" y2="5"/>
+  <line x1="9" y1="8" x2="15" y2="8"/>
+</svg>
+```
+
+**Drum Icon (40x20):**
+```html
+<svg width="40" height="20" viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+  <circle cx="23" cy="17" r="4.5"/>
+  <line x1="16" y1="21.5" x2="16" y2="2"/>
+  <line x1="11" y1="5" x2="21" y2="5"/>
+  <line x1="18" y1="8" x2="28" y2="8"/>
+  <line x1="21" y1="10" x2="26" y2="10"/>
+  <line x1="7" y1="12.5" x2="18" y2="12.5"/>
+  <line x1="30" y1="12.5" x2="30" y2="2"/>
+  <line x1="25" y1="5" x2="35" y2="5"/>
+  <line x1="27" y1="8" x2="33" y2="8"/>
+  <line x1="26" y1="14" x2="31" y2="14"/>
+</svg>
+```
+
+**BlackDoubt Icon (32x32):**
+```html
+<svg width="32" height="32" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5">
+  <path d="M 20 3 L 37 20 L 20 37 L 3 20 Z" stroke="var(--primary-color)" fill="none" stroke-width="1.8"/>
+  <circle cx="20" cy="20" r="13" stroke="var(--primary-color)" fill="none" stroke-width="1.8"/>
+  <text x="20" y="20" font-size="20" font-family="serif" text-anchor="middle" dominant-baseline="central" fill="var(--primary-color)">𝔅</text>
+</svg>
+```
+
+**Music/Setlist Icon (20x20):**
+```html
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <path d="M9 18V5l12-2v13"/>
+  <circle cx="6" cy="18" r="3"/>
+  <circle cx="18" cy="16" r="3"/>
+</svg>
+```
+
+**Book/Songs Icon (16x16):**
+```html
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+</svg>
+```
+
+**List Icon (16x16):**
+```html
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <line x1="8" y1="6" x2="21" y2="6"/>
+  <line x1="8" y1="12" x2="21" y2="12"/>
+  <line x1="8" y1="18" x2="21" y2="18"/>
+  <line x1="3" y1="6" x2="3.01" y2="6"/>
+  <line x1="3" y1="12" x2="3.01" y2="12"/>
+  <line x1="3" y1="18" x2="3.01" y2="18"/>
+</svg>
+```
+
+**Play Icon (16x16):**
+```html
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <polygon points="5 3 19 12 5 21 5 3"/>
+</svg>
+```
+
+**Save/Storage Icon (20x20):**
+```html
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+  <polyline points="7 10 12 15 17 10"/>
+  <line x1="12" y1="15" x2="12" y2="3"/>
+</svg>
+```
+
+**Hamburger Menu (24x24):**
+```html
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+  <line x1="3" y1="12" x2="21" y2="12"/>
+  <line x1="3" y1="6" x2="21" y2="6"/>
+  <line x1="3" y1="18" x2="21" y2="18"/>
+</svg>
+```
+
+===========================================
+MOBILE OPTIMIZATION
+===========================================
+
+1. RESPONSIVE BREAKPOINTS:
+   - Desktop: >768px - Full navigation, theme selector visible
+   - Tablet: 600-768px - Reduced padding, smaller fonts
+   - Mobile: ≤600px - Hamburger menu only, touch-optimized
+
+2. TOUCH TARGETS:
+   - Minimum size: 44x44px for all interactive elements
+   - Adequate spacing between buttons
+   - Large, easy-to-tap controls
+
+3. MOBILE MENU:
+   - Full-screen overlay
+   - Sections: Navigate, Theme, (optional) Storage
+   - Large touch-friendly links
+   - SVG icons for all links
+   - Close button (✕) in header
+
+4. MOBILE LAYOUT:
+   - Stack columns vertically
+   - Reduce padding/margins
+   - Larger font sizes for readability
+   - Simplified controls
+   - Hide complex features on small screens
+
+5. MOBILE TESTING:
+   - Test on iPhone, iPad, Android tablet
+   - File picker works (CSV/JSON import)
+   - Downloads work (exports)
+   - Touch scrolling smooth
+   - Drag-and-drop works with touch events
+
+===========================================
+ADVANCED FEATURES
+===========================================
+
+1. CHORD CHART SYSTEM:
+   - Component-based architecture
+   - Types: lyrics, chords, tab, section, blank, spacer
+   - Drag-and-drop component ordering
+   - Capo position support
+   - Multiple tuning options
+   - Scroll speed configuration
+   - Embedded in song objects
+   - Renders in Show Time performance mode
+
+2. AUTO-SCROLL (Show Time):
+   - Configurable BPM-based scrolling
+   - Start/Stop controls
+   - Speed adjustment during performance
+   - Smooth requestAnimationFrame-based scrolling
+
+3. SESSION STATE MANAGEMENT:
+   - Track UI state (expanded panels, scroll positions)
+   - Persist to localStorage
+   - Restore on page load
+   - Per-page session keys
+
+4. TOAST NOTIFICATIONS:
+   - Auto-save indicators
+   - Success messages
+   - Error alerts
+   - Fade in/out animations
+   - Auto-dismiss after timeout
+
+5. DATA VALIDATION:
+   - CSV import validation
+   - JSON backup validation
+   - Field format checking
+   - Duplicate detection
+   - Error messaging
+
+===========================================
+CSS ARCHITECTURE
+===========================================
+
+**File: css/themes.css**
+- Define all 14 color themes
+- CSS Variables for each theme
+- :root for grey (default)
+- [data-theme="name"] for others
+
+**File: css/layout.css**
+- Header styles (.header, h1, nav-links)
+- Mobile menu styles (.mobile-menu-overlay)
+- Responsive breakpoints (@media queries)
+- Table styles (sticky headers, scrolling)
+- Button styles (.btn, .btn-primary, etc.)
+- Modal styles (.modal-overlay, .modal)
+- Glassmorphism effects
+- Watermark pseudo-elements (body::before, body::after)
+- Custom checkbox styles
+- Print styles (@media print)
+
+**File: css/common.css**
+- Shared utility classes
+- Typography
+- Spacing utilities
+
+**File: css/mobile-wizard.css**
+- Storage Wizard specific styles
+- Mobile optimizations for wizard
+
+===========================================
+CRITICAL IMPLEMENTATION DETAILS
+===========================================
+
+1. BACKWARD COMPATIBILITY:
+   - Support both "songDatabase" and "bandSongs" keys
+   - Handle missing chordChart gracefully
+   - Validate data structure on load
+   - Migrate old data formats if needed
+
+2. ICON CONSISTENCY:
+   - All h1 icons must be 20x20 (except drum: 40x20)
+   - All must use var(--primary-color)
+   - All must have drop-shadow filter
+   - All must be inline SVG
+
+3. MOBILE MENU REQUIREMENTS:
+   - Must be on ALL pages
+   - Must include ALL navigation links
+   - Must include theme selector
+   - Must toggle with hamburger button
+   - Must have close button
+   - Must use .mobile-menu-overlay.active for visibility
+
+4. WATERMARK REQUIREMENTS:
+   - All pages must have body::before (guitar)
+   - All pages must have body::after (drum)
+   - All pages must have <div class="blackdoubt-watermark-overlay">
+   - All pages must call loadWatermark() on load
+   - Song Manager must have switchWatermark() function
+   - Other pages inherit watermark passively
+
+5. VERSION TAG REQUIREMENTS:
+   - Meta tag in <head>: `<meta name="app-version" content="v2.1.0">`
+   - Script tag before </body>: `<script src="./js/version.js"></script>`
+   - Must check for file:// protocol to avoid CORS
+   - Must display below title, right-aligned to title width
+   - Styling: 0.45em, opacity 0.7, font-weight 600
+
+6. FAVICON REQUIREMENTS:
+   - Must support all three watermark types
+   - Must update when theme changes
+   - Must update when watermark changes
+   - Must be dynamically generated SVG data URIs
+   - URL-encode color values with %23 prefix
+
+7. DATA EXPORT COMPLETENESS:
+   - JSON export MUST include chordChart objects
+   - Must export all localStorage keys
+   - Must include metadata (version, exportDate)
+   - Must be valid JSON
+   - Must handle large datasets (100+ songs)
+
+===========================================
+BLACKDOUBT EASTER EGG - COMPLETE SPEC
+===========================================
+
+**Trigger Condition:**
+- User creates setlist with name "BlackDoubt" (case-insensitive)
+- Detection: Check `bandSetlists` array for any setlist where `setlist.name.toLowerCase() === 'blackdoubt'`
+
+**Icon Display (Song Manager only):**
+- Icon appears in h1 between "Song Manager" text and drum icon
+- HTML: `<div id="blackDoubtIcon" style="display: none; ...">`
+- JavaScript: `checkForBlackDoubt()` function
+- Call on page load: `document.addEventListener('DOMContentLoaded', checkForBlackDoubt)`
+- Show/hide: `icon.style.display = hasBlackDoubt ? 'flex' : 'none'`
+
+**Icon Design:**
+- Diamond: Simple rotated square `M 20 3 L 37 20 L 20 37 L 3 20 Z`
+- Circle: r=13, centered at 20,20
+- B Character: Unicode 𝔅 (U+1D505), font-size 20, serif, centered
+- All elements use var(--primary-color)
+- Stroke width: 1.8 for diamond and circle
+- Size: 32x32px
+
+**Watermark Implementation (All Pages):**
+- CSS: `.blackdoubt-watermark-overlay` class
+- HTML: `<div class="blackdoubt-watermark-overlay"></div>` after <body>
+- Background: BlackDoubt icon SVG (URL-encoded)
+- Opacity: 0.12 (slightly less than guitar/drum at 0.15)
+- Same positioning as other watermarks
+- Body class: `body.blackdoubt-watermark` activates it
+
+**Watermark Switching:**
+- Click BlackDoubt icon: calls `switchWatermark('blackdoubt')`
+- Removes other watermark classes
+- Adds `blackdoubt-watermark` class to body
+- Updates favicon to BlackDoubt icon
+- Updates icon opacity (BlackDoubt: 1, others: 0.5)
+- Saves 'blackdoubt' to localStorage 'watermark' key
+
+**Files to Update for BlackDoubt:**
+- song-manager.html: Icon in h1 + CSS + JS functions
+- setlist-manager.html: CSS + overlay div + JS functions
+- show-time.html: CSS + overlay div + JS functions
+- chord-chart-editor.html: CSS + overlay div + JS functions
+- storage-wizard.js: Favicon function support
+
+===========================================
+FAVICON GENERATION REFERENCE
+===========================================
+
+**Function: updateFaviconForTheme(theme)**
+
+Theme Color Map (URL-encoded):
+```javascript
+const themeColors = {
+  'grey': '%23d84315',
+  'red': '%23d84315',
+  'blue': '%231976d2',
+  'green': '%23388e3c',
+  'purple': '%237b1fa2',
+  'cyan': '%2300838f',
+  'amber': '%23f57c00',
+  'pink': '%23c2185b',
+  'teal': '%2314b8a6',
+  'copper': '%23b87333',
+  'sunrise': '%23ffb700',
+  'sunset': '%23ff8c00',
+  'synthwave': '%23a78bfa',
+  'prism': '%2314b8a6'
+};
+```
+
+**Guitar Favicon:**
+```javascript
+link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='${color}' stroke-width='2.5' stroke-linecap='round'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>`;
+```
+
+**Drum Favicon:**
+```javascript
+link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24' preserveAspectRatio='xMidYMid meet'><g transform='scale(1.4) translate(-2, -2)'><circle cx='23' cy='17' r='4.5' fill='none' stroke='${color}' stroke-width='2.5'/><line x1='16' y1='21.5' x2='16' y2='2' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><!-- ... all drum elements ... --></g></svg>`;
+```
+
+**BlackDoubt Favicon:**
+```javascript
+link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='${color}' stroke-width='2' stroke-linecap='round'><path d='M 20 3 L 37 20 L 20 37 L 3 20 Z' stroke='${color}' fill='none' stroke-width='2'/><circle cx='20' cy='20' r='13' stroke='${color}' fill='none' stroke-width='2'/><text x='20' y='20' font-size='20' font-family='serif' text-anchor='middle' dominant-baseline='central' fill='${color}' stroke='none'>𝔅</text></svg>`;
+```
+
+===========================================
+COMPLETE PAGE TEMPLATES
+===========================================
+
+**Minimal Page Template:**
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Name</title>
+  <meta name="app-version" content="v2.1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,...">
+  <link rel="stylesheet" href="./css/themes.css">
+  <link rel="stylesheet" href="./css/layout.css">
+</head>
+<body>
+  <!-- BlackDoubt Watermark Overlay -->
+  <div class="blackdoubt-watermark-overlay"></div>
+  
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <svg width="20" height="20">...</svg>
+      Page Title
+    </h1>
+    <div class="header-controls">
+      <div class="nav-links">
+        <!-- Navigation links -->
+      </div>
+      <select id="themeSelector" class="theme-selector" onchange="changeTheme(this.value)">
+        <!-- Theme options -->
+      </select>
+    </div>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+  </div>
+  
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-overlay" id="mobileMenu">
+    <!-- Mobile menu content -->
+  </div>
+  
+  <!-- Page Content -->
+  <div class="container">
+    <!-- Page-specific content -->
+  </div>
+  
+  <!-- Page Scripts -->
+  <script>
+    // Page-specific JavaScript
+    function loadTheme() { /* ... */ }
+    function changeTheme(theme) { /* ... */ }
+    function toggleMobileMenu() { /* ... */ }
+    function loadWatermark() { /* ... */ }
+    loadTheme();
+  </script>
+  
+  <!-- Version Management -->
+  <script src="./js/version.js"></script>
+</body>
+</html>
+```
+
+===========================================
+RECREATION WORKFLOW
+===========================================
+
+**Phase 1: Foundation**
+1. Create CSS files (themes.css, layout.css)
+2. Define all 14 color themes
+3. Create header and mobile menu CSS
+4. Create version.js module
+5. Create update-version scripts
+
+**Phase 2: Song Manager**
+1. Build HTML structure with responsive header
+2. Implement song table with all columns
+3. Add search and filtering system
+4. Implement bulk operations
+5. Add CSV import/export
+6. Add watermark toggle (guitar/drum icons)
+7. Add BlackDoubt detection and icon
+
+**Phase 3: Setlist Manager**
+1. Build HTML structure with responsive header
+2. Implement setlist creation
+3. Add song selection modal
+4. Implement drag-and-drop ordering
+5. Add print functionality
+6. Add export to CSV
+7. Inherit watermark from Song Manager
+
+**Phase 4: Chord Chart Editor**
+1. Build HTML structure
+2. Implement component system
+3. Add drag-and-drop for components
+4. Link to song database
+5. Save charts to song objects
+
+**Phase 5: Show Time**
+1. Build performance mode
+2. Display setlist songs fullscreen
+3. Add navigation (prev/next)
+4. Implement auto-scroll
+5. Display chord charts
+6. Add watermark toggle icons
+
+**Phase 6: Storage Wizard**
+1. Build HTML structure with responsive header
+2. Implement JSON export (include ALL data)
+3. Implement JSON import with validation
+4. Add CSV export functions
+5. Test mobile file operations
+
+**Phase 7: Testing & Polish**
+1. Test all features on desktop
+2. Test all features on mobile (iPhone, iPad)
+3. Verify data persistence
+4. Check theme synchronization
+5. Verify watermark synchronization
+6. Test BlackDoubt easter egg
+7. Verify version display on all pages
+8. Check icon consistency (all 20x20)
+
+===========================================
+COMMON PITFALLS TO AVOID
+===========================================
+
+1. **Icon Size Inconsistency**: Always use 20x20 for single icons, 40x20 for drum
+2. **Watermark Missing**: Must add overlay div to ALL pages
+3. **Mobile Menu Incomplete**: Must include ALL navigation links on ALL pages
+4. **Theme Sync Broken**: Must sync both desktop and mobile selectors
+5. **Version CORS Error**: Must check for file:// protocol before fetch
+6. **BlackDoubt Not Appearing**: Must check setlist.name (not setlist.band or song.bands)
+7. **Favicon Not Updating**: Must regenerate favicon in both changeTheme() and switchWatermark()
+8. **Export Missing Data**: JSON export must include chordChart objects
+9. **Select All Bug**: Must only select filtered/visible songs, not all songs
+10. **Drag-Drop State**: Must clean up all state variables after drop
+11. **Column Visibility**: Must apply display:none to both <th> and <td>
+12. **Guitar/Drum Icons**: Must be clickable with onclick handlers (Song Manager & Show Time)
 
 ===========================================
 FUTURE ENHANCEMENT IDEAS
@@ -730,23 +1548,32 @@ FUTURE ENHANCEMENT IDEAS
 - User authentication
 - Sharing setlists with band members
 - Real-time collaboration
-- Mobile app version
-- Audio file attachments
+- Mobile app version (PWA with service worker)
+- Audio file attachments per song
 - Practice mode with metronome
-- Lyrics display
-- Chord diagrams
+- Lyrics highlighting during performance
+- Advanced chord diagrams with fingering
 - Print sheet music integration
-- Setlist statistics (most played, etc.)
+- Setlist statistics (most played songs, practice time)
 - Calendar integration for gig scheduling
 - Equipment/gear tracking per song
+- Transposition feature for key changes
+- MIDI support for instrument control
+- Recording integration
+- Video sync for rehearsal playback
+- Band member management
+- Permission system for shared setlists
 
 ===========================================
 END OF GUIDE
 ===========================================
 
-Use this guide to recreate the Band Manager application from scratch.
-Follow the feature descriptions, styling guidelines, and implementation notes.
+Use this comprehensive guide to recreate the Band Practice Manager application from scratch.
+Follow the feature descriptions, styling guidelines, and implementation notes carefully.
 Test thoroughly using the checklist provided.
+Pay special attention to icon sizes, mobile responsiveness, and data persistence.
 
-Good luck! 🎸🎶
+Good luck! 🎸🥁🎶
 
+Last Updated: December 2025
+Version: 2.1.0
