@@ -618,17 +618,17 @@
             Setlist Manager
         </h1>
         
-        <div class="header-controls">
+        <div class="header-controls" style="margin-left: auto;">
             <div class="nav-links">
                 <a href="song-manager.html" class="nav-link">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="19" y1="12" x2="5" y2="12"/>
-                        <polyline points="12 19 5 12 12 5"/>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                     </svg>
                     Songs
                 </a>
                 <a href="chord-chart-editor.html" class="nav-link">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
                         <circle cx="18" cy="16" r="3"/>
@@ -636,32 +636,22 @@
                     Charts
                 </a>
                 <a href="show-time.html" class="nav-link">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
                         <polygon points="5 3 19 12 5 21 5 3"/>
                     </svg>
                     Show Time
                 </a>
+                <a href="storage-wizard.html" class="nav-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Storage Wizard
+                </a>
             </div>
-            
-            <button class="btn-secondary" onclick="exportAllData()" title="Export all songs, setlists, and settings for backup">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Backup
-            </button>
-            
-            <button class="btn-secondary" onclick="importAllData()" title="Import backup file to restore all data">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                Restore
-            </button>
-            
-            <select id="themeSelector" class="theme-selector" onchange="changeTheme(this.value)" title="Select color theme" aria-label="Color theme selector">
+            <label for="themeSelector" class="visually-hidden">Select theme color</label>
+            <select id="themeSelector" name="themeSelector" class="theme-selector" title="Choose theme color" aria-label="Theme color selector" onchange="changeTheme(this.value)">
                 <option value="grey">Grey</option>
                 <option value="red">Red</option>
                 <option value="blue">Blue</option>
@@ -736,25 +726,17 @@
                 </button>
             </div>
 
-            <!-- Data Management Section -->
+            <!-- Storage Management Section -->
             <div class="mobile-menu-section">
-                <div class="mobile-menu-section-title">Data Management</div>
-                <button class="btn btn-secondary" onclick="exportAllData(); toggleMobileMenu();">
+                <div class="mobile-menu-section-title">Storage Management</div>
+                <a href="storage-wizard.html" class="btn-secondary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    Backup All Data
-                </button>
-                <button class="btn btn-secondary" onclick="importAllData(); toggleMobileMenu();">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    Restore from Backup
-                </button>
+                    💾 Storage Wizard
+                </a>
             </div>
 
             <!-- Theme Section -->
@@ -2089,82 +2071,6 @@
             });
 
             downloadFile(csv, `all-setlists-${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
-        }
-
-        // Export ALL app data (for backup and transfer between devices)
-        function exportAllData() {
-            const allData = {
-                version: '1.0',
-                exportDate: new Date().toISOString(),
-                songs: localStorage.getItem('bandSongs'),
-                setlists: localStorage.getItem('setlists'),
-                theme: localStorage.getItem('bandOrganizerTheme'),
-                watermark: localStorage.getItem('watermark'),
-                columnVisibility: localStorage.getItem('columnVisibility'),
-                rightSidebarCollapsed: localStorage.getItem('rightSidebarCollapsed')
-            };
-            
-            const jsonString = JSON.stringify(allData, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `band-practice-manager-backup-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            alert('All data exported successfully! This file contains all your songs, setlists, and settings.');
-        }
-
-        // Import ALL app data (restore from backup)
-        function importAllData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    try {
-                        const data = JSON.parse(event.target.result);
-                        
-                        // Validate the data structure
-                        if (!data.version || !data.exportDate) {
-                            alert('Invalid backup file format!');
-                            return;
-                        }
-                        
-                        // Confirm before overwriting
-                        const confirmMsg = `This will replace ALL current data with the backup from ${new Date(data.exportDate).toLocaleDateString()}.\n\nAre you sure you want to continue?`;
-                        if (!confirm(confirmMsg)) {
-                            return;
-                        }
-                        
-                        // Restore all data
-                        if (data.songs) localStorage.setItem('bandSongs', data.songs);
-                        if (data.setlists) localStorage.setItem('setlists', data.setlists);
-                        if (data.theme) localStorage.setItem('bandOrganizerTheme', data.theme);
-                        if (data.watermark) localStorage.setItem('watermark', data.watermark);
-                        if (data.columnVisibility) localStorage.setItem('columnVisibility', data.columnVisibility);
-                        if (data.rightSidebarCollapsed) localStorage.setItem('rightSidebarCollapsed', data.rightSidebarCollapsed);
-                        
-                        alert('All data imported successfully! The page will now reload.');
-                        location.reload();
-                        
-                    } catch (error) {
-                        console.error('Import error:', error);
-                        alert('Error importing data: ' + error.message);
-                    }
-                };
-                reader.readAsText(file);
-            };
-            
-            input.click();
         }
 
         // Print single setlist

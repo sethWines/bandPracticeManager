@@ -1437,70 +1437,56 @@
             </svg>
         </h1>
         
-        <div class="header-controls">
-            <div class="nav-links">
-                <a href="setlist-manager.html" class="nav-link">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="8" y1="6" x2="21" y2="6"/>
-                        <line x1="8" y1="12" x2="21" y2="12"/>
-                        <line x1="8" y1="18" x2="21" y2="18"/>
-                        <line x1="3" y1="6" x2="3.01" y2="6"/>
-                        <line x1="3" y1="12" x2="3.01" y2="12"/>
-                        <line x1="3" y1="18" x2="3.01" y2="18"/>
-                    </svg>
-                    Setlists
-                </a>
-                <a href="chord-chart-editor.html" class="nav-link">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 18V5l12-2v13"/>
-                        <circle cx="6" cy="18" r="3"/>
-                        <circle cx="18" cy="16" r="3"/>
-                    </svg>
-                    Charts
-                </a>
-                <a href="show-time.html" class="nav-link">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="5 3 19 12 5 21 5 3"/>
-                    </svg>
-                    Show Time
-                </a>
-            </div>
-
-            <button class="btn-secondary" onclick="exportAllData()" title="Export all songs, setlists, and settings for backup">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Backup
-            </button>
-            
-            <button class="btn-secondary" onclick="importAllData()" title="Import backup file to restore all data">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                Restore
-            </button>
-
-            <select id="themeSelector" class="theme-selector" onchange="changeTheme(this.value)" title="Select color theme" aria-label="Color theme selector">
-                <option value="grey">Grey</option>
-                <option value="red">Red</option>
-                <option value="blue">Blue</option>
-                <option value="green">Green</option>
-                <option value="purple">Purple</option>
-                <option value="cyan">Cyan</option>
-                <option value="teal">Teal</option>
-                <option value="copper">Copper</option>
-                <option value="amber">Amber</option>
-                <option value="pink">Pink</option>
-                <option value="sunrise">Sunrise</option>
-                <option value="sunset">Sunset</option>
-                <option value="synthwave">Synth Wave</option>
-                <option value="prism">Dark Prism</option>
-            </select>
-        </div>
+        <a href="setlist-manager.html" class="nav-link" style="margin-left: auto;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6"/>
+                <line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/>
+                <line x1="3" y1="12" x2="3.01" y2="12"/>
+                <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+            Setlists
+        </a>
+        <a href="chord-chart-editor.html" class="nav-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+            </svg>
+            Charts
+        </a>
+        <a href="show-time.html" class="nav-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Show Time
+        </a>
+        <a href="storage-wizard.html" class="nav-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Storage
+        </a>
+        
+        <select id="themeSelector" class="theme-selector" onchange="changeTheme(this.value)" title="Theme">
+            <option value="grey">Grey</option>
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="purple">Purple</option>
+            <option value="cyan">Cyan</option>
+            <option value="teal">Teal</option>
+            <option value="copper">Copper</option>
+            <option value="amber">Amber</option>
+            <option value="pink">Pink</option>
+            <option value="sunrise">Sunrise</option>
+            <option value="sunset">Sunset</option>
+            <option value="synthwave">Synth</option>
+            <option value="prism">Prism</option>
+        </select>
         
         <!-- Mobile Menu Button (Hamburger) - Rightmost position -->
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
@@ -1789,36 +1775,17 @@
                 </button>
             </div>
 
-            <!-- Data Management Section -->
+            <!-- Storage Management Section -->
             <div class="mobile-menu-section">
-                <div class="mobile-menu-section-title">Data Management</div>
-                <button class="btn-secondary" onclick="exportAllData(); toggleMobileMenu();">
+                <div class="mobile-menu-section-title">Storage Management</div>
+                <a href="storage-wizard.html" class="btn-secondary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    Backup All Data
-                </button>
-                <button class="btn-secondary" onclick="importAllData(); toggleMobileMenu();">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    Restore from Backup
-                </button>
-                
-                <!-- Clear All Songs Button -->
-                <button class="btn btn-danger" onclick="clearAllData(); toggleMobileMenu();" style="width: 100%; margin-top: 15px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        <line x1="10" y1="11" x2="10" y2="17"/>
-                        <line x1="14" y1="11" x2="14" y2="17"/>
-                    </svg>
-                    Clear All Songs
-                </button>
+                    💾 Storage Wizard
+                </a>
             </div>
             
             <!-- Performance Monitor Section -->
@@ -1885,14 +1852,14 @@
                 Undo
             </button>
             
-            <button class="btn btn-secondary" onclick="openImportModal()" style="width: 100%; margin-bottom: 10px;">
+            <a href="storage-wizard.html" class="btn btn-primary" style="width: 100%; margin-bottom: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/>
                     <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                Import
-            </button>
+                💾 Storage Wizard
+            </a>
             
             <button class="btn btn-secondary" onclick="openSpotifySettings()" style="width: 100%; margin-bottom: 10px; background: rgba(30, 215, 96, 0.1); border-color: rgba(30, 215, 96, 0.5); color: #1ED760;" title="Configure Spotify API for auto-filling song details">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#1ED760">
@@ -1900,56 +1867,6 @@
                 </svg>
                 Spotify Setup
             </button>
-            
-            <div style="position: relative; margin-bottom: 10px;">
-                <button class="btn btn-secondary" onclick="toggleExportMenu()" id="exportMenuBtn" style="width: 100%;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    Export ▼
-                </button>
-                <div id="exportMenu" class="dropdown-menu" style="display: none; width: 100%;">
-                    <button onclick="exportCSV(); toggleExportMenu();">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                            <polyline points="10 9 9 9 8 9"/>
-                        </svg>
-                        CSV
-                    </button>
-                    <button onclick="exportJSON(); toggleExportMenu();">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <path d="M10 12h4"/>
-                            <path d="M10 16h4"/>
-                        </svg>
-                        JSON
-                    </button>
-                    <button onclick="exportExcel(); toggleExportMenu();">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <rect x="8" y="12" width="8" height="6"/>
-                        </svg>
-                        Excel
-                    </button>
-                    <button onclick="exportPDF(); toggleExportMenu();">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                            <line x1="10" y1="9" x2="8" y2="9"/>
-                        </svg>
-                        PDF
-                    </button>
-                </div>
-            </div>
             
             <button class="btn btn-secondary" onclick="printSongs()" style="width: 100%; margin-bottom: 10px;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2056,20 +1973,6 @@
                 </svg>
                 <span id="densityLabel">Normal</span>
             </button>
-            
-            <div style="border-top: 1px solid var(--primary-border); margin: 15px 0; padding-top: 15px;">
-                <button class="btn btn-danger" onclick="clearAllData()" style="width: 100%;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        <line x1="10" y1="11" x2="10" y2="17"/>
-                        <line x1="14" y1="11" x2="14" y2="17"/>
-                    </svg>
-                    Clear All Songs
-                </button>
-            </div>
-            
-            <input type="file" id="csvFile" accept=".csv" onchange="handleCSVImport(event)" style="display: none;">
             </div>
         </div>
 
@@ -5580,21 +5483,6 @@ What would you like to do?
             }
         }
 
-        // Clear all data
-        function clearAllData() {
-            if (confirm('Are you sure you want to delete ALL songs? This cannot be undone!')) {
-                saveUndoState('clearAll', { songs: JSON.parse(JSON.stringify(songs)) });
-                songs = [];
-                activeFilters = [];
-                currentSort = { column: null, direction: 'asc' };
-                saveSongs();
-                updateFilterTags();
-                applyFilters();
-                updateStats();
-                showToast('All songs cleared', 'warning');
-            }
-        }
-
         // ===== TRASH SYSTEM FUNCTIONS (Simple & Reliable) =====
         
         function loadTrash() {
@@ -7167,82 +7055,6 @@ What would you like to do?
             printWindow.document.write(html);
             printWindow.document.close();
             showToast('PDF print dialog opened!', 'success');
-        }
-
-        // Export ALL app data (for backup and transfer between devices)
-        function exportAllData() {
-            const allData = {
-                version: '1.0',
-                exportDate: new Date().toISOString(),
-                songs: localStorage.getItem('bandSongs'),
-                setlists: localStorage.getItem('setlists'),
-                theme: localStorage.getItem('bandOrganizerTheme'),
-                watermark: localStorage.getItem('watermark'),
-                columnVisibility: localStorage.getItem('columnVisibility'),
-                rightSidebarCollapsed: localStorage.getItem('rightSidebarCollapsed')
-            };
-            
-            const jsonString = JSON.stringify(allData, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `band-practice-manager-backup-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showToast('All data exported successfully! This file contains all your songs, setlists, and settings.', 'success');
-        }
-
-        // Import ALL app data (restore from backup)
-        function importAllData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    try {
-                        const data = JSON.parse(event.target.result);
-                        
-                        // Validate the data structure
-                        if (!data.version || !data.exportDate) {
-                            showToast('Invalid backup file format!', 'error');
-                            return;
-                        }
-                        
-                        // Confirm before overwriting
-                        const confirmMsg = `This will replace ALL current data with the backup from ${new Date(data.exportDate).toLocaleDateString()}.\n\nAre you sure you want to continue?`;
-                        if (!confirm(confirmMsg)) {
-                            return;
-                        }
-                        
-                        // Restore all data
-                        if (data.songs) localStorage.setItem('bandSongs', data.songs);
-                        if (data.setlists) localStorage.setItem('setlists', data.setlists);
-                        if (data.theme) localStorage.setItem('bandOrganizerTheme', data.theme);
-                        if (data.watermark) localStorage.setItem('watermark', data.watermark);
-                        if (data.columnVisibility) localStorage.setItem('columnVisibility', data.columnVisibility);
-                        if (data.rightSidebarCollapsed) localStorage.setItem('rightSidebarCollapsed', data.rightSidebarCollapsed);
-                        
-                        showToast('All data imported successfully! The page will now reload.', 'success');
-                        setTimeout(() => location.reload(), 1500);
-                        
-                    } catch (error) {
-                        console.error('Import error:', error);
-                        showToast('Error importing data: ' + error.message, 'error');
-                    }
-                };
-                reader.readAsText(file);
-            };
-            
-            input.click();
         }
 
         // Escape CSV value

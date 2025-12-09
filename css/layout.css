@@ -192,7 +192,6 @@
     backdrop-filter: blur(10px);
     padding: 10px 15px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid var(--primary-color);
     flex-shrink: 0;
@@ -202,8 +201,8 @@
     box-shadow: 0 2px 10px var(--primary-glow);
     border: 1px solid rgba(255, 255, 255, 0.1);
     overflow: visible;
-    flex-wrap: nowrap;
-    gap: 6px; /* Reduced from 10px to 6px */
+    flex-wrap: wrap;
+    gap: 4px; /* Tight spacing between all children */
     min-width: 0; /* Allow header to shrink */
 }
 
@@ -215,6 +214,7 @@
     align-items: center;
     gap: 8px;
     margin: 0;
+    margin-right: 10px; /* Space after title before nav links */
     flex-shrink: 0;
     white-space: nowrap;
 }
@@ -224,26 +224,43 @@
     height: 20px;
 }
 
+/* Direct children nav-links and theme-selector styling */
+.header > .nav-link {
+    flex-shrink: 0;
+}
+
+.header > .theme-selector {
+    flex-shrink: 0;
+    margin-left: 4px; /* Small space before theme selector */
+}
+
+.header > .mobile-menu-btn {
+    margin-left: auto; /* Push hamburger to right */
+}
+
+/* Legacy support for nested structure (setlist-manager, chord-chart, show-time still use it) */
 .header-controls {
     display: flex;
-    gap: 4px; /* Reduced from 8px to match nav-links spacing */
+    gap: 4px;
     align-items: center;
-    flex-shrink: 1; /* Changed from 0 to allow shrinking */
-    flex-wrap: wrap; /* Changed from nowrap to allow wrapping */
-    min-width: 0; /* Allow shrinking */
+    flex-shrink: 1;
+    flex-wrap: wrap;
+    min-width: 0;
 }
 
 .header-controls .nav-links {
-    flex-shrink: 0; /* Prevent nav links from shrinking */
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
 }
 
 .header-controls .theme-selector {
-    flex-shrink: 1; /* Allow theme selector to shrink slightly */
-    min-width: 60px;
+    flex-shrink: 0;
+    margin-left: 4px;
 }
 
 .header-controls .btn {
-    flex-shrink: 0; /* Prevent buttons from shrinking */
+    flex-shrink: 0;
     white-space: nowrap;
 }
 
@@ -251,14 +268,8 @@
    NAVIGATION LINKS
    ======================================== */
 
-.nav-links {
-    display: flex;
-    gap: 4px; /* Reduced from 6px for tighter spacing */
-    flex-wrap: nowrap;
-}
-
 .nav-link {
-    padding: 6px 10px; /* Reduced from 6px 12px */
+    padding: 6px 10px;
     background: var(--primary-dark);
     border: 2px solid var(--primary-light);
     color: var(--primary-light);
@@ -270,7 +281,8 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     display: inline-flex;
     align-items: center;
-    gap: 4px; /* Tighter gap between icon and text */
+    gap: 4px; /* Space between icon and text */
+    white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -286,7 +298,7 @@
    ======================================== */
 
 .theme-selector {
-    padding: 6px 8px;
+    padding: 6px 10px; /* Match nav-link padding */
     background: var(--primary-dark);
     border: 2px solid var(--primary-light);
     color: var(--primary-light);
@@ -295,13 +307,15 @@
     font-weight: 600;
     font-size: 13px;
     transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); /* Match nav-link shadow */
     min-width: 70px;
-    max-width: 90px;
+    max-width: 120px; /* Increased to allow more text */
 }
 
 .theme-selector:hover {
     background: var(--primary-darker);
     border-color: var(--primary-lighter);
+    box-shadow: 0 0 10px var(--primary-glow); /* Match nav-link hover */
 }
 
 .btn {

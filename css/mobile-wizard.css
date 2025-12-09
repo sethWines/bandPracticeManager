@@ -1,6 +1,6 @@
 /**
  * Mobile Wizard Styles
- * Styles for the interactive Mobile Guide wizard
+ * Styles for the interactive Storage Wizard
  */
 
 /* Base body styling */
@@ -49,7 +49,7 @@ body {
 /* Wizard Section */
 .wizard-section {
     padding: 20px;
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -58,10 +58,10 @@ body {
     margin-bottom: 20px;
 }
 
-/* Task Cards */
+/* Task Cards - Grid for 5 cards */
 .task-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     padding: 20px 0;
 }
@@ -239,6 +239,128 @@ body {
     display: inline-block;
 }
 
+/* Import Preview Panel */
+.import-preview-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.preview-content {
+    background: var(--card-bg);
+    border: 2px solid var(--primary-border);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+}
+
+.preview-stats {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+.preview-stat {
+    text-align: center;
+    padding: 20px;
+    background: rgba(var(--primary-color-rgb, 255, 107, 61), 0.1);
+    border: 2px solid var(--primary-border);
+    border-radius: 12px;
+    min-width: 150px;
+}
+
+.preview-stat-number {
+    font-size: 48px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.preview-stat-label {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.preview-actions button {
+    min-width: 150px;
+}
+
+/* Success Panel */
+.success-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.success-content {
+    background: var(--card-bg);
+    border: 2px solid var(--primary-border);
+    border-radius: 16px;
+    padding: 50px 40px;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+}
+
+.success-content svg {
+    animation: successPulse 0.6s ease-out;
+}
+
+@keyframes successPulse {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.success-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.success-actions button {
+    min-width: 150px;
+}
+
 /* Notification Toast */
 .notification-toast {
     position: fixed;
@@ -394,6 +516,31 @@ body {
         padding: 12px 20px;
     }
     
+    .preview-content,
+    .success-content {
+        padding: 30px 20px;
+    }
+    
+    .preview-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .preview-stat {
+        min-width: auto;
+    }
+    
+    .preview-actions,
+    .success-actions {
+        flex-direction: column;
+    }
+    
+    .preview-actions button,
+    .success-actions button {
+        width: 100%;
+        min-width: auto;
+    }
+    
     .notification-toast {
         min-width: auto;
         left: 15px;
@@ -443,6 +590,10 @@ body {
         font-size: 14px;
     }
     
+    .preview-stat-number {
+        font-size: 36px;
+    }
+    
     .notification-toast {
         padding: 12px 16px;
     }
@@ -453,7 +604,9 @@ body {
     .wizard-header,
     .notification-toast,
     .btn-primary,
-    .btn-secondary {
+    .btn-secondary,
+    .import-preview-panel,
+    .success-panel {
         display: none;
     }
     
