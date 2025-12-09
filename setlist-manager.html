@@ -76,6 +76,34 @@
             opacity: 1;
         }
 
+        /* BlackDoubt watermark overlay (hidden by default) */
+        .blackdoubt-watermark-overlay {
+            content: '';
+            position: fixed;
+            top: 0%;
+            right: -20%;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%23ffffff' stroke-width='1' opacity='0.12'%3E%3Cpath d='M 20 3 L 37 20 L 20 37 L 3 20 Z' stroke='%23ffffff' fill='none' stroke-width='1.5'/%3E%3Ccircle cx='20' cy='20' r='13' stroke='%23ffffff' fill='none' stroke-width='1.5'/%3E%3Ctext x='20' y='20' font-size='20' font-family='serif' text-anchor='middle' dominant-baseline='central' fill='%23ffffff' stroke='none'%3E%F0%9D%94%85%3C/text%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Show BlackDoubt watermark when active */
+        body.blackdoubt-watermark::before,
+        body.blackdoubt-watermark::after {
+            opacity: 0;
+        }
+
+        body.blackdoubt-watermark .blackdoubt-watermark-overlay {
+            opacity: 1;
+        }
+
         /* Band Tiles in Left Sidebar */
         .band-item {
             padding: 10px;
@@ -607,6 +635,9 @@
     </style>
 </head>
 <body>
+    <!-- BlackDoubt Watermark Overlay -->
+    <div class="blackdoubt-watermark-overlay"></div>
+    
     <!-- Compact Sticky Header -->
     <div class="header">
         <h1>
@@ -1045,11 +1076,19 @@
         // Load and apply watermark preference (inherited from Song Manager)
         function loadWatermark() {
             const watermark = localStorage.getItem('watermark') || 'guitar';
+            
+            // Remove all watermark classes
+            document.body.classList.remove('drum-watermark', 'blackdoubt-watermark');
+            
+            // Apply appropriate class
             if (watermark === 'drum') {
                 document.body.classList.add('drum-watermark');
                 updateFavicon('drum');
+            } else if (watermark === 'blackdoubt') {
+                document.body.classList.add('blackdoubt-watermark');
+                updateFavicon('blackdoubt');
             } else {
-                document.body.classList.remove('drum-watermark');
+                // Guitar is default
                 updateFavicon('guitar');
             }
         }
@@ -2369,10 +2408,14 @@
             const color = themeColors[theme] || '%23d84315';
             const watermarkType = localStorage.getItem('watermark') || 'guitar';
             
-            // Always use solid color favicon
+            // Generate appropriate favicon based on watermark type
             if (watermarkType === 'drum') {
                 link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24' preserveAspectRatio='xMidYMid meet'><g transform='scale(1.4) translate(-2, -2)'><circle cx='23' cy='17' r='4.5' fill='none' stroke='${color}' stroke-width='2.5'/><line x1='16' y1='21.5' x2='16' y2='2' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='11' y1='5' x2='21' y2='5' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='18' y1='8' x2='28' y2='8' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='21' y1='10' x2='26' y2='10' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='7' y1='12.5' x2='18' y2='12.5' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='30' y1='12.5' x2='30' y2='2' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='25' y1='5' x2='35' y2='5' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='27' y1='8' x2='33' y2='8' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='26' y1='14' x2='31' y2='14' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/></g></svg>`;
+            } else if (watermarkType === 'blackdoubt') {
+                // BlackDoubt icon favicon
+                link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='${color}' stroke-width='2' stroke-linecap='round'><path d='M 20 3 L 37 20 L 20 37 L 3 20 Z' stroke='${color}' fill='none' stroke-width='2'/><circle cx='20' cy='20' r='13' stroke='${color}' fill='none' stroke-width='2'/><text x='20' y='20' font-size='20' font-family='serif' text-anchor='middle' dominant-baseline='central' fill='${color}' stroke='none'>𝔅</text></svg>`;
             } else {
+                // Guitar icon (default)
                 link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='${color}' stroke-width='2.5' stroke-linecap='round'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>`;
             }
         }

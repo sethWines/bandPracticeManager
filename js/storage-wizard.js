@@ -24,6 +24,47 @@ function loadTheme() {
     const mobileSelector = document.getElementById('mobileThemeSelector');
     if (desktopSelector) desktopSelector.value = savedTheme;
     if (mobileSelector) mobileSelector.value = savedTheme;
+    
+    // Update favicon to match theme and watermark
+    updateFaviconForTheme(savedTheme);
+}
+
+// Update favicon based on theme and watermark preference
+function updateFaviconForTheme(theme) {
+    const link = document.querySelector("link[rel*='icon']");
+    if (!link) return;
+    
+    // Map themes to colors (hex codes need to be URL encoded with %23)
+    const themeColors = {
+        'grey': '%23d84315',
+        'red': '%23d84315',
+        'blue': '%231976d2',
+        'green': '%23388e3c',
+        'purple': '%237b1fa2',
+        'cyan': '%2300838f',
+        'amber': '%23f57c00',
+        'pink': '%23c2185b',
+        'teal': '%2314b8a6',
+        'copper': '%23b87333',
+        'sunrise': '%23ffb700',
+        'sunset': '%23ff8c00',
+        'synthwave': '%23a78bfa',
+        'prism': '%2314b8a6'
+    };
+    
+    const color = themeColors[theme] || '%23d84315';
+    const watermarkType = localStorage.getItem('watermark') || 'guitar';
+    
+    // Generate appropriate favicon based on watermark type
+    if (watermarkType === 'drum') {
+        link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24' preserveAspectRatio='xMidYMid meet'><g transform='scale(1.4) translate(-2, -2)'><circle cx='23' cy='17' r='4.5' fill='none' stroke='${color}' stroke-width='2.5'/><line x1='16' y1='21.5' x2='16' y2='2' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='11' y1='5' x2='21' y2='5' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='18' y1='8' x2='28' y2='8' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='21' y1='10' x2='26' y2='10' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='7' y1='12.5' x2='18' y2='12.5' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='30' y1='12.5' x2='30' y2='2' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='25' y1='5' x2='35' y2='5' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='27' y1='8' x2='33' y2='8' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='26' y1='14' x2='31' y2='14' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/></g></svg>`;
+    } else if (watermarkType === 'blackdoubt') {
+        // BlackDoubt icon favicon
+        link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='${color}' stroke-width='2' stroke-linecap='round'><path d='M 20 3 L 37 20 L 20 37 L 3 20 Z' stroke='${color}' fill='none' stroke-width='2'/><circle cx='20' cy='20' r='13' stroke='${color}' fill='none' stroke-width='2'/><text x='20' y='20' font-size='20' font-family='serif' text-anchor='middle' dominant-baseline='central' fill='${color}' stroke='none'>𝔅</text></svg>`;
+    } else {
+        // Guitar icon (default)
+        link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='${color}' stroke-width='2.5' stroke-linecap='round'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>`;
+    }
 }
 
 // Device detection
@@ -984,5 +1025,8 @@ function changeTheme(theme) {
     const mobileSelector = document.getElementById('mobileThemeSelector');
     if (desktopSelector) desktopSelector.value = theme;
     if (mobileSelector) mobileSelector.value = theme;
+    
+    // Update favicon to match new theme
+    updateFaviconForTheme(theme);
 }
 
