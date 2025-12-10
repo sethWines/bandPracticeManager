@@ -2007,32 +2007,10 @@
             }
         }
 
-        // Mouse proximity detection for song wheel (Desktop only)
-        let wheelTimeout = null;
+        // Mouse proximity detection removed - menu now only opens via button
         function isMobileDevice() {
             return window.innerWidth <= 768 || ('ontouchstart' in window);
         }
-        
-        document.addEventListener('mousemove', function(e) {
-            // Disable hover behavior on mobile devices
-            if (isMobileDevice()) return;
-            
-            const wheel = document.getElementById('songWheel');
-            if (!document.getElementById('performanceMode').classList.contains('active')) return;
-            if (isSingleSongMode) return;
-
-            const threshold = 100;
-            const distanceFromRight = window.innerWidth - e.clientX;
-
-            if (distanceFromRight < threshold) {
-                clearTimeout(wheelTimeout);
-                wheel.classList.add('active');
-            } else if (e.clientX < window.innerWidth - 350) {
-                wheelTimeout = setTimeout(() => {
-                    wheel.classList.remove('active');
-                }, 500);
-            }
-        });
         
         // Manual toggle function for mobile button
         function toggleSongWheel() {
