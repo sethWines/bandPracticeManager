@@ -5,6 +5,71 @@ All notable changes to the Band Manager application will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - Inline Song Editing & Link Fixes - 2024-12-10
+
+### Added - Setlist Manager
+
+- **Inline Song Editing Modal** 
+  - Edit songs directly from setlist manager without opening Song Manager in new tab
+  - Modal includes all song fields (artist, song, album, link, tuning, bands, tags, duration, practice status, key, first/last notes)
+  - "Move to Set" dropdown **at the top** allows moving song to different set within the same setlist
+  - Changes to song attributes (key, tuning, etc.) affect the song globally across ALL setlists
+  - Moving to a different set only affects the specific setlist instance
+  - Preserves metadata (play count, last played, created date, chord chart)
+  - Synchronizes name changes across all instances if song appears in multiple setlists
+  - Silent operation - no alert popups, changes happen smoothly
+
+- **Song Data Enrichment**
+  - Created `enrichSongData()` function that merges setlist references with full song data from library
+  - Song links **always** display as clickable hyperlinks when present in the library
+  - Key, tuning, duration, and other properties automatically pulled from library during rendering
+  - Single source of truth - changes in Song Manager immediately reflect in all setlists
+  - Efficient storage - setlists still only store minimal references (artist + song name)
+
+- **Enhanced Modal UX**
+  - Click outside modal to close
+  - Press ESC key to close any active modal
+  - Scrollable modal content for mobile/small screens
+  - Move to Set option prominently displayed at top of form
+
+### Fixed - Setlist Manager
+
+- **Edit Button Not Working**
+  - Fixed issue where edit buttons did nothing when clicked
+  - Problem was caused by inline onclick handlers with HTML-escaped strings breaking JavaScript syntax
+  - Solution: Replaced inline handlers with data attributes and event delegation
+  - Now works correctly with special characters (apostrophes, quotes, ampersands, etc.)
+  
+- **"No setlist selected" Error**
+  - Fixed modal not knowing which setlist/set the song belongs to
+  - Edit button now passes setlist index, set index, and song position via data attributes
+  - Modal correctly identifies song location for "Move to Set" functionality
+
+- **Save Button Not Working**
+  - Added missing `saveSongs()` function to save changes back to localStorage
+  - Changed button to `type="button"` with direct onclick handler for reliability
+  - Added `handleSaveClick()` wrapper function for debugging
+  - Form now saves correctly across all browsers
+
+- **Song Links Not Showing After Move**
+  - Fixed issue where moving songs between sets would lose the link property
+  - Now preserves entire song object including link, key, tuning, duration when moving
+  - Links remain clickable regardless of which set the song is in
+
+- **Inconsistent Link Display**
+  - Fixed songs not showing as hyperlinks even when link exists in library
+  - Enrichment function now pulls link from global library for all song displays
+  - Links work consistently whether song was just added, moved, or edited
+
+- **Scope Confusion in Event Listeners**
+  - Fixed JavaScript error where backdrop/sidebar variables were accessed outside their scope
+  - Consolidated all DOMContentLoaded event listeners properly
+
+### Added - Debugging
+- Comprehensive console logging for edit song workflow
+- Logs show: song lookup, setlist context, modal opening, save operations, move operations
+- Helps troubleshoot issues with special characters or missing context
+
 ## [2.0.0] - Performance & Architecture Overhaul - 2024-12-07
 
 ### Major Performance Improvements ⚡

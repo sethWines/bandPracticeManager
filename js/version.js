@@ -29,8 +29,8 @@ async function getVersion() {
         return metaVersion.content;
     }
     
-    // Default fallback
-    return 'v2.1.0';
+    // Default fallback - UPDATE THIS WHEN RELEASING NEW VERSION
+    return 'v2.3.0';
 }
 
 // Add version to page title
