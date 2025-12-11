@@ -694,8 +694,7 @@
         }
 
         .song-wheel-container {
-            perspective: 1200px;
-            transform-style: preserve-3d;
+            /* Removed 3D perspective for more reliable click handling */
         }
 
         .song-wheel-set {
@@ -721,13 +720,13 @@
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.3s;
-            transform-style: preserve-3d;
+            position: relative;
         }
 
         .song-wheel-item:hover {
             background: rgba(60, 60, 60, 0.7);
             border-left-color: var(--primary-light);
-            transform: translateX(-5px) translateZ(50px);
+            transform: translateX(-5px);
             box-shadow: 0 4px 15px var(--primary-glow);
         }
 
@@ -805,6 +804,7 @@
         /* Mobile Navigation Orbs (Prev/Next Song) */
         .mobile-nav-orbs {
             display: none; /* Hidden by default on all screens */
+            gap: 15px; /* Space between the two orbs */
         }
         
         /* Show on mobile when .show class is added via JavaScript */
@@ -829,7 +829,6 @@
             justify-content: center;
             box-shadow: 0 4px 20px var(--primary-glow);
             transition: all 0.3s;
-            gap: 8px;
         }
         
         .nav-orb:hover {
@@ -977,6 +976,94 @@
             
             .mobile-song-wheel-btn {
                 top: 60px;
+            }
+        }
+        
+        /* Up Next Display */
+        .up-next-display {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 70px;
+            right: 80px; /* Position to the left of mobile song wheel button */
+            background: rgba(26, 26, 26, 0.85);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            z-index: 9997;
+            max-width: 200px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .up-next-display.show {
+            display: block;
+        }
+
+        .up-next-display.hidden {
+            display: none !important;
+        }
+
+        .up-next-label {
+            font-size: 9px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .up-next-song {
+            font-size: 13px;
+            color: var(--primary-light);
+            font-weight: 600;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .up-next-meta {
+            display: flex;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .up-next-artist {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .up-next-tuning {
+            color: var(--primary-color);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* Mobile responsive adjustments for up-next display */
+        @media (max-width: 768px) {
+            .up-next-display {
+                right: 75px; /* Adjust for mobile button size */
+                top: 75px;
+                max-width: 150px;
+                padding: 6px 10px;
+            }
+            
+            .up-next-song {
+                font-size: 12px;
+            }
+            
+            .up-next-meta {
+                font-size: 10px;
+                gap: 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .up-next-display {
+                display: none !important; /* Hide on very small screens to save space */
             }
         }
     </style>
@@ -1243,6 +1330,16 @@
                 <line x1="3" y1="18" x2="3.01" y2="18"/>
             </svg>
         </button>
+        
+        <!-- Up Next Display - beside mobile song wheel button -->
+        <div class="up-next-display" id="upNextDisplay">
+            <div class="up-next-label">Up Next:</div>
+            <div class="up-next-song" id="upNextSong">Song Name</div>
+            <div class="up-next-meta">
+                <span class="up-next-artist" id="upNextArtist">Artist</span>
+                <span class="up-next-tuning" id="upNextTuning">Standard</span>
+            </div>
+        </div>
 
         <!-- 3D Song Wheel Menu -->
         <div class="song-wheel" id="songWheel">
@@ -1569,6 +1666,12 @@
             // Show back button and mobile nav orbs
             document.getElementById('backButton').classList.add('show');
             document.getElementById('mobileNavOrbs').classList.add('show');
+            
+            // Show up next display
+            const upNextDisplay = document.getElementById('upNextDisplay');
+            if (upNextDisplay && allSongs.length > 1) {
+                upNextDisplay.classList.remove('hidden');
+            }
 
             // Render first song
             renderCurrentSong();
@@ -1708,6 +1811,9 @@
 
             // Update song wheel
             updateSongWheelHighlight();
+            
+            // Update up next display
+            updateUpNextDisplay();
         }
 
         // Load preferred scroll speed for current song
@@ -1770,8 +1876,7 @@
                     const isCurrent = song.globalIndex === currentSongIndex;
                     html += `
                         <div class="song-wheel-item ${isCurrent ? 'current' : ''}" 
-                             data-index="${song.globalIndex}"
-                             onclick="jumpToSong(${song.globalIndex})">
+                             data-index="${song.globalIndex}">
                             <div class="song-wheel-item-title">${escapeHtml(song.song)}</div>
                             <div class="song-wheel-item-artist">${escapeHtml(song.artist)}</div>
                         </div>
@@ -1839,10 +1944,52 @@
                 nextOrb.disabled = (currentSongIndex >= allSongs.length - 1);
             }
         }
+        
+        // Update "up next" display
+        function updateUpNextDisplay() {
+            const upNextDisplay = document.getElementById('upNextDisplay');
+            
+            // Hide if in single song mode or if this is the last song
+            if (isSingleSongMode || currentSongIndex >= allSongs.length - 1) {
+                upNextDisplay.classList.remove('show');
+                upNextDisplay.classList.add('hidden');
+                return;
+            }
+            
+            // Get next song data
+            const nextSong = allSongs[currentSongIndex + 1];
+            if (!nextSong) {
+                upNextDisplay.classList.remove('show');
+                upNextDisplay.classList.add('hidden');
+                return;
+            }
+            
+            // Find full song details from database
+            const songDetails = findSong(nextSong.artist, nextSong.song);
+            
+            // Update display elements
+            document.getElementById('upNextSong').textContent = nextSong.song;
+            document.getElementById('upNextArtist').textContent = nextSong.artist;
+            
+            // Update tuning (default to "Standard" if not found)
+            const tuning = songDetails && songDetails.tuning ? songDetails.tuning : 'Standard';
+            document.getElementById('upNextTuning').textContent = tuning;
+            
+            // Show the display
+            upNextDisplay.classList.remove('hidden');
+            upNextDisplay.classList.add('show');
+        }
 
         // Exit performance mode
         function exitPerformance() {
             stopAutoscroll();
+            
+            // Hide up next display
+            const upNextDisplay = document.getElementById('upNextDisplay');
+            if (upNextDisplay) {
+                upNextDisplay.classList.remove('show');
+                upNextDisplay.classList.add('hidden');
+            }
             
             // If we have a return URL (e.g., from chord chart editor), go there
             if (returnUrl) {
@@ -2127,6 +2274,12 @@
                 mobileNavOrbs.classList.remove('show');
             }
             
+            // Hide up next display (no next song in single mode)
+            const upNextDisplay = document.getElementById('upNextDisplay');
+            if (upNextDisplay) {
+                upNextDisplay.classList.add('hidden');
+            }
+            
             document.getElementById('songPosition').style.display = 'none';
 
             // Parse songId (format: artist|song)
@@ -2181,6 +2334,15 @@
             const songWheel = document.getElementById('songWheel');
             if (songWheel) {
                 songWheel.addEventListener('click', (e) => {
+                    // Check if clicked on a song item or its children
+                    const songItem = e.target.closest('.song-wheel-item');
+                    if (songItem) {
+                        const index = parseInt(songItem.dataset.index);
+                        if (!isNaN(index)) {
+                            jumpToSong(index);
+                        }
+                    }
+                    // Stop propagation to prevent closing the wheel
                     e.stopPropagation();
                 });
             }
