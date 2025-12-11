@@ -1604,6 +1604,12 @@
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                                 </svg>
                             </button>
+                            <button class="icon-btn" onclick="duplicateSetlist(${setlistIndex})" title="Duplicate Setlist">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                            </button>
                             <button class="icon-btn delete-btn" onclick="deleteSetlist(${setlistIndex})" title="Delete Setlist">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -1885,6 +1891,55 @@
                 renderBandSidebar();
                 renderSetlistCenter();
             }
+        }
+
+        // Duplicate setlist
+        function duplicateSetlist(index) {
+            if (index < 0 || index >= setlists.length) {
+                alert('Invalid setlist index');
+                return;
+            }
+
+            const originalSetlist = setlists[index];
+            
+            // Prompt for new name
+            const defaultName = originalSetlist.name + ' (Copy)';
+            const newName = prompt('Enter a name for the duplicated setlist:', defaultName);
+            
+            if (!newName || newName.trim() === '') {
+                return; // User cancelled or entered empty name
+            }
+
+            // Deep clone the setlist
+            const duplicatedSetlist = {
+                name: newName.trim(),
+                band: originalSetlist.band,
+                sets: originalSetlist.sets.map(set => ({
+                    name: set.name,
+                    songs: set.songs.map(song => ({
+                        ...song // Copy all song properties
+                    }))
+                })),
+                songs: originalSetlist.songs ? [...originalSetlist.songs] : [], // Backwards compatibility
+                created: new Date().toISOString()
+            };
+
+            // Add the duplicated setlist to the array
+            setlists.push(duplicatedSetlist);
+            
+            // Save to storage
+            saveSetlistsToStorage();
+            
+            // Select the new duplicated setlist
+            const newIndex = setlists.length - 1;
+            selectedSetlistIndex = newIndex;
+            selectedBand = duplicatedSetlist.band;
+            expandedBands.add(selectedBand);
+            
+            // Update UI
+            saveSessionState();
+            renderBandSidebar();
+            renderSetlistCenter();
         }
 
         // Clear all setlists
