@@ -166,12 +166,6 @@
             position: relative;
             z-index: 10001;
         }
-            z-index: 9998;
-            box-shadow: 0 2px 10px var(--primary-glow);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            flex-wrap: wrap;
-            gap: 10px;
-        }
 
         .header h1 {
             color: var(--primary-light);
@@ -994,6 +988,15 @@
             z-index: 9997;
             max-width: 220px; /* Increased for longer titles */
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Softer shadow */
+            cursor: pointer; /* Make it clickable */
+            transition: all 0.3s;
+        }
+
+        .up-next-display:hover {
+            background: rgba(40, 40, 40, 0.8);
+            border-color: var(--primary-light);
+            box-shadow: 0 4px 15px var(--primary-glow);
+            transform: translateY(-2px);
         }
 
         .up-next-display.show {
@@ -1001,6 +1004,40 @@
         }
 
         .up-next-display.hidden {
+            display: none !important;
+        }
+
+        /* Up Previous Display */
+        .up-prev-display {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 70px;
+            left: 80px; /* Position on the left side */
+            background: rgba(26, 26, 26, 0.6); /* More transparent */
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1); /* More subtle border */
+            border-radius: 8px;
+            padding: 6px 10px; /* Slightly reduced padding */
+            z-index: 9997;
+            max-width: 220px; /* Increased for longer titles */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Softer shadow */
+            cursor: pointer; /* Make it clickable */
+            transition: all 0.3s;
+        }
+
+        .up-prev-display:hover {
+            background: rgba(40, 40, 40, 0.8);
+            border-color: var(--primary-light);
+            box-shadow: 0 4px 15px var(--primary-glow);
+            transform: translateY(-2px);
+        }
+
+        .up-prev-display.show {
+            display: block;
+        }
+
+        .up-prev-display.hidden {
             display: none !important;
         }
 
@@ -1052,6 +1089,13 @@
                 padding: 5px 8px;
             }
             
+            .up-prev-display {
+                left: 20px; /* Adjust for mobile */
+                top: 75px;
+                max-width: 160px; /* Slightly wider for mobile */
+                padding: 5px 8px;
+            }
+            
             .up-next-song {
                 font-size: 10px;
             }
@@ -1064,6 +1108,10 @@
 
         @media (max-width: 480px) {
             .up-next-display {
+                display: none !important; /* Hide on very small screens to save space */
+            }
+            
+            .up-prev-display {
                 display: none !important; /* Hide on very small screens to save space */
             }
         }
@@ -1333,12 +1381,22 @@
         </button>
         
         <!-- Up Next Display - beside mobile song wheel button -->
-        <div class="up-next-display" id="upNextDisplay">
+        <div class="up-next-display" id="upNextDisplay" onclick="nextSong()" title="Click to go to next song">
             <div class="up-next-label">Up Next:</div>
             <div class="up-next-song" id="upNextSong">Song Name</div>
             <div class="up-next-meta">
                 <span class="up-next-artist" id="upNextArtist">Artist</span>
                 <span class="up-next-tuning" id="upNextTuning">Standard</span>
+            </div>
+        </div>
+
+        <!-- Up Previous Display - on the left side -->
+        <div class="up-prev-display" id="upPrevDisplay" onclick="previousSong()" title="Click to go to previous song">
+            <div class="up-next-label">Previous:</div>
+            <div class="up-next-song" id="upPrevSong">Song Name</div>
+            <div class="up-next-meta">
+                <span class="up-next-artist" id="upPrevArtist">Artist</span>
+                <span class="up-next-tuning" id="upPrevTuning">Standard</span>
             </div>
         </div>
 
@@ -1815,6 +1873,9 @@
             
             // Update up next display
             updateUpNextDisplay();
+            
+            // Update up previous display
+            updateUpPrevDisplay();
         }
 
         // Load preferred scroll speed for current song
@@ -1981,6 +2042,41 @@
             upNextDisplay.classList.add('show');
         }
 
+        // Update "up previous" display
+        function updateUpPrevDisplay() {
+            const upPrevDisplay = document.getElementById('upPrevDisplay');
+            
+            // Hide if in single song mode or if this is the first song
+            if (isSingleSongMode || currentSongIndex <= 0) {
+                upPrevDisplay.classList.remove('show');
+                upPrevDisplay.classList.add('hidden');
+                return;
+            }
+            
+            // Get previous song data
+            const prevSong = allSongs[currentSongIndex - 1];
+            if (!prevSong) {
+                upPrevDisplay.classList.remove('show');
+                upPrevDisplay.classList.add('hidden');
+                return;
+            }
+            
+            // Find full song details from database
+            const songDetails = findSong(prevSong.artist, prevSong.song);
+            
+            // Update display elements
+            document.getElementById('upPrevSong').textContent = prevSong.song;
+            document.getElementById('upPrevArtist').textContent = prevSong.artist;
+            
+            // Update tuning (default to "Standard" if not found)
+            const tuning = songDetails && songDetails.tuning ? songDetails.tuning : 'Standard';
+            document.getElementById('upPrevTuning').textContent = tuning;
+            
+            // Show the display
+            upPrevDisplay.classList.remove('hidden');
+            upPrevDisplay.classList.add('show');
+        }
+
         // Exit performance mode
         function exitPerformance() {
             stopAutoscroll();
@@ -1990,6 +2086,13 @@
             if (upNextDisplay) {
                 upNextDisplay.classList.remove('show');
                 upNextDisplay.classList.add('hidden');
+            }
+            
+            // Hide up previous display
+            const upPrevDisplay = document.getElementById('upPrevDisplay');
+            if (upPrevDisplay) {
+                upPrevDisplay.classList.remove('show');
+                upPrevDisplay.classList.add('hidden');
             }
             
             // If we have a return URL (e.g., from chord chart editor), go there
@@ -2279,6 +2382,12 @@
             const upNextDisplay = document.getElementById('upNextDisplay');
             if (upNextDisplay) {
                 upNextDisplay.classList.add('hidden');
+            }
+            
+            // Hide up previous display (no previous song in single mode)
+            const upPrevDisplay = document.getElementById('upPrevDisplay');
+            if (upPrevDisplay) {
+                upPrevDisplay.classList.add('hidden');
             }
             
             document.getElementById('songPosition').style.display = 'none';
