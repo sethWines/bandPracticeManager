@@ -977,7 +977,7 @@
         .up-next-display {
             display: none; /* Hidden by default */
             position: fixed;
-            top: 70px;
+            top: 85px;
             right: 80px; /* Position to the left of mobile song wheel button */
             background: rgba(26, 26, 26, 0.6); /* More transparent */
             -webkit-backdrop-filter: blur(15px);
@@ -1011,7 +1011,7 @@
         .up-prev-display {
             display: none; /* Hidden by default */
             position: fixed;
-            top: 70px;
+            top: 85px;
             left: 80px; /* Position on the left side */
             background: rgba(26, 26, 26, 0.6); /* More transparent */
             -webkit-backdrop-filter: blur(15px);
@@ -1084,14 +1084,14 @@
         @media (max-width: 768px) {
             .up-next-display {
                 right: 75px; /* Adjust for mobile button size */
-                top: 75px;
+                top: 85px;
                 max-width: 160px; /* Slightly wider for mobile */
                 padding: 5px 8px;
             }
             
             .up-prev-display {
                 left: 20px; /* Adjust for mobile */
-                top: 75px;
+                top: 85px;
                 max-width: 160px; /* Slightly wider for mobile */
                 padding: 5px 8px;
             }
@@ -1113,6 +1113,51 @@
             
             .up-prev-display {
                 display: none !important; /* Hide on very small screens to save space */
+            }
+        }
+
+        /* Current Song Title Display (floating when scrolled) */
+        .current-song-title-display {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 70px; /* Just below header */
+            left: 50%;
+            transform: translateX(-50%); /* Center horizontally */
+            background: rgba(26, 26, 26, 0.6);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 6px 10px;
+            z-index: 9996; /* Below header but visible */
+            max-width: 300px; /* Wider for center display */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .current-song-title-display.show {
+            display: block;
+        }
+
+        .current-song-title-display.hidden {
+            display: none !important;
+        }
+
+        /* Mobile responsive adjustments for current song title display */
+        @media (max-width: 768px) {
+            .current-song-title-display {
+                top: 75px;
+                max-width: 250px;
+                padding: 5px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .current-song-title-display {
+                top: 70px;
+                max-width: 200px;
+                padding: 4px 6px;
             }
         }
     </style>
@@ -1397,6 +1442,14 @@
             <div class="up-next-meta">
                 <span class="up-next-artist" id="upPrevArtist">Artist</span>
                 <span class="up-next-tuning" id="upPrevTuning">Standard</span>
+            </div>
+        </div>
+
+        <!-- Current Song Title Display - appears when title scrolls out of view -->
+        <div class="current-song-title-display" id="currentSongTitleDisplay">
+            <div class="up-next-song" id="currentSongTitleText">Song Name</div>
+            <div class="up-next-meta">
+                <span class="up-next-artist" id="currentSongTitleArtist">Artist</span>
             </div>
         </div>
 
@@ -1876,6 +1929,25 @@
             
             // Update up previous display
             updateUpPrevDisplay();
+            
+            // Update current song title display content
+            const titleDisplay = document.getElementById('currentSongTitleDisplay');
+            if (titleDisplay) {
+                const titleText = document.getElementById('currentSongTitleText');
+                const titleArtist = document.getElementById('currentSongTitleArtist');
+                
+                if (titleText) {
+                    titleText.textContent = song.song;
+                }
+                if (titleArtist) {
+                    titleArtist.textContent = song.artist;
+                }
+            }
+            
+            // Update current song title display (check visibility after render)
+            setTimeout(() => {
+                updateCurrentSongTitleDisplay();
+            }, 0);
         }
 
         // Load preferred scroll speed for current song
@@ -2075,6 +2147,36 @@
             // Show the display
             upPrevDisplay.classList.remove('hidden');
             upPrevDisplay.classList.add('show');
+        }
+
+        // Update current song title display (floating when scrolled)
+        function updateCurrentSongTitleDisplay() {
+            const titleDisplay = document.getElementById('currentSongTitleDisplay');
+            const performanceContent = document.getElementById('performanceContent');
+            const performanceHeader = performanceContent ? performanceContent.querySelector('.performance-header') : null;
+            
+            if (!titleDisplay || !performanceContent || !performanceHeader) {
+                return;
+            }
+            
+            // Check if the performance header (song title) is scrolled out of view
+            const headerRect = performanceHeader.getBoundingClientRect();
+            const contentRect = performanceContent.getBoundingClientRect();
+            
+            // If header is scrolled above the viewport (top of header is above top of content area)
+            // Account for header height (approximately 60px)
+            const headerHeight = 60;
+            const isScrolledOut = headerRect.top < contentRect.top + headerHeight;
+            
+            if (isScrolledOut) {
+                // Show the floating title card
+                titleDisplay.classList.remove('hidden');
+                titleDisplay.classList.add('show');
+            } else {
+                // Hide the floating title card
+                titleDisplay.classList.remove('show');
+                titleDisplay.classList.add('hidden');
+            }
         }
 
         // Exit performance mode
@@ -2437,6 +2539,11 @@
                 performanceContent.addEventListener('click', (e) => {
                     // Close song wheel if it's open
                     closeSongWheel();
+                });
+                
+                // Add scroll listener to update floating title display
+                performanceContent.addEventListener('scroll', () => {
+                    updateCurrentSongTitleDisplay();
                 });
             }
             
