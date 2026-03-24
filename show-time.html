@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Show Time - Band Practice Manager</title>
-    <meta name="app-version" content="v2.3.0">
+    <meta name="app-version" content="v3.0.0">
     <meta name="theme-color" content="#d84315">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -220,18 +220,7 @@
             height: 16px;
         }
 
-        .header-controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 10px;
-        }
+        /* Header layout: css/layout.css (.header-controls stacked) */
 
         .nav-link {
             padding: 6px 12px;
@@ -1192,7 +1181,7 @@
         }
     </style>
 </head>
-<body>
+<body class="bpm-no-shell-watermark">
     <!-- Drum Watermark Overlay -->
     <div class="drum-watermark-overlay"></div>
     
@@ -1201,46 +1190,48 @@
     
     <!-- Header -->
     <div class="header">
-        <h1>
-            <button class="back-button" id="backButton" onclick="exitPerformance()" title="Back to Setlist Selection">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"/>
-                    <polyline points="12 19 5 12 12 5"/>
+        <div class="header-brand">
+            <h1>
+                <button class="back-button" id="backButton" onclick="exitPerformance()" title="Back to Setlist Selection">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    Back
+                </button>
+                <svg id="guitarIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; cursor: pointer; transition: opacity 0.3s;" onclick="switchWatermark('guitar')" title="Show Guitar Watermark">
+                    <circle cx="12" cy="17" r="4.5"/>
+                    <line x1="12" y1="12.5" x2="12" y2="2"/>
+                    <line x1="9" y1="5" x2="15" y2="5"/>
+                    <line x1="9" y1="8" x2="15" y2="8"/>
                 </svg>
-                Back
-            </button>
-            <svg id="guitarIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; cursor: pointer; transition: opacity 0.3s;" onclick="switchWatermark('guitar')" title="Show Guitar Watermark">
-                <circle cx="12" cy="17" r="4.5"/>
-                <line x1="12" y1="12.5" x2="12" y2="2"/>
-                <line x1="9" y1="5" x2="15" y2="5"/>
-                <line x1="9" y1="8" x2="15" y2="8"/>
-            </svg>
-            Show Time
-            <svg id="drumIcon" viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 40px; height: 24px; cursor: pointer; opacity: 0.5; transition: opacity 0.3s;" onclick="switchWatermark('drum')" title="Show Drum Watermark">
-                <circle cx="23" cy="17" r="4.5"/>
-                <line x1="16" y1="21.5" x2="16" y2="2"/>
-                <line x1="11" y1="5" x2="21" y2="5"/>
-                <line x1="18" y1="8" x2="28" y2="8"/>
-                <line x1="21" y1="10" x2="26" y2="10"/>
-                <line x1="7" y1="12.5" x2="18" y2="12.5"/>
-                <line x1="30" y1="12.5" x2="30" y2="2"/>
-                <line x1="25" y1="5" x2="35" y2="5"/>
-                <line x1="27" y1="8" x2="33" y2="8"/>
-                <line x1="26" y1="14" x2="31" y2="14"/>
-            </svg>
-        </h1>
-        
+                Show Time
+                <svg id="drumIcon" viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 40px; height: 24px; cursor: pointer; opacity: 0.5; transition: opacity 0.3s;" onclick="switchWatermark('drum')" title="Show Drum Watermark">
+                    <circle cx="23" cy="17" r="4.5"/>
+                    <line x1="16" y1="21.5" x2="16" y2="2"/>
+                    <line x1="11" y1="5" x2="21" y2="5"/>
+                    <line x1="18" y1="8" x2="28" y2="8"/>
+                    <line x1="21" y1="10" x2="26" y2="10"/>
+                    <line x1="7" y1="12.5" x2="18" y2="12.5"/>
+                    <line x1="30" y1="12.5" x2="30" y2="2"/>
+                    <line x1="25" y1="5" x2="35" y2="5"/>
+                    <line x1="27" y1="8" x2="33" y2="8"/>
+                    <line x1="26" y1="14" x2="31" y2="14"/>
+                </svg>
+            </h1>
+        </div>
+
         <div class="header-controls">
-            <div class="nav-links">
+            <nav class="header-nav-row nav-links" aria-label="Main pages">
                 <a href="song-manager.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
                         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                     </svg>
                     Songs
                 </a>
                 <a href="setlist-manager.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="8" y1="6" x2="21" y2="6"/>
                         <line x1="8" y1="12" x2="21" y2="12"/>
                         <line x1="8" y1="18" x2="21" y2="18"/>
@@ -1251,58 +1242,64 @@
                     Setlists
                 </a>
                 <a href="chord-chart-editor.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
                         <circle cx="18" cy="16" r="3"/>
                     </svg>
                     Charts
                 </a>
+                <a href="show-time.html" class="nav-link nav-link--current" aria-current="page">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Show Time
+                </a>
                 <a href="storage-wizard.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    Storage Wizard
+                    Storage
                 </a>
+            </nav>
+            <div class="header-toolbar-row">
+                <label for="themeSelector" class="visually-hidden">Select theme color</label>
+                <select id="themeSelector" name="themeSelector" class="theme-selector" title="Choose theme color" aria-label="Theme color selector" onchange="changeTheme(this.value)">
+                    <option value="grey">Grey</option>
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="purple">Purple</option>
+                    <option value="cyan">Cyan</option>
+                    <option value="teal">Teal</option>
+                    <option value="copper">Copper</option>
+                    <option value="amber">Amber</option>
+                    <option value="pink">Pink</option>
+                    <option value="sunrise">Sunrise</option>
+                    <option value="sunset">Sunset</option>
+                    <option value="synthwave">Synth</option>
+                    <option value="prism">Prism</option>
+                </select>
             </div>
-            <label for="themeSelector" class="visually-hidden">Select theme color</label>
-            <select id="themeSelector" name="themeSelector" class="theme-selector" title="Choose theme color" aria-label="Theme color selector" onchange="changeTheme(this.value)">
-                <option value="grey">Grey</option>
-                <option value="red">Red</option>
-                <option value="blue">Blue</option>
-                <option value="green">Green</option>
-                <option value="purple">Purple</option>
-                <option value="cyan">Cyan</option>
-                <option value="teal">Teal</option>
-                <option value="copper">Copper</option>
-                <option value="amber">Amber</option>
-                <option value="pink">Pink</option>
-                <option value="sunrise">Sunrise</option>
-                <option value="sunset">Sunset</option>
-                <option value="synthwave">Synth Wave</option>
-                <option value="prism">Dark Prism</option>
-            </select>
         </div>
-        
-        <!-- Mobile Navigation Orbs (Prev/Next Song) - Only visible on mobile in performance mode -->
+
         <div class="mobile-nav-orbs" id="mobileNavOrbs">
-            <button class="nav-orb" id="prevSongOrb" onclick="previousSong()" title="Previous Song">
+            <button type="button" class="nav-orb" id="prevSongOrb" onclick="previousSong()" title="Previous Song">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="19" y1="12" x2="5" y2="12"/>
                     <polyline points="12 19 5 12 12 5"/>
                 </svg>
             </button>
-            <button class="nav-orb" id="nextSongOrb" onclick="nextSong()" title="Next Song">
+            <button type="button" class="nav-orb" id="nextSongOrb" onclick="nextSong()" title="Next Song">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="5" y1="12" x2="19" y2="12"/>
                     <polyline points="12 5 19 12 12 19"/>
                 </svg>
             </button>
         </div>
-        
-        <!-- Mobile Menu Button (Hamburger) - Rightmost position -->
+
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -1324,8 +1321,8 @@
                 <div class="mobile-menu-section-title">Navigate</div>
                 <a href="song-manager.html" class="nav-link">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="19" y1="12" x2="5" y2="12"/>
-                        <polyline points="12 19 5 12 12 5"/>
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                     </svg>
                     Songs
                 </a>
@@ -1348,19 +1345,19 @@
                     </svg>
                     Charts
                 </a>
+                <a href="show-time.html" class="nav-link nav-link--current" aria-current="page">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Show Time
+                </a>
                 <a href="storage-wizard.html" class="nav-link">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    Storage Wizard
-                </a>
-                <a href="show-time.html" class="nav-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="5 3 19 12 5 21 5 3"/>
-                    </svg>
-                    Show Time
+                    Storage
                 </a>
             </div>
 
@@ -1380,8 +1377,8 @@
                     <option value="pink">Pink</option>
                     <option value="sunrise">Sunrise</option>
                     <option value="sunset">Sunset</option>
-                    <option value="synthwave">Synth Wave</option>
-                    <option value="prism">Dark Prism</option>
+                    <option value="synthwave">Synth</option>
+                    <option value="prism">Prism</option>
                 </select>
             </div>
         </div>

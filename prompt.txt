@@ -2,8 +2,8 @@
 BAND PRACTICE MANAGER - APPLICATION RECREATION GUIDE
 ===========================================
 
-VERSION: 2.1.0
-LAST UPDATED: December 2025
+VERSION: 3.0.0
+LAST UPDATED: March 2026
 PURPOSE: Complete guide for recreating the Band Practice Manager application from scratch
 
 ===========================================
@@ -44,13 +44,13 @@ VERSION MANAGEMENT SYSTEM
 - `update-version.sh` - Unix script to sync version from git
 
 **Implementation:**
-- Each HTML page has: `<meta name="app-version" content="v2.1.0">`
+- Each HTML page has: `<meta name="app-version" content="v3.0.0">` (keep in sync with version.txt)
 - Each HTML page includes: `<script src="./js/version.js"></script>`
-- Version appears in browser tab title: "Song Manager [v2.1.0]"
+- Version appears in browser tab title: "Song Manager [v3.0.0]"
 - Version appears as subtle badge below H1 title (right-aligned)
 - Badge styling: 0.45em font, 0.7 opacity, font-weight 600, right-aligned under title text
 - Protocol detection: Skips fetch on file:// to avoid CORS errors
-- Fallback chain: version.txt → meta tag → default "v2.1.0"
+- Fallback chain: version.txt → meta tag → default "v3.0.0"
 
 **Visual Layout:**
 ```

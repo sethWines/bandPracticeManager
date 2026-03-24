@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chord Chart Editor</title>
-    <meta name="app-version" content="v2.3.0">
+    <meta name="app-version" content="v3.0.0">
     <!-- PWA Manifest (disabled for file:// protocol - only works on web server) -->
     <!-- <link rel="manifest" href="./manifest.json"> -->
     <meta name="theme-color" content="#d84315">
@@ -67,77 +67,7 @@
             flex-direction: column;
         }
 
-        /* Background watermark - Guitar */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0%;
-            right: -20%;
-            width: 100%;
-            height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1' opacity='0.15'%3E%3Ccircle cx='12' cy='17' r='4.5'/%3E%3Cline x1='12' y1='12.5' x2='12' y2='2'/%3E%3Cline x1='9' y1='5' x2='15' y2='5'/%3E%3Cline x1='9' y1='8' x2='15' y2='8'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: contain;
-            pointer-events: none;
-            z-index: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        /* Background watermark - Drum (hidden by default) */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0%;
-            right: -20%;
-            width: 100%;
-            height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24' fill='none' stroke='%23ffffff' stroke-width='1.5' opacity='0.15'%3E%3Ccircle cx='23' cy='17' r='4.5'/%3E%3Cline x1='16' y1='21.5' x2='16' y2='2'/%3E%3Cline x1='11' y1='5' x2='21' y2='5'/%3E%3Cline x1='18' y1='8' x2='28' y2='8'/%3E%3Cline x1='21' y1='10' x2='26' y2='10'/%3E%3Cline x1='7' y1='12.5' x2='18' y2='12.5'/%3E%3Cline x1='30' y1='12.5' x2='30' y2='2'/%3E%3Cline x1='25' y1='5' x2='35' y2='5'/%3E%3Cline x1='27' y1='8' x2='33' y2='8'/%3E%3Cline x1='26' y1='14' x2='31' y2='14'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: contain;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        /* Show drum watermark when active */
-        body.drum-watermark::before {
-            opacity: 0;
-        }
-
-        body.drum-watermark::after {
-            opacity: 1;
-        }
-
-        /* BlackDoubt watermark overlay (hidden by default) */
-        .blackdoubt-watermark-overlay {
-            content: '';
-            position: fixed;
-            top: 0%;
-            right: -20%;
-            width: 100%;
-            height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%23ffffff' stroke-width='1' opacity='0.12'%3E%3Cpath d='M 20 3 L 37 20 L 20 37 L 3 20 Z' stroke='%23ffffff' fill='none' stroke-width='1.5'/%3E%3Ccircle cx='20' cy='20' r='13' stroke='%23ffffff' fill='none' stroke-width='1.5'/%3E%3Ctext x='20' y='20' font-size='20' font-family='serif' text-anchor='middle' dominant-baseline='central' fill='%23ffffff' stroke='none'%3E%F0%9D%94%85%3C/text%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: contain;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        /* Show BlackDoubt watermark when active */
-        body.blackdoubt-watermark::before,
-        body.blackdoubt-watermark::after {
-            opacity: 0;
-        }
-
-        body.blackdoubt-watermark .blackdoubt-watermark-overlay {
-            opacity: 1;
-        }
+        /* Watermarks: css/shell.css */
 
         /* Header */
         .visually-hidden {
@@ -187,18 +117,7 @@
             height: 20px;
         }
 
-        .header-controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 10px;
-        }
+        /* Header layout: css/layout.css (.header-controls stacked) */
 
         .nav-link {
             padding: 6px 12px;
@@ -1631,26 +1550,28 @@
     
     <!-- Header -->
     <div class="header">
-        <h1>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 18V5l12-2v13"/>
-                <circle cx="6" cy="18" r="3"/>
-                <circle cx="18" cy="16" r="3"/>
-            </svg>
-            Chord Chart Editor
-        </h1>
-        
-        <div class="header-controls" style="margin-left: auto;">
-            <div class="nav-links">
+        <div class="header-brand">
+            <h1>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18V5l12-2v13"/>
+                    <circle cx="6" cy="18" r="3"/>
+                    <circle cx="18" cy="16" r="3"/>
+                </svg>
+                Chord Chart Editor
+            </h1>
+        </div>
+
+        <div class="header-controls">
+            <nav class="header-nav-row nav-links" aria-label="Main pages">
                 <a href="song-manager.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
                         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                     </svg>
                     Songs
                 </a>
                 <a href="setlist-manager.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="8" y1="6" x2="21" y2="6"/>
                         <line x1="8" y1="12" x2="21" y2="12"/>
                         <line x1="8" y1="18" x2="21" y2="18"/>
@@ -1660,23 +1581,32 @@
                     </svg>
                     Setlists
                 </a>
+                <a href="chord-chart-editor.html" class="nav-link nav-link--current" aria-current="page">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                    Charts
+                </a>
                 <a href="show-time.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"/>
                     </svg>
                     Show Time
                 </a>
                 <a href="storage-wizard.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    Storage Wizard
+                    Storage
                 </a>
-            </div>
-            <label for="themeSelector" class="visually-hidden">Select theme color</label>
-            <select id="themeSelector" name="themeSelector" class="theme-selector" title="Choose theme color" aria-label="Theme color selector" onchange="changeTheme(this.value)">
+            </nav>
+            <div class="header-toolbar-row">
+                <label for="themeSelector" class="visually-hidden">Select theme color</label>
+                <select id="themeSelector" name="themeSelector" class="theme-selector" title="Choose theme color" aria-label="Theme color selector" onchange="changeTheme(this.value)">
                     <option value="grey">Grey</option>
                     <option value="red">Red</option>
                     <option value="blue">Blue</option>
@@ -1689,10 +1619,10 @@
                     <option value="pink">Pink</option>
                     <option value="sunrise">Sunrise</option>
                     <option value="sunset">Sunset</option>
-                    <option value="synthwave">Synth Wave</option>
-                    <option value="prism">Dark Prism</option>
+                    <option value="synthwave">Synth</option>
+                    <option value="prism">Prism</option>
                 </select>
-                <button class="btn btn-primary" onclick="togglePrintModal()">
+                <button type="button" class="btn btn-primary" onclick="togglePrintModal()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
                         <polyline points="6 9 6 2 18 2 18 9"/>
                         <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
@@ -1700,9 +1630,9 @@
                     </svg>
                     View/Print
                 </button>
+            </div>
         </div>
-        
-        <!-- Mobile Menu Button (Hamburger) - Rightmost position -->
+
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -1749,8 +1679,8 @@
                 <div class="mobile-menu-section-title">Navigate</div>
                 <a href="song-manager.html" class="nav-link">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="19" y1="12" x2="5" y2="12"/>
-                        <polyline points="12 19 5 12 12 5"/>
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                     </svg>
                     Songs
                 </a>
@@ -1765,6 +1695,14 @@
                     </svg>
                     Setlists
                 </a>
+                <a href="chord-chart-editor.html" class="nav-link nav-link--current" aria-current="page">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                    Charts
+                </a>
                 <a href="show-time.html" class="nav-link">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"/>
@@ -1777,7 +1715,7 @@
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    Storage Wizard
+                    Storage
                 </a>
             </div>
 
@@ -1818,8 +1756,8 @@
                     <option value="pink">Pink</option>
                     <option value="sunrise">Sunrise</option>
                     <option value="sunset">Sunset</option>
-                    <option value="synthwave">Synth Wave</option>
-                    <option value="prism">Dark Prism</option>
+                    <option value="synthwave">Synth</option>
+                    <option value="prism">Prism</option>
                 </select>
             </div>
         </div>
@@ -4252,97 +4190,8 @@
         };
     </script>
 
-    <!-- Theme Management Script (Inline for file:// compatibility) -->
-    <script>
-        // Synchronized theme management using localStorage
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'grey';
-            applyTheme(savedTheme);
-            
-            // Sync both desktop and mobile theme selectors
-            const themeSelector = document.getElementById('themeSelector');
-            if (themeSelector) {
-                themeSelector.value = savedTheme;
-            }
-            const mobileSelector = document.getElementById('mobileThemeSelector');
-            if (mobileSelector) {
-                mobileSelector.value = savedTheme;
-            }
-            
-            return savedTheme;
-        }
-        
-        function applyTheme(theme) {
-            if (theme === 'grey') {
-                document.body.removeAttribute('data-theme');
-            } else {
-                document.body.setAttribute('data-theme', theme);
-            }
-            updateFaviconForTheme(theme);
-        }
-        
-        function updateFaviconForTheme(theme) {
-            const watermark = localStorage.getItem('watermark') || 'guitar';
-            updateFaviconForThemeAndWatermark(theme, watermark);
-        }
-        
-        function updateFaviconForThemeAndWatermark(theme, watermarkType) {
-            const link = document.querySelector("link[rel*='icon']");
-            if (!link) return;
-            
-            // Map themes to colors (hex codes need to be URL encoded with %23)
-            const themeColors = {
-                'grey': '%23d84315',
-                'red': '%23d84315',
-                'blue': '%231976d2',
-                'green': '%23388e3c',
-                'purple': '%237b1fa2',
-                'cyan': '%2300838f',
-                'amber': '%23f57c00',
-                'pink': '%23c2185b',
-                'teal': '%2314b8a6',
-                'copper': '%23b87333',
-                'sunrise': '%23ffb700',
-                'sunset': '%23ff8c00',
-                'synthwave': '%23a78bfa',
-                'prism': '%2314b8a6'
-            };
-            
-            const color = themeColors[theme] || '%23d84315';
-            
-            // Use guitar, drum, or BlackDoubt icon based on watermark preference
-            if (watermarkType === 'drum') {
-                link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24' preserveAspectRatio='xMidYMid meet'><g transform='scale(1.4) translate(-2, -2)'><circle cx='23' cy='17' r='4.5' fill='none' stroke='${color}' stroke-width='2.5'/><line x1='16' y1='21.5' x2='16' y2='2' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='11' y1='5' x2='21' y2='5' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='18' y1='8' x2='28' y2='8' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='21' y1='10' x2='26' y2='10' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='7' y1='12.5' x2='18' y2='12.5' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='30' y1='12.5' x2='30' y2='2' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='25' y1='5' x2='35' y2='5' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='27' y1='8' x2='33' y2='8' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/><line x1='26' y1='14' x2='31' y2='14' stroke='${color}' stroke-width='2.5' stroke-linecap='round'/></g></svg>`;
-            } else if (watermarkType === 'blackdoubt') {
-                // BlackDoubt icon favicon
-                link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='${color}' stroke-width='2' stroke-linecap='round'><path d='M 20 3 L 37 20 L 20 37 L 3 20 Z' stroke='${color}' fill='none' stroke-width='2'/><circle cx='20' cy='20' r='13' stroke='${color}' fill='none' stroke-width='2'/><text x='20' y='20' font-size='20' font-family='serif' text-anchor='middle' dominant-baseline='central' fill='${color}' stroke='none'>𝔅</text></svg>`;
-            } else {
-                // Guitar icon
-                link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='${color}' stroke-width='2.5' stroke-linecap='round'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>`;
-            }
-        }
-        
-        // Change theme and save to localStorage
-        window.changeTheme = function(theme) {
-            console.log('Changing theme to:', theme);
-            localStorage.setItem('bandOrganizerTheme', theme);
-            applyTheme(theme);
-            // Sync mobile theme selector
-            const mobileSelector = document.getElementById('mobileThemeSelector');
-            if (mobileSelector && mobileSelector.value !== theme) {
-                mobileSelector.value = theme;
-            }
-            // Sync desktop theme selector
-            const desktopSelector = document.getElementById('themeSelector');
-            if (desktopSelector && desktopSelector.value !== theme) {
-                desktopSelector.value = theme;
-            }
-            console.log('Body data-theme attribute:', document.body.getAttribute('data-theme'));
-        };
-        
-        // Load theme immediately
-        loadTheme();
-    </script>
+    <script src="./js/app-shell.js"></script>
+    <script src="./js/entries/chord-chart-chrome.js"></script>
     
     <!-- Version Management -->
     <script src="./js/version.js"></script>

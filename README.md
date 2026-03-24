@@ -7,27 +7,12 @@ A powerful, browser-based application for musicians to organize their song libra
 
 ## Quick Start
 
-Get started in seconds:
+The main app is designed to open **directly from disk** (`file://`) — no Node, npm, or dev server.
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/bandPracticeManager.git
+1. Clone or copy the project folder.
+2. Double-click any HTML entry (e.g. `song-manager.html`) or open it from the browser **File → Open**.
 
-# Navigate to the project directory
-cd bandPracticeManager
-
-# OPTION 1: Use the optimized version (requires web server)
-# Windows:
-start-server.bat
-# Mac/Linux:
-./start-server.sh
-# Then open: http://localhost:8000/song-manager-optimized.html
-
-# OPTION 2: Use the original version (works directly, no server needed)
-start song-manager.html
-# On macOS: open song-manager.html
-# On Linux: xdg-open song-manager.html
-```
+Optional: if you use `song-manager-optimized.html` or other builds that rely on ES modules, run a local static server (e.g. `start-server.bat` / `start-server.sh` with Python).
 
 **New in v2.0!** The optimized version includes:
 - 🚀 40-50x faster rendering with virtual scrolling
@@ -39,6 +24,15 @@ start song-manager.html
 **⚠️ Important**: The optimized version uses ES6 modules which require a web server. Use the provided `start-server` scripts (Python required) or use the original `song-manager.html` which works without a server.
 
 > **Note**: Both versions use the same data (localStorage) so you can switch between them freely!
+
+## Architecture (rebuild / AI)
+
+- **`docs/DATA_MODEL.md`** — `localStorage` keys and shapes  
+- **`docs/UI_SHELL.md`** — shared header, themes, watermarks  
+- **`docs/PAGE_MATRIX.md`** — per-page acceptance checklist  
+- **`js/app-shell.js`** — classic script: theme, favicon, watermark (`window.BandAppShell`)  
+- **`js/entries/*-chrome.js`** — per-page bootstrap after `app-shell.js` (`file://` OK)  
+- **`css/shell.css`** — shared watermarks (imported from `layout.css`)  
 
 ## Table of Contents
 
@@ -232,7 +226,7 @@ The application displays the current git branch as a version tag in the browser 
 - **Version Tag**: Automatically appended to page titles (e.g., "Song Manager [v2.1.0]")
 - **Version File**: `version.txt` contains the current branch/version
 - **Update Script**: Run `update-version.bat` (Windows) or `update-version.sh` (Mac/Linux) to sync version with git branch
-- **Meta Tag**: `<meta name="app-version" content="v2.1.0">` in each HTML file
+- **Meta Tag**: `<meta name="app-version" content="v3.0.0">` in each HTML file
 
 ### Technology Stack
 - **HTML5** - Semantic markup

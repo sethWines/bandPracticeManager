@@ -1,7 +1,7 @@
 // Band Practice Manager - Service Worker
-// Version: 1.0.0
+// Version: 3.0.0
 
-const CACHE_NAME = 'band-manager-v1.2.0';
+const CACHE_NAME = 'band-manager-v3.0.0';
 const urlsToCache = [
     './song-manager.html',
     './setlist-manager.html',

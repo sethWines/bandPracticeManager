@@ -30,7 +30,7 @@ async function getVersion() {
     }
     
     // Default fallback - UPDATE THIS WHEN RELEASING NEW VERSION
-    return 'v2.3.0';
+    return 'v3.0.0';
 }
 
 // Add version to page title

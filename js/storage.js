@@ -158,18 +158,28 @@ export const STORAGE_KEYS = {
     SETLISTS: 'bandSetlists',           // Setlist data
     TRASH: 'songTrash',                 // Deleted songs trash
     TRASH_LEGACY: 'bandSongsTrash',     // Legacy trash key
-    
+
     // UI preferences
     THEME: 'bandOrganizerTheme',        // Active theme name
-    WATERMARK: 'watermark',             // Watermark preference (guitar/drum)
-    COLUMN_VISIBILITY: 'hiddenColumns', // Hidden table columns
-    TABLE_DENSITY: 'tableDensity',      // Table row density
-    COLUMN_WIDTHS: 'columnWidths',      // Custom column widths
-    
+    WATERMARK: 'watermark',             // guitar | drum | blackdoubt
+    COLUMN_VISIBILITY: 'hiddenColumns', // Song Manager column hide/show (JSON)
+    COLUMN_VISIBILITY_BACKUP: 'columnVisibility', // Full JSON backup field (string/JSON)
+    TABLE_DENSITY: 'tableDensity',
+    COLUMN_WIDTHS: 'columnWidths',
+    LEFT_SIDEBAR_COLLAPSED: 'leftSidebarCollapsed',
+    RIGHT_SIDEBAR_COLLAPSED: 'rightSidebarCollapsed',
+    RIGHT_PANEL_COLLAPSED: 'rightPanelCollapsed',
+    SETLIST_MANAGER_SESSION: 'setlistManagerSession',
+
     // Features
-    SAVED_FILTERS: 'savedFilters',      // Saved filter presets
-    STATS_PREFERENCES: 'statsPreferences', // Statistics display preferences
-    EDIT_SONG_SEARCH: 'editSongSearch', // Temporary cross-page song search
-    CHORD_CHART_AUTOSAVE: 'chordChartAutosave' // Temporary save during editing
+    SAVED_FILTERS: 'savedFilters',
+    STATS_PREFERENCES: 'statsPreferences',
+    EDIT_SONG_SEARCH: 'editSongSearch',
+    CHORD_CHART_AUTOSAVE: 'chordChartAutosave',
+    PENDING_CSV_IMPORT: 'pendingCSVImport',
+    PENDING_CSV_FILENAME: 'pendingCSVFilename',
+    SPOTIFY_CLIENT_ID: 'spotifyClientId',
+    SPOTIFY_CLIENT_SECRET: 'spotifyClientSecret',
+    CONFIG_MANAGER: 'configManager'
 };
 
