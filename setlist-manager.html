@@ -3270,12 +3270,11 @@
     
     <input type="file" id="importSetlistsFileInput" accept="application/json,.json" style="display: none;" aria-label="Import setlists JSON" onchange="onImportSetlistsFileInputChange(event)">
 
+    <!-- Setlist JSON export/import (classic script — works on file://; ES modules often never load there) -->
+    <script src="./js/setlist-portable.js"></script>
+
     <!-- Version Management -->
     <script src="./js/version.js"></script>
-    <script type="module">
-        import * as PortableSetlist from './js/setlist-portable.js';
-        window.PortableSetlist = PortableSetlist;
-    </script>
 </body>
 </html>
 

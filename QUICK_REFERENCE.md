@@ -433,14 +433,15 @@ Used by **Setlist Manager**: **Export Setlists** opens a checklist modal (and ea
 - **Chord chart**: merged from the file only if newer, using `chordChartUpdatedAt` with fallback to `updatedAt` on each side. Same “missing timestamp → accept import” rule.
 - Imported setlists are **appended** to existing setlists; slots point at the merged library rows.
 
+`setlist-portable.js` is a **plain script** (not an ES module): include `<script src="./js/setlist-portable.js"></script>` and use `window.PortableSetlist` (Setlist Manager does this automatically).
+
 ```javascript
-import * as Portable from './js/setlist-portable.js';
+const P = window.PortableSetlist;
+const payload = P.buildExportPayload([oneSetlist], songs);
+P.downloadJsonPayload(payload, 'my-setlist-full.json');
 
-const payload = Portable.buildExportPayload([oneSetlist], songs);
-Portable.downloadJsonPayload(payload, 'my-setlist-full.json');
-
-Portable.validateImportPayload(parsed);
-const { songs, setlists, stats } = Portable.mergeImportPayload(parsed, { songs, setlists });
+P.validateImportPayload(parsed);
+const { songs, setlists, stats } = P.mergeImportPayload(parsed, { songs, setlists });
 ```
 
 Chord chart saves in **Chord Chart Editor** set `chordChartUpdatedAt` and `updatedAt` so imports can resolve conflicts correctly.
