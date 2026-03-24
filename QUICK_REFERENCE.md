@@ -415,6 +415,36 @@ tableRenderer.options.rowHeight = 40; // Adjust if needed
 tableRenderer.refresh();
 ```
 
+## Setlist JSON export/import (`js/setlist-portable.js`)
+
+Used by **Setlist Manager** (sidebar and per-setlist **JSON** button). Exports a versioned JSON file with full song snapshots per slot (including `chordChart` when present), enriched from the song library.
+
+**Envelope**
+
+- `format`: `"bandPracticeManager-setlist"`
+- `version`: `1`
+- `exportedAt`: ISO timestamp
+- `setlists`: array of `{ name, band, id?, sets: [{ name, songs: [...] }] }`
+
+**Import merge rules**
+
+- Songs are matched by **artist + song** (trimmed). New songs are appended to the library with a new `id`.
+- **Metadata** (all fields except `chordChart` / `chordChartUpdatedAt`): merged from the file only if the import is newer than local, using `updatedAt`. If either side has no valid timestamp, the import value is applied.
+- **Chord chart**: merged from the file only if newer, using `chordChartUpdatedAt` with fallback to `updatedAt` on each side. Same “missing timestamp → accept import” rule.
+- Imported setlists are **appended** to existing setlists; slots point at the merged library rows.
+
+```javascript
+import * as Portable from './js/setlist-portable.js';
+
+const payload = Portable.buildExportPayload([oneSetlist], songs);
+Portable.downloadJsonPayload(payload, 'my-setlist-full.json');
+
+Portable.validateImportPayload(parsed);
+const { songs, setlists, stats } = Portable.mergeImportPayload(parsed, { songs, setlists });
+```
+
+Chord chart saves in **Chord Chart Editor** set `chordChartUpdatedAt` and `updatedAt` so imports can resolve conflicts correctly.
+
 ## Migration Checklist
 
 - [ ] Add module script tags

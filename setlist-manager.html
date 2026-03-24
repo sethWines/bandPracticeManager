@@ -850,6 +850,28 @@
                 </svg>
                 Export All
             </button>
+            <button class="btn btn-secondary" onclick="exportSelectedSetlistJsonFull()" style="width: 100%; margin-bottom: 10px;" title="Export selected setlist with full song + chord chart data (JSON)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                </svg>
+                Export JSON (full)
+            </button>
+            <button class="btn btn-secondary" onclick="exportAllSetlistsJsonFull()" style="width: 100%; margin-bottom: 10px;" title="Export all setlists with full song + chord chart data (JSON)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                </svg>
+                Export all JSON (full)
+            </button>
+            <button class="btn btn-secondary" onclick="triggerImportSetlistsJson()" style="width: 100%; margin-bottom: 10px;" title="Import setlists and merge songs using timestamps">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Import JSON
+            </button>
             <button class="btn btn-secondary" onclick="openPrintSelectionModal()" style="width: 100%; margin-bottom: 10px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="6 9 6 2 18 2 18 9"/>
@@ -1270,11 +1292,19 @@
         // Save songs to localStorage
         function saveSongs() {
             try {
-                localStorage.setItem('songDatabase', JSON.stringify(songs));
+                const data = JSON.stringify(songs);
+                localStorage.setItem('songDatabase', data);
+                localStorage.setItem('bandSongs', data);
                 console.log('[Setlist Manager] Saved', songs.length, 'songs to localStorage');
+                return true;
             } catch (e) {
                 console.error('[Setlist Manager] Error saving songs:', e);
-                alert('Error saving songs: ' + e.message);
+                const msg =
+                    e && e.name === 'QuotaExceededError'
+                        ? 'Browser storage is full. Free space and try again.'
+                        : e.message;
+                alert('Error saving songs: ' + msg);
+                return false;
             }
         }
 
@@ -1319,7 +1349,7 @@
                 }
             ];
             
-            saveSetlists();
+            saveSetlistsToStorage();
             console.log('Demo setlist created');
         }
 
@@ -1475,7 +1505,18 @@
 
         // Save setlists
         function saveSetlistsToStorage() {
-            localStorage.setItem('bandSetlists', JSON.stringify(setlists));
+            try {
+                localStorage.setItem('bandSetlists', JSON.stringify(setlists));
+                return true;
+            } catch (e) {
+                console.error('[Setlist Manager] Error saving setlists:', e);
+                const msg =
+                    e && e.name === 'QuotaExceededError'
+                        ? 'Browser storage is full. Free space and try again.'
+                        : e.message;
+                alert('Error saving setlists: ' + msg);
+                return false;
+            }
         }
         
         // Auto-update set names based on position (1st Set, 2nd Set, etc.)
@@ -1749,6 +1790,13 @@
                                 <polyline points="7 3 7 8 15 8"/>
                             </svg>
                             Export
+                        </button>
+                        <button class="btn-secondary btn-small" onclick="exportSetlistJsonFull(${setlistIndex})" title="Full JSON including chord charts">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17 21 17 13 7 13 7 21"/>
+                            </svg>
+                            JSON
                         </button>
                         <button class="btn-secondary btn-small" onclick="printSetlist(${setlistIndex})">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
@@ -2128,8 +2176,8 @@
                 }
             });
 
-            // Save updated songs with play counts
-            localStorage.setItem('bandSongs', JSON.stringify(songs));
+            // Save updated songs with play counts (both storage keys)
+            saveSongs();
 
             // Add to the selected set
             setlists[currentSetlistIndex].sets[targetSetIndex].songs.push(...songsToAdd);
@@ -2241,8 +2289,10 @@
             
             console.log('[Save Edit] Saving changes for song:', editingSongContext);
             
+            const prev = songs[editingSongContext.songIndex];
             // Get the updated song data
             const updatedSong = {
+                id: prev.id != null ? prev.id : (Date.now() + Math.random()),
                 artist: document.getElementById('editArtist').value.trim(),
                 song: document.getElementById('editSongName').value.trim(),
                 album: document.getElementById('editAlbum').value.trim(),
@@ -2256,10 +2306,12 @@
                 firstNote: document.getElementById('editFirstNote').value.trim(),
                 lastNote: document.getElementById('editLastNote').value.trim(),
                 // Preserve existing data
-                playCount: songs[editingSongContext.songIndex].playCount || 0,
-                lastPlayed: songs[editingSongContext.songIndex].lastPlayed || null,
-                createdAt: songs[editingSongContext.songIndex].createdAt || new Date().toISOString(),
-                chordChart: songs[editingSongContext.songIndex].chordChart || null
+                playCount: prev.playCount || 0,
+                lastPlayed: prev.lastPlayed || null,
+                createdAt: prev.createdAt || new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                chordChart: prev.chordChart || null,
+                chordChartUpdatedAt: prev.chordChartUpdatedAt || null
             };
             
             console.log('[Save Edit] Updated song data:', updatedSong);
@@ -2836,6 +2888,111 @@
             a.click();
             window.URL.revokeObjectURL(url);
         }
+
+        function portableModuleReady() {
+            return typeof window.PortableSetlist !== 'undefined';
+        }
+
+        function safeFilenamePart(s) {
+            return String(s || 'export').replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, '-');
+        }
+
+        function exportSelectedSetlistJsonFull() {
+            if (!portableModuleReady()) {
+                alert('Export module is still loading. Wait a moment and try again.');
+                return;
+            }
+            if (selectedSetlistIndex < 0 || !setlists[selectedSetlistIndex]) {
+                alert('Select a setlist in the sidebar first.');
+                return;
+            }
+            const sl = setlists[selectedSetlistIndex];
+            const payload = window.PortableSetlist.buildExportPayload([sl], songs);
+            window.PortableSetlist.downloadJsonPayload(
+                payload,
+                `${safeFilenamePart(sl.name)}-${safeFilenamePart(sl.band)}-full.json`
+            );
+        }
+
+        function exportSetlistJsonFull(setlistIndex) {
+            if (!portableModuleReady()) {
+                alert('Export module is still loading. Wait a moment and try again.');
+                return;
+            }
+            if (setlistIndex < 0 || !setlists[setlistIndex]) {
+                alert('Setlist not found.');
+                return;
+            }
+            const sl = setlists[setlistIndex];
+            const payload = window.PortableSetlist.buildExportPayload([sl], songs);
+            window.PortableSetlist.downloadJsonPayload(
+                payload,
+                `${safeFilenamePart(sl.name)}-${safeFilenamePart(sl.band)}-full.json`
+            );
+        }
+
+        function exportAllSetlistsJsonFull() {
+            if (!portableModuleReady()) {
+                alert('Export module is still loading. Wait a moment and try again.');
+                return;
+            }
+            if (setlists.length === 0) {
+                alert('No setlists to export!');
+                return;
+            }
+            const payload = window.PortableSetlist.buildExportPayload(setlists, songs);
+            const d = new Date().toISOString().split('T')[0];
+            window.PortableSetlist.downloadJsonPayload(payload, `all-setlists-full-${d}.json`);
+        }
+
+        function triggerImportSetlistsJson() {
+            document.getElementById('importSetlistsFileInput').click();
+        }
+
+        function onImportSetlistsFileInputChange(ev) {
+            const input = ev.target;
+            const f = input.files && input.files[0];
+            input.value = '';
+            if (!f) return;
+            if (!portableModuleReady()) {
+                alert('Import module is still loading. Wait a moment and try again.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function () {
+                try {
+                    const payload = JSON.parse(reader.result);
+                    window.PortableSetlist.validateImportPayload(payload);
+                    const result = window.PortableSetlist.mergeImportPayload(payload, { songs, setlists });
+                    songs = result.songs;
+                    setlists = result.setlists;
+                    if (!saveSongs()) return;
+                    if (!saveSetlistsToStorage()) return;
+                    renderBandSidebar();
+                    renderSetlistCenter();
+                    const s = result.stats;
+                    alert(
+                        [
+                            'Import complete.',
+                            '',
+                            `Setlists added: ${s.setlistsImported}`,
+                            `Songs added: ${s.songsAdded}`,
+                            `Song metadata — merged from file: ${s.songsMetaFromImport}`,
+                            `Song metadata — kept local: ${s.songsMetaKeptLocal}`,
+                            `Chord charts — merged from file: ${s.songsChordFromImport}`,
+                            `Chord charts — kept local: ${s.songsChordKeptLocal}`
+                        ].join('\n')
+                    );
+                } catch (e) {
+                    console.error(e);
+                    alert('Import failed: ' + (e.message || String(e)));
+                }
+            };
+            reader.onerror = function () {
+                alert('Could not read file.');
+            };
+            reader.readAsText(f);
+        }
     </script>
 
     <!-- Theme Management Script (Inline for file:// compatibility) -->
@@ -3014,8 +3171,14 @@
         loadTheme();
     </script>
     
+    <input type="file" id="importSetlistsFileInput" accept="application/json,.json" style="display: none;" aria-label="Import setlists JSON" onchange="onImportSetlistsFileInputChange(event)">
+
     <!-- Version Management -->
     <script src="./js/version.js"></script>
+    <script type="module">
+        import * as PortableSetlist from './js/setlist-portable.js';
+        window.PortableSetlist = PortableSetlist;
+    </script>
 </body>
 </html>
 

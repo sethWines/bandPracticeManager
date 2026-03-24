@@ -3948,7 +3948,10 @@
             const songIndex = parseInt(currentSongId);
 
             if (songIndex >= 0 && songIndex < songs.length) {
+                const nowIso = new Date().toISOString();
                 songs[songIndex].chordChart = chartData;
+                songs[songIndex].chordChartUpdatedAt = nowIso;
+                songs[songIndex].updatedAt = nowIso;
                 Storage.set(STORAGE_KEYS.SONGS, songs);
                 Storage.set(STORAGE_KEYS.SONGS_LEGACY, songs); // Backup
 
