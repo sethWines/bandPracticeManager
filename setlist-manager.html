@@ -769,6 +769,33 @@
                 </a>
             </div>
             
+            <!-- Setlist actions (same as right sidebar) -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Setlists</div>
+                <button class="btn btn-primary" onclick="openCreateSetlistModal(); toggleMobileMenu();" style="width: 100%; margin-bottom: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Create Setlist
+                </button>
+                <button class="btn btn-secondary" onclick="triggerImportSetlistsJson(); toggleMobileMenu();" style="width: 100%; margin-bottom: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Import Setlist
+                </button>
+                <button class="btn btn-secondary" onclick="openExportJsonSelectionModal(); toggleMobileMenu();" style="width: 100%; margin-bottom: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                    </svg>
+                    Export Setlists
+                </button>
+            </div>
+
             <!-- Bands Section (Shows sidebar) -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-section-title">Bands & Components</div>
@@ -843,34 +870,27 @@
                 </svg>
                 Create Setlist
             </button>
+            <button class="btn btn-secondary" onclick="triggerImportSetlistsJson()" style="width: 100%; margin-bottom: 10px;" title="Import setlists from JSON (merges songs by date)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Import Setlist
+            </button>
+            <button class="btn btn-secondary" onclick="openExportJsonSelectionModal()" style="width: 100%; margin-bottom: 10px;" title="Choose setlists to export as JSON (full song + chord data)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                </svg>
+                Export Setlists
+            </button>
             <button class="btn btn-secondary" onclick="exportAllSetlists()" style="width: 100%; margin-bottom: 10px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                     <polyline points="17 21 17 13 7 13 7 21"/>
                 </svg>
                 Export All
-            </button>
-            <button class="btn btn-secondary" onclick="exportSelectedSetlistJsonFull()" style="width: 100%; margin-bottom: 10px;" title="Export selected setlist with full song + chord chart data (JSON)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                    <polyline points="17 21 17 13 7 13 7 21"/>
-                </svg>
-                Export JSON (full)
-            </button>
-            <button class="btn btn-secondary" onclick="exportAllSetlistsJsonFull()" style="width: 100%; margin-bottom: 10px;" title="Export all setlists with full song + chord chart data (JSON)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                    <polyline points="17 21 17 13 7 13 7 21"/>
-                </svg>
-                Export all JSON (full)
-            </button>
-            <button class="btn btn-secondary" onclick="triggerImportSetlistsJson()" style="width: 100%; margin-bottom: 10px;" title="Import setlists and merge songs using timestamps">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                Import JSON
             </button>
             <button class="btn btn-secondary" onclick="openPrintSelectionModal()" style="width: 100%; margin-bottom: 10px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1082,6 +1102,37 @@
                     Print Selected
                 </button>
                 <button type="button" class="btn-secondary" onclick="closePrintSelectionModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export JSON: select setlists modal -->
+    <div id="exportJsonSelectionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Export Setlists (JSON)</h2>
+                <span class="close" onclick="closeExportJsonSelectionModal()">&times;</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 12px; font-size: 14px;">
+                Select setlists to download. The file includes full song fields and chord charts where present.
+            </p>
+            <div style="margin: 20px 0;">
+                <label style="display: flex; align-items: center; gap: 10px; padding: 10px; cursor: pointer; border: 2px solid var(--primary-border); border-radius: 6px; margin-bottom: 10px; background: var(--primary-bg);">
+                    <input type="checkbox" id="selectAllExportJson" onchange="toggleSelectAllExportJson()">
+                    <strong style="color: var(--primary-light);">Select All</strong>
+                </label>
+                <div id="exportJsonSetlistsList" style="max-height: 400px; overflow-y: auto; border: 2px solid var(--primary-border); border-radius: 6px; padding: 10px; background: rgba(0,0,0,0.3);">
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="button" class="btn-primary" onclick="exportSelectedSetlistsJsonFromModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                    </svg>
+                    Export Selected
+                </button>
+                <button type="button" class="btn-secondary" onclick="closeExportJsonSelectionModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -2897,21 +2948,75 @@
             return String(s || 'export').replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, '-');
         }
 
-        function exportSelectedSetlistJsonFull() {
+        function getSetlistSetsForExportModal(setlist) {
+            if (setlist.sets && Array.isArray(setlist.sets)) {
+                return setlist.sets;
+            }
+            return [{ name: '1st Set', songs: setlist.songs || [] }];
+        }
+
+        function openExportJsonSelectionModal() {
+            if (setlists.length === 0) {
+                alert('No setlists to export!');
+                return;
+            }
             if (!portableModuleReady()) {
                 alert('Export module is still loading. Wait a moment and try again.');
                 return;
             }
-            if (selectedSetlistIndex < 0 || !setlists[selectedSetlistIndex]) {
-                alert('Select a setlist in the sidebar first.');
+            const listEl = document.getElementById('exportJsonSetlistsList');
+            listEl.innerHTML = setlists
+                .map((setlist, idx) => {
+                    const sets = getSetlistSetsForExportModal(setlist);
+                    const songCount = sets.reduce((sum, set) => sum + (set.songs || []).length, 0);
+                    const setCount = sets.length;
+                    return `
+                <label style="display: flex; align-items: center; gap: 10px; padding: 10px; cursor: pointer; border: 1px solid var(--primary-border); border-radius: 6px; margin-bottom: 8px; transition: all 0.2s ease;" onmouseover="this.style.background='var(--primary-bg)'" onmouseout="this.style.background='transparent'">
+                    <input type="checkbox" class="export-json-setlist-checkbox" data-index="${idx}">
+                    <div>
+                        <div style="font-weight: bold; color: var(--primary-light);">${escapeHtml(setlist.name)}</div>
+                        <div style="font-size: 0.9em; color: #999;">${escapeHtml(setlist.band)} • ${songCount} songs • ${setCount} set${setCount !== 1 ? 's' : ''}</div>
+                    </div>
+                </label>`;
+                })
+                .join('');
+            document.getElementById('selectAllExportJson').checked = false;
+            document.getElementById('exportJsonSelectionModal').style.display = 'block';
+        }
+
+        function closeExportJsonSelectionModal() {
+            document.getElementById('exportJsonSelectionModal').style.display = 'none';
+            const sel = document.getElementById('selectAllExportJson');
+            if (sel) sel.checked = false;
+        }
+
+        function toggleSelectAllExportJson() {
+            const selectAll = document.getElementById('selectAllExportJson');
+            document.querySelectorAll('.export-json-setlist-checkbox').forEach((cb) => {
+                cb.checked = selectAll.checked;
+            });
+        }
+
+        function exportSelectedSetlistsJsonFromModal() {
+            if (!portableModuleReady()) {
+                alert('Export module is still loading. Wait a moment and try again.');
                 return;
             }
-            const sl = setlists[selectedSetlistIndex];
-            const payload = window.PortableSetlist.buildExportPayload([sl], songs);
-            window.PortableSetlist.downloadJsonPayload(
-                payload,
-                `${safeFilenamePart(sl.name)}-${safeFilenamePart(sl.band)}-full.json`
-            );
+            const checkboxes = document.querySelectorAll('.export-json-setlist-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('Please select at least one setlist to export.');
+                return;
+            }
+            const indices = Array.from(checkboxes).map((cb) => parseInt(cb.dataset.index, 10));
+            const selected = indices.map((i) => setlists[i]);
+            const payload = window.PortableSetlist.buildExportPayload(selected, songs);
+            const d = new Date().toISOString().split('T')[0];
+            const filename =
+                selected.length === 1
+                    ? `${safeFilenamePart(selected[0].name)}-${safeFilenamePart(selected[0].band)}-full.json`
+                    : `setlists-export-${d}.json`;
+            window.PortableSetlist.downloadJsonPayload(payload, filename);
+            closeExportJsonSelectionModal();
         }
 
         function exportSetlistJsonFull(setlistIndex) {
@@ -2929,20 +3034,6 @@
                 payload,
                 `${safeFilenamePart(sl.name)}-${safeFilenamePart(sl.band)}-full.json`
             );
-        }
-
-        function exportAllSetlistsJsonFull() {
-            if (!portableModuleReady()) {
-                alert('Export module is still loading. Wait a moment and try again.');
-                return;
-            }
-            if (setlists.length === 0) {
-                alert('No setlists to export!');
-                return;
-            }
-            const payload = window.PortableSetlist.buildExportPayload(setlists, songs);
-            const d = new Date().toISOString().split('T')[0];
-            window.PortableSetlist.downloadJsonPayload(payload, `all-setlists-full-${d}.json`);
         }
 
         function triggerImportSetlistsJson() {
@@ -3147,6 +3238,12 @@
             window.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal')) {
                     e.target.classList.remove('active');
+                    if (e.target.id === 'printSelectionModal') {
+                        closePrintSelectionModal();
+                    }
+                    if (e.target.id === 'exportJsonSelectionModal') {
+                        closeExportJsonSelectionModal();
+                    }
                 }
             });
             

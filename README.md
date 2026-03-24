@@ -330,7 +330,7 @@ Themes sync between Song Manager and Setlist Manager automatically!
 
 ### Setlist JSON (full export / import)
 
-In **Setlist Manager**, use **Export JSON (full)** / **Export all JSON (full)** to download a JSON file that includes every song field in each setlist slot, including chord charts. **Import JSON** merges into your existing library and appends the imported setlists. Song and chord data are applied only when the import is newer (by `updatedAt` / `chordChartUpdatedAt`); if a timestamp is missing on either side, the import wins for that decision. See **QUICK_REFERENCE.md** for the exact schema and API (`js/setlist-portable.js`).
+In **Setlist Manager**, use **Export Setlists** to pick which setlists to download as one JSON file (full song fields and chord charts per slot). Use **Import Setlist** to merge from a JSON file into your library and append setlists. Song and chord data are applied only when the import is newer (by `updatedAt` / `chordChartUpdatedAt`); if a timestamp is missing on either side, the import wins for that decision. See **QUICK_REFERENCE.md** for the exact schema and API (`js/setlist-portable.js`).
 
 ---
 

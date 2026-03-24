@@ -417,7 +417,7 @@ tableRenderer.refresh();
 
 ## Setlist JSON export/import (`js/setlist-portable.js`)
 
-Used by **Setlist Manager** (sidebar and per-setlist **JSON** button). Exports a versioned JSON file with full song snapshots per slot (including `chordChart` when present), enriched from the song library.
+Used by **Setlist Manager**: **Export Setlists** opens a checklist modal (and each setlist card still has a **JSON** button for a quick single export). **Import Setlist** loads a file. Exports a versioned JSON file with full song snapshots per slot (including `chordChart` when present), enriched from the song library.
 
 **Envelope**
 
