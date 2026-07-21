@@ -1598,6 +1598,23 @@
             ).join('');
         }
 
+        // Merge setlist song references with full song data from the library
+        function enrichSongData(songRef) {
+            const fullSong = songs.find(s => s.artist === songRef.artist && s.song === songRef.song);
+
+            if (fullSong) {
+                return {
+                    ...songRef,
+                    link: fullSong.link,
+                    key: fullSong.key || songRef.key,
+                    tuning: fullSong.tuning || songRef.tuning,
+                    duration: fullSong.duration || songRef.duration,
+                    chordChart: fullSong.chordChart
+                };
+            }
+            return songRef;
+        }
+
         // Parse duration (mm:ss) to seconds
         function parseDuration(duration) {
             if (!duration || typeof duration !== 'string') return 0;
@@ -1618,8 +1635,8 @@
         // Calculate total set duration
         function calculateSetDuration(setObj) {
             let totalSeconds = 0;
-            setObj.songs.forEach(song => {
-                totalSeconds += parseDuration(song.duration);
+            setObj.songs.forEach(songRef => {
+                totalSeconds += parseDuration(enrichSongData(songRef).duration);
             });
             return totalSeconds;
         }
@@ -1637,25 +1654,6 @@
             // Initialize expanded state for this setlist if not exists
             if (!expandedSets[setlistIndex]) {
                 expandedSets[setlistIndex] = {};
-            }
-            
-            // Helper function to enrich song with data from global library
-            function enrichSongData(songRef) {
-                // Find the full song data from the global library
-                const fullSong = songs.find(s => s.artist === songRef.artist && s.song === songRef.song);
-                
-                // Return enriched song with all properties from library
-                if (fullSong) {
-                    return {
-                        ...songRef,  // Keep any setlist-specific properties
-                        link: fullSong.link,
-                        key: fullSong.key || songRef.key,
-                        tuning: fullSong.tuning || songRef.tuning,
-                        duration: fullSong.duration || songRef.duration,
-                        chordChart: fullSong.chordChart
-                    };
-                }
-                return songRef; // Return as-is if not found in library
             }
             
             const totalSongs = setlist.sets.reduce((sum, set) => sum + set.songs.length, 0);
