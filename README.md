@@ -3,42 +3,19 @@
 
 ![Song Manager Dashboard](img/songManagerDashboard.png)
 
-A powerful, browser-based application for musicians to organize their song library and create performance setlists. Built with vanilla JavaScript and designed to work completely offline using browser localStorage.
+A powerful, browser-based application for musicians to organize their song library and create performance setlists. Built with vanilla JavaScript — open the HTML files directly in a modern browser; no server, install, or account required. All data stays in browser `localStorage`.
 
 ## Quick Start
 
-Get started in seconds:
+1. Open **`song-manager.html`** in Chrome, Edge, Firefox, or Safari (double-click or drag into the browser).
+2. Add songs manually or use **Bulk Import Songs** (CSV file or paste from a spreadsheet).
+3. Open **`setlist-manager.html`** to build setlists, print full sheets, or print **Pocket Cards**.
+4. Use **`storage-wizard.html`** for backup/restore guidance and configuration snapshots.
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/bandPracticeManager.git
+Sample data: `samples/sample-songs.csv`  
+Browser matrix and manual test checklist: **`BROWSER_CHECKLIST.md`**
 
-# Navigate to the project directory
-cd bandPracticeManager
-
-# OPTION 1: Use the optimized version (requires web server)
-# Windows:
-start-server.bat
-# Mac/Linux:
-./start-server.sh
-# Then open: http://localhost:8000/song-manager-optimized.html
-
-# OPTION 2: Use the original version (works directly, no server needed)
-start song-manager.html
-# On macOS: open song-manager.html
-# On Linux: xdg-open song-manager.html
-```
-
-**New in v2.0!** The optimized version includes:
-- 🚀 40-50x faster rendering with virtual scrolling
-- 🔍 5-10x faster search with debouncing
-- 💾 90% reduction in memory usage
-- 🎨 Toast notifications and loading states
-- ⌨️ Keyboard shortcuts (Ctrl+F, Ctrl+N, Escape)
-
-**⚠️ Important**: The optimized version uses ES6 modules which require a web server. Use the provided `start-server` scripts (Python required) or use the original `song-manager.html` which works without a server.
-
-> **Note**: Both versions use the same data (localStorage) so you can switch between them freely!
+> **Delivery model:** The supported path is direct `file://` launch. Service workers and PWA install are **not** used (`sw.js` is an inactive stub). Optional local web servers work but are not required.
 
 ## Table of Contents
 
@@ -74,11 +51,10 @@ start song-manager.html
 ## Key Features
 
 ### High Performance Architecture 🚀
-- **Virtual Scrolling**: Handles 5000+ songs smoothly (40-50x faster rendering)
-- **Smart Caching**: In-memory cache reduces localStorage overhead by 90%
-- **Debounced Search**: 300ms debounce provides instant search feel
-- **Pagination**: Configurable rows per page (25-250)
-- **Optimized Rendering**: Only renders visible rows, minimal DOM updates
+- **Paginated table rendering** with `PaginatedTable` — avoids full-table `innerHTML` rebuilds on large libraries
+- **Debounced search** and cached stats for responsive filtering
+- **Batch import writes** with indexed duplicate detection
+- **Shared classic scripts** (`js/song-data.js`, `js/song-import.js`, `js/app-shell.js`) — work on `file://` without ES modules
 
 ### Song Database Management
 - Store unlimited songs with detailed metadata:
@@ -93,19 +69,19 @@ start song-manager.html
 - **Column Visibility**: Show/hide columns as needed
 - **Sortable Columns**: Click headers to sort data
 - **Bulk Operations**: Edit or delete multiple songs at once
-- **CSV Import/Export**: Easy data backup and migration
+- **Bulk Import Songs**: CSV upload or paste; header mapping, row validation, per-row duplicate decisions (keep / update / skip), batch apply, undo
+- **CSV Import/Export**: Template at `samples/sample-songs.csv`; test fixtures in `samples/import-fixtures/`
 
 ### Setlist Manager
 - Create professional setlists for performances
 - Organize songs into multiple sets (1st Set, 2nd Set, etc.)
 - **Drag-and-Drop Reordering**: Easily arrange song order
-- **Print-Ready Output**: Generate formatted setlists for printing
+- **Print-Ready Output**: Full-sheet setlists plus **Pocket Cards** (wallet 3.5×2 in or credit-card 3.375×2.125 in) with optional artist subtext
 - **Multiple Setlists**: Manage different shows or venues
 - **CSV Export**: Share setlists with band members
 
 ### Customization & Themes
-- **9 Color Themes**: Choose your style
-  - Grey (Default), Red/Orange, Blue, Green, Purple, Cyan, Amber, Pink, Teal
+- **14 color themes**: Grey, Red, Blue, Green, Purple, Cyan, Amber, Pink, Teal, Copper, Sunrise, Sunset, Synthwave, Prism
 - **Dark Mode Interface**: Easy on the eyes during late-night practice
 - **Responsive Design**: Works on desktop, tablet, and mobile
 - **Synchronized Theming**: Theme selection syncs between Song Manager and Setlist Manager
@@ -150,9 +126,9 @@ start song-manager.html
    - "Bulk Delete" to remove multiple songs
 
 4. **Import/Export**
-   - Export your entire library to CSV
-   - Import songs from CSV files
-   - Perfect for backups or sharing
+   - **Bulk Import Songs** — CSV file or pasted spreadsheet/text with duplicate review
+   - Export library to CSV or full JSON backup
+   - See `samples/sample-songs.csv` for the import template
 
 #### Creating Setlists
 
@@ -175,8 +151,9 @@ start song-manager.html
    - Move songs between sets if needed
 
 5. **Print or Export**
-   - Click "Print" to create formatted output
-   - Use "Export" to save as CSV
+   - **Print** for full-sheet setlists
+   - **Pocket Cards** for wallet- or credit-card-sized song cards
+   - **Export** to CSV or JSON
    - Share with band members!
 
 [↑ Back to Top](#band-manager---song--setlist-organizer)
@@ -248,11 +225,10 @@ The application displays the current git branch as a version tag in the browser 
 - localStorage support (enabled by default)
 
 ### Data Storage
-- **Songs**: Stored in localStorage key `"bandSongs"`
-- **Setlists**: Stored in localStorage key `"setlists"`
-- **Theme**: Stored in localStorage key `"bandOrganizerTheme"`
-- **Column Visibility**: Stored in localStorage key `"columnVisibility"`
-- **No Backend**: Everything runs client-side
+- **Songs**: `songDatabase` (also mirrored to legacy key `bandSongs`)
+- **Setlists**: `bandSetlists`
+- **Theme**: `bandOrganizerTheme`
+- **No Backend**: Everything runs client-side in the browser
 
 ### Privacy & Security
 - All data stored locally in your browser
@@ -269,12 +245,27 @@ The application displays the current git branch as a version tag in the browser 
 
 ```
 bandPracticeManager/
-├── song-manager.html        # Main song database interface
-├── setlist-manager.html     # Setlist creation and management
-├── sample-songs.csv         # Example data for testing
-├── prompt.txt               # Complete recreation guide
-├── .gitignore               # Protects personal data
-└── README.md                # This file
+├── song-manager.html          # Song library, bulk import, export
+├── setlist-manager.html       # Setlists, full print, pocket cards
+├── chord-chart-editor.html    # Per-song chord charts
+├── show-time.html             # Performance / navigation mode
+├── storage-wizard.html        # Backup, restore, configurations
+├── js/
+│   ├── song-data.js           # IDs, validation, safe merge, export
+│   ├── song-import.js         # Bulk CSV/paste import with duplicate review
+│   ├── app-shell.js           # Shared theme, toast, mobile menu
+│   ├── table-helper.js        # PaginatedTable
+│   ├── pocket-cards.js        # Pocket card print layouts
+│   └── setlist-portable.js    # Setlist JSON export/import
+├── css/
+│   ├── themes.css             # 14 theme color schemes
+│   └── layout.css             # Shared layout, nav, modals, import UI
+├── samples/
+│   ├── sample-songs.csv
+│   └── import-fixtures/       # Duplicate, conflict, invalid test CSVs
+├── BROWSER_CHECKLIST.md       # Supported browsers and manual test matrix
+├── sw.js                      # Inactive stub (file:// does not use SW)
+└── README.md
 ```
 
 [↑ Back to Top](#band-manager---song--setlist-organizer)
@@ -283,18 +274,12 @@ bandPracticeManager/
 
 ## Available Themes
 
-Choose from 9 beautiful color schemes:
-- **Grey** - Professional default
-- **Red/Orange** - Bold and energetic
-- **Blue** - Cool and calm
-- **Green** - Natural and balanced
-- **Purple** - Creative and unique
-- **Cyan** - Modern and tech
-- **Amber** - Warm and inviting
-- **Pink** - Vibrant and fun
-- **Teal** - Fresh and aquatic
+Choose from **14** color schemes:
+- **Grey** — Professional default
+- **Red**, **Blue**, **Green**, **Purple**, **Cyan**, **Amber**, **Pink**, **Teal**
+- **Copper**, **Sunrise**, **Sunset**, **Synthwave**, **Prism**
 
-Themes sync between Song Manager and Setlist Manager automatically!
+Themes sync across all pages via `app-shell.js`.
 
 [↑ Back to Top](#band-manager---song--setlist-organizer)
 
@@ -345,10 +330,13 @@ In **Setlist Manager**, use **Export Setlists** to pick which setlists to downlo
 ### Restore From Backup
 ```bash
 1. Open Song Manager
-2. Click "Import CSV"
-3. Select your backup file
-4. Review preview and confirm
+2. Click "Bulk Import Songs"
+3. Upload CSV or paste spreadsheet data
+4. Review preview — choose keep / update / skip for duplicates
+5. Confirm import (Undo available after apply)
 ```
+
+Or use **Storage Wizard** for full JSON backup/restore.
 
 ### Clear All Data
 If you need to start fresh:
@@ -366,10 +354,25 @@ If you need to start fresh:
 ## Known Limitations
 
 - Data is browser-specific (doesn't sync between devices)
-- localStorage size limit (~5-10MB depending on browser)
+- localStorage size limit (~5–10 MB depending on browser)
+- **`file://` constraints**: no service worker offline cache; allow pop-ups for pocket-card print preview
+- Spotify integration has been **removed** — use Bulk Import Songs instead
+
+## Browser Support
+
+See **`BROWSER_CHECKLIST.md`** for the verified matrix and manual test checklist.
+
+| Browser | Status |
+|---------|--------|
+| Chrome 90+ | Primary target |
+| Edge 90+ | Full support |
+| Firefox 88+ | Full support |
+| Safari 14+ | Supported; verify downloads/print on macOS/iOS |
+
+Additional constraints:
 - No cloud sync or multi-user features
 - No collaborative editing
-- Requires manual backups via CSV export
+- Requires manual backups via CSV/JSON export
 
 [↑ Back to Top](#band-manager---song--setlist-organizer)
 

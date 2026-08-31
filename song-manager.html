@@ -33,6 +33,10 @@
             text-size-adjust: 100%;
         }
 
+        html {
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #000000;
@@ -44,7 +48,8 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            min-width: 320px; /* Prevent extreme narrow layouts */
+            min-width: 0;
+            max-width: 100%;
         }
 
         /* Compact stats in header */
@@ -89,6 +94,7 @@
             gap: 15px;
             box-shadow: 0 -2px 10px var(--primary-glow);
             z-index: 100;
+            flex-shrink: 0;
         }
 
         .bulk-actions-footer #selectedCount {
@@ -100,8 +106,12 @@
         /* Table container fills center pane */
         .center-pane .table-container {
             flex: 1;
-            overflow-y: auto;
-            padding: 20px;
+            min-height: 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 0;
         }
 
         /* Background watermark - Guitar */
@@ -198,28 +208,7 @@
             letter-spacing: 1px;
         }
 
-        .nav-links {
-            text-align: center;
-            margin-bottom: 4px;
-        }
-
-        .nav-links a {
-            color: var(--primary-light);
-            text-decoration: none;
-            margin: 0 15px;
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 2px solid var(--primary-border);
-            display: inline-block;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .nav-links a:hover {
-            background: var(--primary-bg);
-            border-color: var(--primary-color);
-            box-shadow: 0 0 10px var(--primary-glow);
-        }
+        /* Header/nav styles live in css/layout.css */
 
         .controls {
             background: rgba(0, 0, 0, 0.15);
@@ -380,7 +369,8 @@
                 margin-bottom: 12px;
             }
             
-            #importModal .modal-content {
+            #importPreviewModal .modal-content,
+            #importSelectionModal .modal-content {
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
             }
@@ -469,9 +459,6 @@
             min-height: 0;
             box-shadow: 0 4px 20px var(--primary-glow);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            /* Performance: Enable GPU acceleration for smooth scrolling */
-            will-change: scroll-position;
-            transform: translateZ(0);
         }
 
         table {
@@ -481,22 +468,17 @@
         }
 
         thead {
-            background: var(--primary-bg);
-            border-bottom: 2px solid var(--primary-border);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: #0d0d0d;
         }
 
         th {
-            padding: 15px;
+            padding: 12px 15px;
             text-align: left;
             font-weight: 600;
             color: var(--primary-color);
-            text-shadow: 0 0 8px var(--primary-glow);
-            background: rgba(0, 0, 0, 0.95); /* Opaque background for readability */
+            text-shadow: none;
+            background: #0d0d0d;
+            white-space: nowrap;
         }
 
         tbody {
@@ -584,6 +566,14 @@
             overflow-y: auto;
             box-shadow: 0 8px 32px var(--primary-glow);
             border: 1px solid var(--primary-border);
+        }
+
+        .modal-content.song-edit-modal {
+            max-width: 860px;
+            width: min(860px, calc(100vw - 24px));
+            max-height: calc(100dvh - 24px);
+            overflow: hidden;
+            padding: 20px;
         }
 
         .modal-content.large {
@@ -1334,31 +1324,196 @@
             color: var(--primary-light);
         }
 
+        /* Song Manager page shell — header + search + panes fill viewport */
+        .main-layout {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
         /* Song Manager specific overrides */
         .left-sidebar {
-            width: 220px !important; /* Wider to accommodate filters */
+            width: 220px !important;
+            padding: 12px 10px !important;
+            display: flex;
+            flex-direction: column;
+            align-self: stretch;
+            min-height: 0;
+        }
+
+        /* Desktop: command bar fills window height, no internal scroll */
+        @media (min-width: 1025px) {
+            .left-sidebar {
+                overflow-y: hidden !important;
+                overflow-x: hidden;
+            }
+
+            .left-sidebar .sidebar-content {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow: hidden;
+                gap: 8px;
+            }
+
+            .left-sidebar .settings-section {
+                padding: 8px;
+            }
+
+            .left-sidebar .sidebar-content > .btn,
+            .left-sidebar .sidebar-content > a.btn {
+                padding: 7px 9px;
+            }
+        }
+
+        .left-sidebar .collapse-btn {
+            position: static;
+            flex-shrink: 0;
+            width: 100%;
+            min-height: 36px;
+            margin: 0 0 10px 0;
+            padding: 6px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .left-sidebar .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .left-sidebar .sidebar-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--primary-light);
+            text-align: left;
+            padding: 0 2px 6px;
+            margin-bottom: 2px;
+            border-bottom: 1px solid var(--primary-border);
+            text-shadow: none;
+        }
+
+        .left-sidebar .sidebar-content > .btn,
+        .left-sidebar .sidebar-content > a.btn {
+            width: 100%;
+            margin-bottom: 0 !important;
+            justify-content: flex-start;
+            gap: 8px;
+            padding: 8px 10px;
+            font-size: 12px;
+            border-radius: 8px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+
+        .left-sidebar .sidebar-content > a.btn {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .left-sidebar .sidebar-content > .btn:hover:not(:disabled),
+        .left-sidebar .sidebar-content > a.btn:hover {
+            transform: translateX(2px);
+        }
+
+        .left-sidebar .sidebar-content > .btn svg,
+        .left-sidebar .sidebar-content > a.btn svg {
+            flex-shrink: 0;
+            opacity: 0.9;
+        }
+
+        .left-sidebar .settings-section {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--primary-border);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        .left-sidebar .settings-title {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .left-sidebar .filter-select,
+        .left-sidebar .filter-input {
+            width: 100%;
+            padding: 7px 9px;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--primary-border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            min-width: 0;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .left-sidebar .filter-select:focus,
+        .left-sidebar .filter-input:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+            outline: none;
+        }
+
+        .left-sidebar .filter-row-actions {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 0;
+        }
+
+        .left-sidebar .filter-row-actions .btn {
+            flex: 1;
+            justify-content: center;
+            padding: 6px 8px;
+            font-size: 11px;
+        }
+
+        .left-sidebar #activeFilters {
+            margin-top: 6px !important;
+            gap: 4px !important;
+        }
+
+        .left-sidebar .filter-tag {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
         }
 
         .left-sidebar.collapsed {
-            width: 45px !important; /* Just enough for collapse button */
+            width: 52px !important;
+            padding: 10px 8px !important;
+            overflow: hidden;
+            align-items: center;
         }
 
         .left-sidebar.collapsed .sidebar-content {
             display: none;
         }
 
-        .left-sidebar.collapsed .collapsed-label {
-            display: block;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            margin: 20px auto;
-            text-align: center;
-            color: var(--primary-light);
-            font-size: 12px;
-            font-weight: 600;
+        .left-sidebar.collapsed .collapse-btn {
+            width: 36px;
+            height: 36px;
+            min-height: 36px;
+            margin: 0;
+            padding: 0;
         }
 
-        .left-sidebar .collapsed-label {
+        .left-sidebar .collapsed-label,
+        .left-sidebar.collapsed .collapsed-label {
             display: none;
         }
 
@@ -1374,25 +1529,73 @@
             z-index: 1000;
         }
 
-        /* Center pane adjusts to left sidebar */
+        /* Center pane — table area scrolls; pane itself does not */
         .center-pane {
             flex: 1;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             position: relative;
             cursor: grab;
-            padding: 0; /* Remove padding to bring table closer to header */
+            padding: 0;
+            min-width: 0;
+            min-height: 0;
+            max-width: 100%;
         }
-        
-        .center-pane.dragging {
+
+        .center-pane .table-container {
+            flex: 1;
+            min-height: 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            background: rgba(20, 20, 20, 0.85);
+        }
+
+        .song-table-head {
+            flex-shrink: 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            background: #0d0d0d;
+            border-bottom: 2px solid var(--primary-border);
+            scrollbar-width: none;
+        }
+
+        .song-table-head::-webkit-scrollbar {
+            display: none;
+        }
+
+        .song-table-body {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+        }
+
+        .song-table {
+            width: max-content;
+            min-width: 100%;
+            border-collapse: collapse;
+            background: transparent;
+        }
+
+        .center-pane .pagination-controls {
+            flex-shrink: 0;
+        }
+
+        .center-pane.dragging,
+        .center-pane .table-container.dragging {
             cursor: grabbing;
             user-select: none;
         }
         
-        .center-pane table {
-            margin: 0; /* Remove top margin */
-        }
-        
-        /* Search bar row - sits between header and table */
         .search-bar-row {
             background: rgba(0, 0, 0, 0.15);
             backdrop-filter: blur(10px);
@@ -1404,6 +1607,9 @@
             border-bottom: 1px solid var(--primary-border);
             flex-shrink: 0;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            min-width: 0;
+            max-width: 100%;
+            flex-wrap: wrap;
         }
         
         .search-bar-row .search-box {
@@ -1423,9 +1629,9 @@
             flex-shrink: 0;
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .search-bar-row {
-                display: none; /* Hide on mobile - use mobile menu */
+                display: none; /* Hide on tablet/mobile — use mobile menu search */
             }
         }
     </style>
@@ -1447,99 +1653,90 @@
     
     <!-- Header -->
     <div class="header">
-        <h1>
-            <svg id="guitarIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 8px var(--primary-glow)); cursor: pointer;" onclick="switchWatermark('guitar')" title="Show Guitar Watermark">
-                <circle cx="12" cy="17" r="4.5" stroke="var(--primary-color)" fill="none"/>
-                <line x1="12" y1="12.5" x2="12" y2="2" stroke="var(--primary-color)"/>
-                <line x1="9" y1="5" x2="15" y2="5" stroke="var(--primary-color)"/>
-                <line x1="9" y1="8" x2="15" y2="8" stroke="var(--primary-color)"/>
-            </svg>
-            Song Manager
-            <svg id="drumIcon" width="40" height="20" viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 8px var(--primary-glow)); cursor: pointer; opacity: 0.8;" onclick="switchWatermark('drum')" title="Show Drum Watermark">
-                <circle cx="23" cy="17" r="4.5" fill="none" stroke="var(--primary-color)" stroke-width="2"/>
-                <line x1="16" y1="21.5" x2="16" y2="2" stroke="var(--primary-color)" stroke-width="2"/>
-                <line x1="11" y1="5" x2="21" y2="5" stroke="var(--primary-color)" stroke-width="2"/>
-                <line x1="18" y1="8" x2="28" y2="8" stroke="var(--primary-color)" stroke-width="2"/>
-                <line x1="21" y1="10" x2="26" y2="10" stroke="var(--primary-color)" stroke-width="2"/>
-                <line x1="7" y1="12.5" x2="18" y2="12.5" stroke="var(--primary-color)" stroke-width="2"/>
-                <line x1="30" y1="12.5" x2="30" y2="2" stroke="var(--primary-color)" stroke-width="2"/>
-                <line x1="25" y1="5" x2="35" y2="5" stroke="var(--primary-color)" stroke-width="2"/>
-                <line x1="27" y1="8" x2="33" y2="8" stroke="var(--primary-color)" stroke-width="2"/>
-                <line x1="26" y1="14" x2="31" y2="14" stroke="var(--primary-color)" stroke-width="2"/>
-            </svg>
-        </h1>
-        
-        <!-- BlackDoubt Easter Egg Icon -->
-        <div id="blackDoubtIcon" style="display: none; margin: 0 15px; align-items: center; justify-content: center; filter: drop-shadow(0 0 10px var(--primary-glow)); cursor: pointer; opacity: 0.5;" onclick="switchWatermark('blackdoubt')" title="Show BlackDoubt Watermark">
-            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5">
-                <!-- Diamond (simple rotated square, slightly bigger than circle) -->
-                <path d="M 20 3 L 37 20 L 20 37 L 3 20 Z" 
-                      stroke="var(--primary-color)" 
-                      fill="none"
-                      stroke-width="1.8"/>
-                <!-- Circle intertwined -->
-                <circle cx="20" cy="20" r="13" stroke="var(--primary-color)" fill="none" stroke-width="1.8"/>
-                <!-- Unicode Mathematical Bold Fraktur B in center -->
-                <text x="20" y="20" 
-                      font-size="20" 
-                      font-family="serif" 
-                      text-anchor="middle" 
-                      dominant-baseline="central"
-                      fill="var(--primary-color)"
-                      stroke="none">𝔅</text>
-            </svg>
+        <div class="header-brand">
+            <h1>
+                <svg id="guitarIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 8px var(--primary-glow)); cursor: pointer;" onclick="switchWatermark('guitar')" title="Show Guitar Watermark">
+                    <circle cx="12" cy="17" r="4.5" stroke="var(--primary-color)" fill="none"/>
+                    <line x1="12" y1="12.5" x2="12" y2="2" stroke="var(--primary-color)"/>
+                    <line x1="9" y1="5" x2="15" y2="5" stroke="var(--primary-color)"/>
+                    <line x1="9" y1="8" x2="15" y2="8" stroke="var(--primary-color)"/>
+                </svg>
+                Song Manager
+                <svg id="drumIcon" width="40" height="20" viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 8px var(--primary-glow)); cursor: pointer; opacity: 0.8;" onclick="switchWatermark('drum')" title="Show Drum Watermark">
+                    <circle cx="23" cy="17" r="4.5" fill="none" stroke="var(--primary-color)" stroke-width="2"/>
+                    <line x1="16" y1="21.5" x2="16" y2="2" stroke="var(--primary-color)" stroke-width="2"/>
+                    <line x1="11" y1="5" x2="21" y2="5" stroke="var(--primary-color)" stroke-width="2"/>
+                    <line x1="18" y1="8" x2="28" y2="8" stroke="var(--primary-color)" stroke-width="2"/>
+                    <line x1="21" y1="10" x2="26" y2="10" stroke="var(--primary-color)" stroke-width="2"/>
+                    <line x1="7" y1="12.5" x2="18" y2="12.5" stroke="var(--primary-color)" stroke-width="2"/>
+                    <line x1="30" y1="12.5" x2="30" y2="2" stroke="var(--primary-color)" stroke-width="2"/>
+                    <line x1="25" y1="5" x2="35" y2="5" stroke="var(--primary-color)" stroke-width="2"/>
+                    <line x1="27" y1="8" x2="33" y2="8" stroke="var(--primary-color)" stroke-width="2"/>
+                    <line x1="26" y1="14" x2="31" y2="14" stroke="var(--primary-color)" stroke-width="2"/>
+                </svg>
+            </h1>
+            <div id="blackDoubtIcon" style="display: none; margin-left: 8px; align-items: center; justify-content: center; filter: drop-shadow(0 0 10px var(--primary-glow)); cursor: pointer; opacity: 0.5;" onclick="switchWatermark('blackdoubt')" title="Show BlackDoubt Watermark">
+                <svg width="32" height="32" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M 20 3 L 37 20 L 20 37 L 3 20 Z" stroke="var(--primary-color)" fill="none" stroke-width="1.8"/>
+                    <circle cx="20" cy="20" r="13" stroke="var(--primary-color)" fill="none" stroke-width="1.8"/>
+                    <text x="20" y="20" font-size="20" font-family="serif" text-anchor="middle" dominant-baseline="central" fill="var(--primary-color)" stroke="none">𝔅</text>
+                </svg>
+            </div>
         </div>
-        
-        <a href="setlist-manager.html" class="nav-link" style="margin-left: auto;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="8" y1="6" x2="21" y2="6"/>
-                <line x1="8" y1="12" x2="21" y2="12"/>
-                <line x1="8" y1="18" x2="21" y2="18"/>
-                <line x1="3" y1="6" x2="3.01" y2="6"/>
-                <line x1="3" y1="12" x2="3.01" y2="12"/>
-                <line x1="3" y1="18" x2="3.01" y2="18"/>
-            </svg>
-            Setlists
-        </a>
-        <a href="chord-chart-editor.html" class="nav-link">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 18V5l12-2v13"/>
-                <circle cx="6" cy="18" r="3"/>
-                <circle cx="18" cy="16" r="3"/>
-            </svg>
-            Charts
-        </a>
-        <a href="show-time.html" class="nav-link">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="5 3 19 12 5 21 5 3"/>
-            </svg>
-            Show Time
-        </a>
-        <a href="storage-wizard.html" class="nav-link">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Storage
-        </a>
-        
-        <select id="themeSelector" class="theme-selector" onchange="changeTheme(this.value)" title="Theme">
-            <option value="grey">Grey</option>
-            <option value="red">Red</option>
-            <option value="blue">Blue</option>
-            <option value="green">Green</option>
-            <option value="purple">Purple</option>
-            <option value="cyan">Cyan</option>
-            <option value="teal">Teal</option>
-            <option value="copper">Copper</option>
-            <option value="amber">Amber</option>
-            <option value="pink">Pink</option>
-            <option value="sunrise">Sunrise</option>
-            <option value="sunset">Sunset</option>
-            <option value="synthwave">Synth</option>
-            <option value="prism">Prism</option>
-        </select>
+
+        <div class="header-controls">
+            <nav class="nav-links">
+                <a href="setlist-manager.html" class="nav-link" data-page="setlists" title="Setlists">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <line x1="8" y1="6" x2="21" y2="6"/>
+                        <line x1="8" y1="12" x2="21" y2="12"/>
+                        <line x1="8" y1="18" x2="21" y2="18"/>
+                        <line x1="3" y1="6" x2="3.01" y2="6"/>
+                        <line x1="3" y1="12" x2="3.01" y2="12"/>
+                        <line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                    Setlists
+                </a>
+                <a href="chord-chart-editor.html" class="nav-link" data-page="charts" title="Charts">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                    Charts
+                </a>
+                <a href="show-time.html" class="nav-link" data-page="show" title="Show Time">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Show Time
+                </a>
+                <a href="storage-wizard.html" class="nav-link" data-page="storage" title="Storage">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Storage
+                </a>
+            </nav>
+            <select id="themeSelector" class="theme-selector" onchange="changeTheme(this.value)" title="Theme">
+                <option value="grey">Grey</option>
+                <option value="red">Red</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+                <option value="purple">Purple</option>
+                <option value="cyan">Cyan</option>
+                <option value="teal">Teal</option>
+                <option value="copper">Copper</option>
+                <option value="amber">Amber</option>
+                <option value="pink">Pink</option>
+                <option value="sunrise">Sunrise</option>
+                <option value="sunset">Sunset</option>
+                <option value="synthwave">Synth</option>
+                <option value="prism">Prism</option>
+            </select>
+        </div>
         
         <!-- Mobile Menu Button (Hamburger) - Rightmost position -->
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
@@ -1580,7 +1777,7 @@
             <!-- Navigation Section -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-section-title">Navigate</div>
-                <a href="setlist-manager.html" class="nav-link">
+                <a href="setlist-manager.html" class="nav-link" data-page="setlists">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="8" y1="6" x2="21" y2="6"/>
                         <line x1="8" y1="12" x2="21" y2="12"/>
@@ -1591,7 +1788,7 @@
                     </svg>
                     Setlists
                 </a>
-                <a href="chord-chart-editor.html" class="nav-link">
+                <a href="chord-chart-editor.html" class="nav-link" data-page="charts">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
@@ -1599,13 +1796,13 @@
                     </svg>
                     Charts
                 </a>
-                <a href="show-time.html" class="nav-link">
+                <a href="show-time.html" class="nav-link" data-page="show">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"/>
                     </svg>
                     Show Time
                 </a>
-                <a href="storage-wizard.html" class="nav-link">
+                <a href="storage-wizard.html" class="nav-link" data-page="storage">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
@@ -1637,12 +1834,13 @@
                     Undo
                 </button>
                 
-                <!-- Spotify Setup Button -->
-                <button class="btn btn-secondary" onclick="openSpotifySettings(); toggleMobileMenu();" style="width: 100%; margin-bottom: 10px; background: rgba(30, 215, 96, 0.1); border-color: rgba(30, 215, 96, 0.5); color: #1ED760;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#1ED760">
-                        <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                <button class="btn btn-primary" onclick="openImportSelectionModal(); toggleMobileMenu();" style="width: 100%; margin-bottom: 10px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
-                    Spotify Setup
+                    Bulk Import Songs
                 </button>
                 
                 <!-- Print Button -->
@@ -1825,15 +2023,15 @@
     </div>
 
     <!-- Main Layout -->
+    <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
     <div class="main-layout">
         <!-- Left Sidebar: Control Panel -->
         <div class="left-sidebar">
-            <button class="collapse-btn" onclick="toggleLeftSidebar()">☰</button>
-            <div class="collapsed-label">Commands</div>
+            <button class="collapse-btn" id="sidebarCollapseBtn" onclick="toggleLeftSidebar()" title="Collapse commands" aria-label="Collapse commands" aria-expanded="true">☰</button>
             <div class="sidebar-content">
             <div class="sidebar-title">Actions</div>
             
-            <button class="btn btn-success" onclick="openAddModal()" style="width: 100%; margin-bottom: 10px;">
+            <button class="btn btn-success" onclick="openAddModal()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
@@ -1841,7 +2039,7 @@
                 Add Song(s)
             </button>
             
-            <button class="btn btn-secondary" id="undoButton" onclick="undo()" disabled title="Undo last action (Ctrl+Z)" style="width: 100%; margin-bottom: 10px;">
+            <button class="btn btn-secondary" id="undoButton" onclick="undo()" disabled title="Undo last action (Ctrl+Z)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 7v6h6"/>
                     <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
@@ -1849,23 +2047,25 @@
                 Undo
             </button>
             
-            <a href="storage-wizard.html" class="btn btn-primary" style="width: 100%; margin-bottom: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <button class="btn btn-primary" onclick="openImportSelectionModal()" title="Import songs from CSV or pasted spreadsheet">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Bulk Import Songs
+            </button>
+
+            <button class="btn btn-secondary" onclick="exportCSV()" title="Export song library to CSV">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/>
                     <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                💾 Storage Wizard
-            </a>
-            
-            <button class="btn btn-secondary" onclick="openSpotifySettings()" style="width: 100%; margin-bottom: 10px; background: rgba(30, 215, 96, 0.1); border-color: rgba(30, 215, 96, 0.5); color: #1ED760;" title="Configure Spotify API for auto-filling song details">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#1ED760">
-                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-                </svg>
-                Spotify Setup
+                Export CSV
             </button>
             
-            <button class="btn btn-secondary" onclick="printSongs()" style="width: 100%; margin-bottom: 10px;">
+            <button class="btn btn-secondary" onclick="printSongs()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="6 9 6 2 18 2 18 9"/>
                     <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
@@ -1876,7 +2076,7 @@
             
             <div class="settings-section">
                 <div class="settings-title">Filters</div>
-                <select id="filterColumn" class="filter-select" onchange="updateFilterSuggestions()" style="width: 100%; margin-bottom: 8px;">
+                <select id="filterColumn" class="filter-select" onchange="updateFilterSuggestions()">
                     <option value="">Select Column</option>
                     <option value="artist">Artist</option>
                     <option value="song">Song</option>
@@ -1891,18 +2091,18 @@
                     <option value="lastNote">Last Note</option>
                 </select>
                 
-                <input type="text" id="filterValue" class="filter-input" placeholder="Filter value..." list="filterSuggestions" onkeypress="if(event.key==='Enter') addFilter()" style="width: 100%; margin-bottom: 8px;">
+                <input type="text" id="filterValue" class="filter-input" placeholder="Filter value..." list="filterSuggestions" onkeypress="if(event.key==='Enter') addFilter()">
                 <datalist id="filterSuggestions"></datalist>
                 
-                <div style="display: flex; gap: 6px; margin-bottom: 10px;">
-                    <button class="btn btn-success btn-small" onclick="addFilter()" style="flex: 1;">
+                <div class="filter-row-actions">
+                    <button class="btn btn-success btn-small" onclick="addFilter()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <line x1="12" y1="5" x2="12" y2="19"/>
                             <line x1="5" y1="12" x2="19" y2="12"/>
                         </svg>
                         Add
                     </button>
-                    <button class="btn btn-secondary btn-small" onclick="clearFilters()" title="Clear all filters" style="flex: 1;">
+                    <button class="btn btn-secondary btn-small" onclick="clearFilters()" title="Clear all filters">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"/>
                             <line x1="6" y1="6" x2="18" y2="18"/>
@@ -1919,18 +2119,18 @@
             
             <div class="settings-section">
                 <div class="settings-title">Saved Filters</div>
-                <select id="savedFiltersDropdown" class="filter-select" onchange="applySavedFilter()" style="width: 100%; margin-bottom: 8px;">
+                <select id="savedFiltersDropdown" class="filter-select" onchange="applySavedFilter()">
                     <option value="">-- Select filter --</option>
                 </select>
-                <div style="display: flex; gap: 6px; margin-bottom: 10px;">
-                    <button class="btn btn-success btn-small" onclick="openSaveFilterModal()" title="Save current filters" style="flex: 1;">
+                <div class="filter-row-actions">
+                    <button class="btn btn-success btn-small" onclick="openSaveFilterModal()" title="Save current filters">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                             <polyline points="17 21 17 13 7 13 7 21"/>
                             <polyline points="7 3 7 8 15 8"/>
                         </svg>
                     </button>
-                    <button class="btn btn-secondary btn-small" onclick="openManageFiltersModal()" title="Manage saved filters" style="flex: 1;">
+                    <button class="btn btn-secondary btn-small" onclick="openManageFiltersModal()" title="Manage saved filters">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/>
                             <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/>
@@ -1946,7 +2146,7 @@
                 </div>
             </div>
             
-            <button class="btn btn-secondary" onclick="toggleColumnVisibilityPanel()" style="width: 100%; margin-bottom: 10px;">
+            <button class="btn btn-secondary" onclick="toggleColumnVisibilityPanel()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                     <circle cx="12" cy="12" r="3"/>
@@ -1954,7 +2154,7 @@
                 Columns
             </button>
             
-            <button class="btn btn-secondary" onclick="openTrashModal()" style="width: 100%; margin-bottom: 10px;">
+            <button class="btn btn-secondary" onclick="openTrashModal()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"/>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -1962,7 +2162,7 @@
                 Trash (<span id="trashCount">0</span>)
             </button>
             
-            <button class="btn btn-secondary" onclick="cycleDensity()" id="densityButton" title="Toggle table density" style="width: 100%; margin-bottom: 10px;">
+            <button class="btn btn-secondary" onclick="cycleDensity()" id="densityButton" title="Toggle table density">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="3" y1="6" x2="21" y2="6"/>
                     <line x1="3" y1="12" x2="21" y2="12"/>
@@ -1975,32 +2175,41 @@
 
         <!-- Center Pane: Song Table -->
         <div class="center-pane">
-            <table>
-                <thead>
-                    <tr>
-                        <th class="col-checkbox" style="width: 40px;">
-                            <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" title="Select All">
-                        </th>
-                        <th class="col-actions">Actions</th>
-                        <th class="col-link">Link</th>
-                        <th class="sortable col-artist" onclick="sortTable('artist')">Artist</th>
-                        <th class="sortable col-song" onclick="sortTable('song')">Song</th>
-                        <th class="sortable col-album" onclick="sortTable('album')">Album</th>
-                        <th class="sortable col-duration" onclick="sortTable('duration')">Duration</th>
-                        <th class="sortable col-practiceStatus" onclick="sortTable('practiceStatus')">Status</th>
-                        <th class="sortable col-tuning" onclick="sortTable('tuning')">Tuning</th>
-                        <th class="sortable col-bands" onclick="sortTable('bands')">Bands</th>
-                        <th class="sortable col-tags" onclick="sortTable('tags')">Tags</th>
-                        <th class="sortable col-key" onclick="sortTable('key')">Key</th>
-                        <th class="sortable col-firstNote" onclick="sortTable('firstNote')">First Note</th>
-                        <th class="sortable col-lastNote" onclick="sortTable('lastNote')">Last Note</th>
-                        <th class="col-chordChart">Chord Chart</th>
-                        <th class="sortable col-playCount" onclick="sortTable('playCount')">Plays</th>
-                    </tr>
-                </thead>
-                <tbody id="songTableBody">
-                </tbody>
-            </table>
+            <div class="table-container">
+                <div class="song-table-head" id="songTableHeadWrap">
+                    <table class="song-table" id="songTableHead">
+                        <thead>
+                            <tr>
+                                <th class="col-checkbox" style="width: 40px;">
+                                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" title="Select All">
+                                </th>
+                                <th class="col-actions">Actions</th>
+                                <th class="col-link">Link</th>
+                                <th class="sortable col-artist" onclick="sortTable('artist')">Artist</th>
+                                <th class="sortable col-song" onclick="sortTable('song')">Song</th>
+                                <th class="sortable col-album" onclick="sortTable('album')">Album</th>
+                                <th class="sortable col-duration" onclick="sortTable('duration')">Duration</th>
+                                <th class="sortable col-practiceStatus" onclick="sortTable('practiceStatus')">Status</th>
+                                <th class="sortable col-tuning" onclick="sortTable('tuning')">Tuning</th>
+                                <th class="sortable col-bands" onclick="sortTable('bands')">Bands</th>
+                                <th class="sortable col-tags" onclick="sortTable('tags')">Tags</th>
+                                <th class="sortable col-key" onclick="sortTable('key')">Key</th>
+                                <th class="sortable col-firstNote" onclick="sortTable('firstNote')">First Note</th>
+                                <th class="sortable col-lastNote" onclick="sortTable('lastNote')">Last Note</th>
+                                <th class="col-chordChart">Chord Chart</th>
+                                <th class="sortable col-playCount" onclick="sortTable('playCount')">Plays</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="song-table-body" id="songTableBodyWrap">
+                    <table class="song-table" id="songTable">
+                        <tbody id="songTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="paginationControls" class="pagination-controls"></div>
             
             <!-- Bulk Actions Sticky Footer -->
             <div class="bulk-actions-footer" id="bulkActionsFooter" style="display: none;">
@@ -2033,42 +2242,14 @@
 
     <!-- Add/Edit Modal -->
     <div id="songModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content song-edit-modal">
             <div class="modal-header">
                 <h2 id="modalTitle">Add Song</h2>
                 <span class="close" onclick="closeModal()">&times;</span>
             </div>
             
-            <!-- Spotify Search Section -->
-            <div style="background: rgba(30, 215, 96, 0.1); border: 2px solid rgba(30, 215, 96, 0.3); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#1ED760">
-                            <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-                        </svg>
-                        <div>
-                            <strong style="color: #1ED760; font-size: 16px;">Search Spotify</strong>
-                            <small style="display: block; color: #999; font-size: 12px;">Auto-fill song details from Spotify</small>
-                        </div>
-                    </div>
-                    <button type="button" onclick="openSpotifySettings()" title="Configure Spotify API" style="background: transparent; border: 1px solid rgba(30, 215, 96, 0.5); color: #1ED760; padding: 6px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M12 1v6m0 6v6M5.6 5.6l4.2 4.2m4.2 4.2l4.2 4.2M1 12h6m6 0h6M5.6 18.4l4.2-4.2m4.2-4.2l4.2-4.2"></path>
-                        </svg>
-                        Settings
-                    </button>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="spotifySearchInput" placeholder="🔍 Search for artist, song, or album..." style="flex: 1; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid rgba(30, 215, 96, 0.5); border-radius: 6px; color: #e0e0e0;">
-                    <button type="button" class="btn" onclick="searchSpotify()" style="background: #1ED760; color: #000; font-weight: 600; padding: 10px 20px; white-space: nowrap;">
-                        Search
-                    </button>
-                </div>
-                <div id="spotifyResults" style="margin-top: 10px; max-height: 300px; overflow-y: auto; display: none;"></div>
-            </div>
-            
-            <form id="songForm">
+            <form id="songForm" class="song-edit-form">
+                <div class="song-edit-fields">
                 <div class="form-group">
                     <label>Artist *</label>
                     <input type="text" id="artist" required>
@@ -2124,7 +2305,8 @@
                     <label>Last Note</label>
                     <input type="text" id="lastNote">
                 </div>
-                <div class="button-group">
+                </div>
+                <div class="song-edit-actions">
                     <button type="submit" class="btn-primary" id="saveSongBtn">
                         <span id="saveBtnText">Save</span>
                         <span id="saveBtnSpinner" style="display: none;">
@@ -2142,16 +2324,16 @@
     </div>
 
     <!-- Import Preview Modal -->
-    <div id="importModal" class="modal">
+    <div id="importPreviewModal" class="modal">
         <div class="modal-content large">
             <div class="modal-header">
-                <h2>Import Preview <span style="font-size: 14px; color: #6b7280; font-weight: normal;">(Drag corner to resize)</span></h2>
-                <span class="close" onclick="closeImportModal()">&times;</span>
+                <h2>Bulk Import Preview <span style="font-size: 14px; color: #6b7280; font-weight: normal;">(Review before applying)</span></h2>
+                <span class="close" onclick="closeImportPreviewModal()">&times;</span>
             </div>
             <div id="importPreview" class="import-preview"></div>
             <div class="button-group" style="margin-top: 20px;">
                 <button class="btn-success" onclick="confirmImport()">✓ Confirm Import</button>
-                <button class="btn-secondary" onclick="closeImportModal()">Cancel</button>
+                <button class="btn-secondary" onclick="closeImportPreviewModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -2292,19 +2474,22 @@
     </div>
 
     <!-- Import Selection Modal -->
-    <div id="importModal" class="modal">
+    <div id="importSelectionModal" class="modal">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
-                <h2>Import Songs</h2>
-                <span class="close" onclick="closeImportModal()">&times;</span>
+                <h2>Bulk Import Songs</h2>
+                <span class="close" onclick="closeImportSelectionModal()">&times;</span>
             </div>
             <div style="margin: 20px 0;">
                 <p style="color: var(--primary-light); margin-bottom: 20px;">
-                    Choose how you want to import your songs:
+                    Import many songs at once from a CSV file or pasted spreadsheet text.
+                </p>
+                <p style="color: #999; font-size: 0.85em; margin-bottom: 16px;">
+                    Template: <a href="samples/sample-songs.csv" style="color: var(--primary-light);">sample-songs.csv</a>
                 </p>
                 
                 <!-- CSV Import Option -->
-                <div class="import-option" onclick="document.getElementById('csvFile').click(); closeImportModal();">
+                <div class="import-option" onclick="document.getElementById('csvFile').click(); closeImportSelectionModal();">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                         <polyline points="14 2 14 8 20 8"/>
@@ -2318,7 +2503,7 @@
                 </div>
                 
                 <!-- Paste Import Option -->
-                <div class="import-option" onclick="closeImportModal(); openPasteImportModal();">
+                <div class="import-option" onclick="closeImportSelectionModal(); openPasteImportModal();">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
                         <rect x="9" y="2" width="6" height="4" rx="1"/>
                         <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/>
@@ -2332,6 +2517,8 @@
             </div>
         </div>
     </div>
+
+    <input type="file" id="csvFile" class="hidden-file-input" accept=".csv,text/csv" onchange="handleCSVImport(event)">
 
     <!-- Paste Import Modal -->
     <div id="pasteImportModal" class="modal">
@@ -2603,6 +2790,8 @@
         
         // Bulk edit system
         let selectedSongIndices = new Set();
+        let songPagination = null;
+        let lastRenderedSongs = [];
 
         // Toast notification system
         function showToast(message, type = 'info', duration = 3000) {
@@ -2720,8 +2909,11 @@
                     break;
                     
                 case 'import':
-                    // Remove imported songs
-                    songs.splice(songs.length - lastAction.data.count, lastAction.data.count);
+                    if (lastAction.data.before) {
+                        songs = lastAction.data.before;
+                    } else {
+                        songs.splice(songs.length - lastAction.data.count, lastAction.data.count);
+                    }
                     showToast(`Import of ${lastAction.data.count} song(s) undone`, 'info');
                     break;
                     
@@ -3646,21 +3838,25 @@ What would you like to do?
         }
 
         function applyDensity() {
-            const table = document.querySelector('table');
+            const tables = document.querySelectorAll('.song-table');
+            tables.forEach(table => {
+                table.classList.remove('table-compact', 'table-spacious');
+                if (currentDensity === 'compact') {
+                    table.classList.add('table-compact');
+                } else if (currentDensity === 'spacious') {
+                    table.classList.add('table-spacious');
+                }
+            });
             
-            // Remove all density classes
-            table.classList.remove('table-compact', 'table-spacious');
-            
-            // Apply current density class
-            if (currentDensity === 'compact') {
-                table.classList.add('table-compact');
-            } else if (currentDensity === 'spacious') {
-                table.classList.add('table-spacious');
-            }
-            
-            // Update button label
             const label = document.getElementById('densityLabel');
-            label.textContent = currentDensity.charAt(0).toUpperCase() + currentDensity.slice(1);
+            if (label) {
+                label.textContent = currentDensity.charAt(0).toUpperCase() + currentDensity.slice(1);
+            }
+            const mobileLabel = document.getElementById('mobileDensityLabel');
+            if (mobileLabel) {
+                mobileLabel.textContent = currentDensity.charAt(0).toUpperCase() + currentDensity.slice(1);
+            }
+            requestAnimationFrame(syncSongTableColumns);
         }
 
         function saveDensity() {
@@ -4070,302 +4266,43 @@ What would you like to do?
             saveSongs();
         }
 
-        // ============================================================================
-        // SPOTIFY API INTEGRATION
-        // ============================================================================
-        
-        let spotifyAccessToken = null;
-        let spotifyTokenExpiry = null;
-        
-        // Get Spotify access token using Client Credentials Flow
-        async function getSpotifyToken() {
-            // Check if we have a valid cached token
-            if (spotifyAccessToken && spotifyTokenExpiry && Date.now() < spotifyTokenExpiry) {
-                return spotifyAccessToken;
-            }
-            
-            // Get credentials from localStorage
-            const clientId = localStorage.getItem('spotifyClientId');
-            const clientSecret = localStorage.getItem('spotifyClientSecret');
-            
-            if (!clientId || !clientSecret) {
-                throw new Error('Spotify credentials not configured. Click the gear icon to set them up.');
-            }
-            
-            try {
-                const response = await fetch('https://accounts.spotify.com/api/token', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Authorization': 'Basic ' + btoa(clientId + ':' + clientSecret)
-                    },
-                    body: 'grant_type=client_credentials'
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to authenticate with Spotify. Check your credentials.');
-                }
-                
-                const data = await response.json();
-                spotifyAccessToken = data.access_token;
-                spotifyTokenExpiry = Date.now() + (data.expires_in * 1000) - 60000; // Refresh 1 min early
-                
-                return spotifyAccessToken;
-            } catch (error) {
-                throw new Error('Authentication failed: ' + error.message);
-            }
-        }
-        
-        // Search Spotify for tracks
-        async function searchSpotify() {
-            const searchInput = document.getElementById('spotifySearchInput');
-            const query = searchInput.value.trim();
-            
-            if (!query) {
-                alert('Please enter a search term');
-                return;
-            }
-            
-            const resultsDiv = document.getElementById('spotifyResults');
-            resultsDiv.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">Searching Spotify...</div>';
-            resultsDiv.style.display = 'block';
-            
-            try {
-                // Get access token
-                const token = await getSpotifyToken();
-                
-                // Use Spotify's Web API with authentication
-                const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Spotify API error: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                displaySpotifyResults(data.tracks.items);
-            } catch (error) {
-                console.error('Spotify search error:', error);
-                resultsDiv.innerHTML = `
-                    <div style="padding: 15px; text-align: center; color: #ff6b6b; background: rgba(255,107,107,0.1); border-radius: 6px;">
-                        <strong>Unable to search Spotify</strong><br>
-                        <small style="color: #999; display: block; margin-top: 8px;">
-                            ${error.message}
-                        </small>
-                        <button onclick="openSpotifySettings()" style="margin-top: 10px; padding: 8px 16px; background: #1ED760; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                            Configure Spotify API
-                        </button>
-                    </div>
-                `;
-            }
-        }
-        
-        // Open Spotify settings modal
-        window.openSpotifySettings = function() {
-            const clientId = localStorage.getItem('spotifyClientId') || '';
-            const clientSecret = localStorage.getItem('spotifyClientSecret') || '';
-            
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'block';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 600px;">
-                    <div class="modal-header">
-                        <h2>Spotify API Settings</h2>
-                        <span class="close" onclick="this.closest('.modal').remove()">&times;</span>
-                    </div>
-                    <div style="padding: 20px;">
-                        <div style="background: rgba(30, 215, 96, 0.1); border: 1px solid rgba(30, 215, 96, 0.3); border-radius: 6px; padding: 15px; margin-bottom: 20px;">
-                            <h3 style="margin: 0 0 10px 0; color: #1ED760;">How to get Spotify API credentials (Free!):</h3>
-                            <ol style="margin: 10px 0; padding-left: 20px; color: #ccc; line-height: 1.8;">
-                                <li>Go to <a href="https://developer.spotify.com/dashboard" target="_blank" style="color: #1ED760;">Spotify Developer Dashboard</a></li>
-                                <li>Log in with your Spotify account (or create one - it's free!)</li>
-                                <li>Click "Create app"</li>
-                                <li>Fill in any name and description (e.g., "Band Practice Manager")</li>
-                                <li>For "Redirect URI" enter: <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px;">http://localhost</code></li>
-                                <li>Agree to terms and click "Save"</li>
-                                <li>Click "Settings" and copy your <strong>Client ID</strong> and <strong>Client Secret</strong></li>
-                                <li>Paste them below</li>
-                            </ol>
-                            <small style="color: #999;">Your credentials are stored locally in your browser only. They are never sent anywhere except directly to Spotify.</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Client ID *</label>
-                            <input type="text" id="spotifyClientIdInput" value="${clientId}" placeholder="e.g., a1b2c3d4e5f6g7h8i9j0" style="font-family: monospace;">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Client Secret *</label>
-                            <input type="password" id="spotifyClientSecretInput" value="${clientSecret}" placeholder="e.g., 1a2b3c4d5e6f7g8h9i0j" style="font-family: monospace;">
-                            <small style="color: #999; display: block; margin-top: 5px;">
-                                <label style="cursor: pointer;">
-                                    <input type="checkbox" onchange="document.getElementById('spotifyClientSecretInput').type = this.checked ? 'text' : 'password'">
-                                    Show Client Secret
-                                </label>
-                            </small>
-                        </div>
-                        
-                        <div class="button-group">
-                            <button class="btn btn-success" onclick="saveSpotifySettings()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                </svg>
-                                Save Settings
-                            </button>
-                            <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
-                            ${clientId && clientSecret ? `
-                                <button class="btn btn-danger" onclick="clearSpotifySettings()" style="margin-left: auto;">
-                                    Clear Settings
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        };
-        
-        // Save Spotify settings
-        window.saveSpotifySettings = function() {
-            const clientId = document.getElementById('spotifyClientIdInput').value.trim();
-            const clientSecret = document.getElementById('spotifyClientSecretInput').value.trim();
-            
-            if (!clientId || !clientSecret) {
-                alert('Please enter both Client ID and Client Secret');
-                return;
-            }
-            
-            localStorage.setItem('spotifyClientId', clientId);
-            localStorage.setItem('spotifyClientSecret', clientSecret);
-            
-            // Clear cached token so it refreshes with new credentials
-            spotifyAccessToken = null;
-            spotifyTokenExpiry = null;
-            
-            alert('Spotify settings saved! You can now search for songs.');
-            document.querySelector('.modal').remove();
-        };
-        
-        // Clear Spotify settings
-        window.clearSpotifySettings = function() {
-            if (confirm('Are you sure you want to remove your Spotify API credentials?')) {
-                localStorage.removeItem('spotifyClientId');
-                localStorage.removeItem('spotifyClientSecret');
-                spotifyAccessToken = null;
-                spotifyTokenExpiry = null;
-                alert('Spotify settings cleared');
-                document.querySelector('.modal').remove();
-            }
-        };
-        
-        // Display Spotify search results
-        function displaySpotifyResults(tracks) {
-            const resultsDiv = document.getElementById('spotifyResults');
-            
-            if (!tracks || tracks.length === 0) {
-                resultsDiv.innerHTML = '<div style="padding: 15px; text-align: center; color: #999;">No results found. Try a different search term.</div>';
-                return;
-            }
-            
-            const html = tracks.map(track => {
-                const artists = track.artists.map(a => a.name).join(', ');
-                const album = track.album.name;
-                const duration = millisToMinutes(track.duration_ms);
-                const imageUrl = track.album.images[2]?.url || track.album.images[0]?.url || '';
-                const releaseYear = track.album.release_date ? track.album.release_date.split('-')[0] : '';
-                
-                return `
-                    <div style="display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(30, 215, 96, 0.3); border-radius: 6px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s;" 
-                         onclick='selectSpotifyTrack(${JSON.stringify({
-                             artist: artists,
-                             song: track.name,
-                             album: album,
-                             duration: duration,
-                             year: releaseYear,
-                             link: track.external_urls.spotify
-                         })})' 
-                         onmouseover="this.style.background='rgba(30, 215, 96, 0.2)'; this.style.borderColor='rgba(30, 215, 96, 0.5)'"
-                         onmouseout="this.style.background='rgba(0,0,0,0.3)'; this.style.borderColor='rgba(30, 215, 96, 0.3)'">
-                        ${imageUrl ? `<img src="${imageUrl}" alt="Album art" style="width: 50px; height: 50px; border-radius: 4px;">` : '<div style="width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 4px;"></div>'}
-                        <div style="flex: 1; min-width: 0;">
-                            <div style="font-weight: 600; color: #e0e0e0; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(track.name)}</div>
-                            <div style="font-size: 13px; color: #999; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(artists)}</div>
-                            <div style="font-size: 12px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(album)}${releaseYear ? ` • ${releaseYear}` : ''} • ${duration}</div>
-                        </div>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1ED760" stroke-width="2">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </div>
-                `;
-            }).join('');
-            
-            resultsDiv.innerHTML = html;
-        }
-        
-        // Convert milliseconds to mm:ss format
-        function millisToMinutes(ms) {
-            const totalSeconds = Math.floor(ms / 1000);
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
-        
-        // Select a Spotify track and populate the form
-        window.selectSpotifyTrack = function(trackData) {
-            document.getElementById('artist').value = trackData.artist;
-            document.getElementById('song').value = trackData.song;
-            document.getElementById('album').value = trackData.album;
-            document.getElementById('duration').value = trackData.duration;
-            document.getElementById('year').value = trackData.year;
-            document.getElementById('link').value = trackData.link;
-            
-            // Hide results and clear search
-            document.getElementById('spotifyResults').style.display = 'none';
-            document.getElementById('spotifySearchInput').value = '';
-            
-            // Show success message
-            const resultsDiv = document.getElementById('spotifyResults');
-            resultsDiv.innerHTML = '<div style="padding: 10px; text-align: center; color: #1ED760; background: rgba(30, 215, 96, 0.1); border-radius: 6px; margin-top: 10px;">✓ Song details loaded from Spotify!</div>';
-            resultsDiv.style.display = 'block';
-            setTimeout(() => {
-                resultsDiv.style.display = 'none';
-            }, 2000);
-            
-            // Focus on the first empty field or the save button
-            const firstEmptyField = document.querySelector('#songForm input:not([value]), #songForm input[value=""]');
-            if (firstEmptyField) {
-                firstEmptyField.focus();
-            }
-        };
-        
-        // Allow Enter key to search Spotify
-        document.addEventListener('DOMContentLoaded', () => {
-            const spotifyInput = document.getElementById('spotifySearchInput');
-            if (spotifyInput) {
-                spotifyInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        searchSpotify();
-                    }
-                });
-            }
-        });
-
         // Toggle left sidebar
+        function updateSidebarCollapseBtn(sidebar) {
+            const btn = document.getElementById('sidebarCollapseBtn');
+            if (!btn || !sidebar) return;
+            const collapsed = sidebar.classList.contains('collapsed');
+            btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            btn.title = collapsed ? 'Expand commands' : 'Collapse commands';
+            btn.setAttribute('aria-label', collapsed ? 'Expand commands' : 'Collapse commands');
+        }
+
         function toggleLeftSidebar() {
             const sidebar = document.querySelector('.left-sidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+            const isOverlayMode = window.matchMedia('(max-width: 1024px)').matches;
+
+            if (isOverlayMode && backdrop) {
+                sidebar.classList.toggle('mobile-open');
+                backdrop.classList.toggle('active');
+                return;
+            }
+
             sidebar.classList.toggle('collapsed');
             localStorage.setItem('leftSidebarCollapsed', sidebar.classList.contains('collapsed'));
+            updateSidebarCollapseBtn(sidebar);
         }
 
         // Load data on page load
         window.onload = function() {
-            // Theme already loaded by inline script below
+            if (typeof SongData !== 'undefined') SongData.cleanupLegacyKeys();
+            if (typeof AppShell !== 'undefined') AppShell.initAppShell({ activePage: 'songs' });
+            songPagination = new PaginatedTable({
+                rowsPerPage: 100,
+                containerId: 'paginationControls',
+                onPageChange: function() {
+                    renderSongs(lastRenderedSongs.length ? lastRenderedSongs : null);
+                }
+            });
             loadWatermark(); // Load watermark preference
             loadColumnVisibility(); // Load column visibility preferences
             loadDensity(); // Load table density preference
@@ -4392,6 +4329,8 @@ What would you like to do?
             if (leftSidebarCollapsed) {
                 document.querySelector('.left-sidebar').classList.add('collapsed');
             }
+            updateSidebarCollapseBtn(document.querySelector('.left-sidebar'));
+            initSongTableScrollSync();
             
             // Check for pending CSV import from Mobile Guide Wizard
             checkPendingImport();
@@ -4465,10 +4404,60 @@ What would you like to do?
             }
         }
         
-        // Enable drag-to-scroll on center pane (desktop) - Horizontal only, fully optimized
+        function syncSongTableColumns() {
+            const headTable = document.getElementById('songTableHead');
+            const bodyTable = document.getElementById('songTable');
+            if (!headTable || !bodyTable) return;
+
+            const headCells = headTable.querySelectorAll('th');
+            const firstRow = bodyTable.querySelector('tr');
+            const bodyCells = firstRow ? firstRow.children : [];
+            let total = 0;
+
+            headCells.forEach((th, i) => {
+                if (th.classList.contains('hidden-col')) return;
+                const width = Math.max(th.offsetWidth, 40);
+                th.style.width = width + 'px';
+                th.style.minWidth = width + 'px';
+                if (bodyCells[i] && !bodyCells[i].classList.contains('no-data')) {
+                    bodyCells[i].style.width = width + 'px';
+                    bodyCells[i].style.minWidth = width + 'px';
+                }
+                total += width;
+            });
+
+            const minWidth = Math.max(total, headTable.parentElement ? headTable.parentElement.clientWidth : total);
+            headTable.style.minWidth = minWidth + 'px';
+            bodyTable.style.minWidth = minWidth + 'px';
+        }
+
+        function initSongTableScrollSync() {
+            const head = document.getElementById('songTableHeadWrap');
+            const body = document.getElementById('songTableBodyWrap');
+            if (!head || !body || head.dataset.scrollSync === '1') return;
+            head.dataset.scrollSync = '1';
+            let locking = false;
+            body.addEventListener('scroll', function() {
+                if (locking) return;
+                locking = true;
+                head.scrollLeft = body.scrollLeft;
+                locking = false;
+            });
+            head.addEventListener('scroll', function() {
+                if (locking) return;
+                locking = true;
+                body.scrollLeft = head.scrollLeft;
+                locking = false;
+            });
+            window.addEventListener('resize', function() {
+                requestAnimationFrame(syncSongTableColumns);
+            });
+        }
+
+        // Enable drag-to-scroll on table body (horizontal)
         function enableDragScroll() {
-            const centerPane = document.querySelector('.center-pane');
-            if (!centerPane) return;
+            const scrollEl = document.getElementById('songTableBodyWrap') || document.querySelector('.center-pane .table-container');
+            if (!scrollEl) return;
             
             let isDragging = false;
             let startX = 0;
@@ -4476,12 +4465,11 @@ What would you like to do?
             
             function stopDragging() {
                 isDragging = false;
-                centerPane.classList.remove('dragging');
+                scrollEl.classList.remove('dragging');
                 document.body.style.userSelect = '';
             }
             
-            centerPane.addEventListener('mousedown', (e) => {
-                // Only enable drag on the container itself or on non-interactive elements
+            scrollEl.addEventListener('mousedown', (e) => {
                 const target = e.target;
                 if (
                     target.tagName === 'BUTTON' ||
@@ -4498,38 +4486,24 @@ What would you like to do?
                 }
                 
                 isDragging = true;
-                centerPane.classList.add('dragging');
+                scrollEl.classList.add('dragging');
                 document.body.style.userSelect = 'none';
-                
-                // Use clientX which is relative to viewport (more reliable)
                 startX = e.clientX;
-                scrollLeft = centerPane.scrollLeft;
+                scrollLeft = scrollEl.scrollLeft;
             });
             
-            // Use window-level events to catch mouse activity outside the element
             window.addEventListener('mouseup', () => {
-                if (isDragging) {
-                    stopDragging();
-                }
+                if (isDragging) stopDragging();
             });
             
             window.addEventListener('mousemove', (e) => {
                 if (!isDragging) return;
                 e.preventDefault();
-                
-                // Use clientX for viewport-relative position (no offset calculations needed)
-                const x = e.clientX;
-                const walk = (x - startX);
-                
-                // Direct scroll update - simple and fast
-                centerPane.scrollLeft = scrollLeft - walk;
+                scrollEl.scrollLeft = scrollLeft - (e.clientX - startX);
             });
             
-            // Also handle when mouse leaves the entire window/document
             document.addEventListener('mouseleave', () => {
-                if (isDragging) {
-                    stopDragging();
-                }
+                if (isDragging) stopDragging();
             });
         }
 
@@ -4726,7 +4700,13 @@ What would you like to do?
         // Render songs table
         function renderSongs(filteredSongs = null) {
             const tbody = document.getElementById('songTableBody');
-            const displaySongs = filteredSongs || songs;
+            const allDisplaySongs = filteredSongs || songs;
+            lastRenderedSongs = allDisplaySongs;
+            if (songPagination) {
+                songPagination.setTotal(allDisplaySongs.length);
+                songPagination.renderControls();
+            }
+            const displaySongs = songPagination ? songPagination.slice(allDisplaySongs) : allDisplaySongs;
 
             // Update column visibility in headers (cache the lookup)
             const columns = ['checkbox', 'actions', 'link', 'artist', 'song', 'album', 'duration', 'practiceStatus', 'tuning', 'bands', 'tags', 'key', 'firstNote', 'lastNote', 'chordChart', 'playCount'];
@@ -4739,7 +4719,8 @@ What would you like to do?
             });
 
             if (displaySongs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${columns.length - hiddenColumns.size}" class="no-data">No songs yet. Add your first song or import from CSV!</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${columns.length - hiddenColumns.size}" class="no-data">No songs yet. Add your first song or use Bulk Import Songs!</td></tr>`;
+                requestAnimationFrame(syncSongTableColumns);
                 return;
             }
 
@@ -4802,12 +4783,13 @@ What would you like to do?
             
             tbody.innerHTML = rows.join('');
             updateBulkActionsBar();
+            requestAnimationFrame(syncSongTableColumns);
         }
 
         // Update statistics (with memoization)
         function updateStats() {
             // Performance: Generate cache key from songs array
-            const cacheKey = `${songs.length}-${songs.map(s => s.artist + s.bands).join(',')}`;
+            const cacheKey = `${songs.length}-${songs.length ? songs[0].id || songs[0].artist : ''}-${songs.length ? songs[songs.length - 1].updatedAt || '' : ''}`;
             
             // Return cached result if available
             if (statsCache && statsCacheKey === cacheKey) {
@@ -5030,7 +5012,7 @@ What would you like to do?
         const columnWidths = JSON.parse(localStorage.getItem('columnWidths') || '{}');
 
         function initColumnResizing() {
-            const headers = document.querySelectorAll('#songTable th');
+            const headers = document.querySelectorAll('#songTableHead th');
             headers.forEach((header, index) => {
                 // Skip checkbox and actions columns
                 if (header.classList.contains('col-checkbox') || header.classList.contains('col-actions')) {
@@ -5072,7 +5054,7 @@ What would you like to do?
                 // Also update all cells in this column
                 const columnClass = Array.from(resizingColumn.classList).find(cls => cls.startsWith('col-'));
                 if (columnClass) {
-                    const cells = document.querySelectorAll(`#songTable .${columnClass}`);
+                    const cells = document.querySelectorAll(`#songTableHead .${columnClass}, #songTable .${columnClass}`);
                     cells.forEach(cell => {
                         cell.style.width = newWidth + 'px';
                         cell.style.minWidth = newWidth + 'px';
@@ -5096,6 +5078,7 @@ What would you like to do?
                 resizingColumn = null;
                 document.body.style.cursor = '';
                 document.body.style.userSelect = '';
+                requestAnimationFrame(syncSongTableColumns);
             });
         }
 
@@ -5383,6 +5366,7 @@ What would you like to do?
             document.getElementById('modalTitle').textContent = 'Add Song';
             document.getElementById('songForm').reset();
             document.getElementById('songModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
 
         // Edit song
@@ -5403,17 +5387,19 @@ What would you like to do?
             document.getElementById('firstNote').value = song.firstNote || '';
             document.getElementById('lastNote').value = song.lastNote || '';
             document.getElementById('songModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
 
         // Close modal
         function closeModal() {
             document.getElementById('songModal').classList.remove('active');
+            document.body.style.overflow = '';
         }
 
-        // Close import modal
+        // Close import modals (legacy alias)
         function closeImportModal() {
-            document.getElementById('importModal').classList.remove('active');
-            importData = [];
+            closeImportPreviewModal();
+            closeImportSelectionModal();
         }
 
         // Handle form submission
@@ -5462,11 +5448,16 @@ What would you like to do?
 
             if (editIndex >= 0) {
                     saveUndoState('edit', { index: editIndex, oldSong: JSON.parse(JSON.stringify(songs[editIndex])) });
+                songData.id = songs[editIndex].id || generateId();
+                songData.updatedAt = new Date().toISOString();
                 songs[editIndex] = songData;
                     showToast('Song updated successfully', 'success');
             } else {
                     saveUndoState('add', {});
-                songs.push(songData);
+                const newSong = (typeof SongData !== 'undefined')
+                    ? SongData.createNewSong(songData)
+                    : Object.assign({ id: generateId(), createdAt: songData.createdAt, updatedAt: new Date().toISOString() }, songData);
+                songs.push(newSong);
                     showToast('Song added successfully', 'success');
             }
 
@@ -6019,6 +6010,8 @@ What would you like to do?
                 renderSongs(cachedFilteredSongs);
                 return;
             }
+
+            if (songPagination) songPagination.currentPage = 1;
             
             let filtered = songs.map((song, index) => ({
                 ...song,
@@ -6354,183 +6347,48 @@ What would you like to do?
             }
         });
 
-        // Handle CSV import
+        // Handle CSV import (uses shared SongImport module)
+        let importErrors = [];
+
         function handleCSVImport(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
-                const csv = e.target.result;
-                parseCSV(csv);
+                parseCSV(e.target.result);
             };
             reader.readAsText(file);
             event.target.value = '';
         }
 
-        // Parse CSV
         function parseCSV(csv) {
-            const lines = csv.split('\n').filter(line => line.trim());
-            if (lines.length < 2) {
-                showToast('CSV file is empty or invalid!', 'error');
+            const result = SongImport.parseCSVContent(csv, songs);
+            importErrors = result.errors || [];
+            importData = result.importData;
+
+            if (importErrors.length && importData.length === 0) {
+                showToast(importErrors[0], 'error');
                 return;
             }
-
-            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-            const fieldMap = {
-                'artist': 'artist',
-                'album': 'album',
-                'song': 'song',
-                'link': 'link',
-                'tuning': 'tuning',
-                'bands': 'bands',
-                'key': 'key',
-                'first note': 'firstNote',
-                'firstnote': 'firstNote',
-                'last note': 'lastNote',
-                'lastnote': 'lastNote'
-            };
-
-            const headerIndexMap = {};
-            headers.forEach((header, index) => {
-                const mappedField = fieldMap[header];
-                if (mappedField) {
-                    headerIndexMap[mappedField] = index;
-                }
-            });
-
-            if (headerIndexMap.artist === undefined || headerIndexMap.song === undefined) {
-                showToast('CSV must have "Artist" and "Song" columns!', 'error');
-                return;
-            }
-
-            importData = [];
-            const csvSongs = [];
-            
-            // First pass: collect all songs from CSV
-            for (let i = 1; i < lines.length; i++) {
-                const values = parseCSVLine(lines[i]);
-                if (values.length === 0) continue;
-
-                const newSong = {
-                    artist: values[headerIndexMap.artist]?.trim() || '',
-                    song: values[headerIndexMap.song]?.trim() || '',
-                    album: values[headerIndexMap.album]?.trim() || '',
-                    link: values[headerIndexMap.link]?.trim() || '',
-                    tuning: values[headerIndexMap.tuning]?.trim() || '',
-                    bands: values[headerIndexMap.bands]?.trim() || '',
-                    key: values[headerIndexMap.key]?.trim() || '',
-                    firstNote: values[headerIndexMap.firstNote]?.trim() || '',
-                    lastNote: values[headerIndexMap.lastNote]?.trim() || '',
-                    csvLineNumber: i + 1
-                };
-
-                if (!newSong.artist || !newSong.song) continue;
-                csvSongs.push(newSong);
-            }
-
-            // Second pass: process songs and detect duplicates
-            const processedKeys = new Set();
-            
-            for (let csvSong of csvSongs) {
-                const key = `${csvSong.artist.toLowerCase()}|||${csvSong.song.toLowerCase()}`;
-                
-                // Check for duplicate within CSV file
-                const csvDuplicates = csvSongs.filter(s => 
-                    s.artist.toLowerCase() === csvSong.artist.toLowerCase() &&
-                    s.song.toLowerCase() === csvSong.song.toLowerCase()
-                );
-                
-                if (csvDuplicates.length > 1 && !processedKeys.has(key)) {
-                    // Multiple entries in CSV for same song
-                    processedKeys.add(key);
-                    importData.push({
-                        type: 'csv-duplicate',
-                        duplicates: csvDuplicates,
-                        selected: 0, // Index of selected duplicate
-                        artist: csvSong.artist,
-                        songName: csvSong.song
-                    });
-                } else if (csvDuplicates.length === 1) {
-                    // Single entry in CSV, check against existing songs
-                    const existingIndex = songs.findIndex(s => 
-                        s.artist.toLowerCase() === csvSong.artist.toLowerCase() &&
-                        s.song.toLowerCase() === csvSong.song.toLowerCase()
-                    );
-
-                    if (existingIndex >= 0) {
-                        const changes = getChanges(songs[existingIndex], csvSong);
-                        if (changes.length > 0) {
-                            importData.push({
-                                type: 'update',
-                                index: existingIndex,
-                                oldSong: songs[existingIndex],
-                                newSong: csvSong,
-                                changes: changes,
-                                selected: true
-                            });
-                        }
-                    } else {
-                        importData.push({
-                            type: 'new',
-                            newSong: csvSong,
-                            selected: true
-                        });
-                    }
-                }
-            }
-
             if (importData.length === 0) {
-                showToast('No changes detected in CSV file!', 'info');
+                showToast('No changes detected in import file!', 'info');
                 return;
             }
-
             showImportPreview();
         }
 
-        // Parse CSV line handling quoted values
         function parseCSVLine(line) {
-            const values = [];
-            let current = '';
-            let inQuotes = false;
-
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    values.push(current);
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            values.push(current);
-
-            return values.map(v => v.trim().replace(/^"|"$/g, ''));
+            return SongData.parseCSVLine(line);
         }
 
-        // Get changes between old and new song
         function getChanges(oldSong, newSong) {
-            const changes = [];
-            const fields = ['artist', 'song', 'album', 'link', 'tuning', 'bands', 'key', 'firstNote', 'lastNote'];
-            
-            fields.forEach(field => {
-                const oldVal = oldSong[field] || '';
-                const newVal = newSong[field] || '';
-                if (oldVal !== newVal) {
-                    changes.push({
-                        field: field,
-                        oldValue: oldVal,
-                        newValue: newVal
-                    });
-                }
-            });
-
-            return changes;
+            return SongData.getFieldChanges(oldSong, newSong);
         }
 
-        // Paste Import Functions
+        function formatFieldName(field) {
+            return SongImport.formatFieldName(field);
+        }
+
         function openPasteImportModal() {
             document.getElementById('pasteImportModal').classList.add('active');
             document.getElementById('pasteImportText').value = '';
@@ -6547,305 +6405,159 @@ What would you like to do?
                 showToast('Please paste some song data first!', 'error');
                 return;
             }
-
-            // Auto-detect format and parse
-            const parsedSongs = parsePastedData(text);
-            
+            const parsedSongs = SongImport.parsePastedData(text);
             if (parsedSongs.length === 0) {
                 showToast('Could not parse the pasted data. Please check the format.', 'error');
                 return;
             }
-
-            // Convert to CSV format and use existing CSV import logic
-            const csv = convertToCSV(parsedSongs);
             closePasteImportModal();
-            parseCSV(csv);
+            parseCSV(SongImport.songsToCSV(parsedSongs));
         }
 
-        function parsePastedData(text) {
-            const lines = text.split('\n').filter(line => line.trim());
-            const songs = [];
-
-            for (const line of lines) {
-                let artist = '';
-                let song = '';
-                let album = '';
-                let other = {};
-
-                // Try different delimiters and patterns
-                if (line.includes('\t')) {
-                    // Tab-separated (from spreadsheets)
-                    const parts = line.split('\t').map(p => p.trim());
-                    artist = parts[0] || '';
-                    song = parts[1] || '';
-                    album = parts[2] || '';
-                    // Additional columns if present
-                    if (parts[3]) other.tuning = parts[3];
-                    if (parts[4]) other.bands = parts[4];
-                    if (parts[5]) other.key = parts[5];
-                } else if (line.includes(' - ')) {
-                    // "Artist - Song" format
-                    const parts = line.split(' - ');
-                    artist = parts[0]?.trim() || '';
-                    song = parts.slice(1).join(' - ').trim();
-                } else if (line.includes(', ')) {
-                    // Comma-separated
-                    const parts = line.split(',').map(p => p.trim());
-                    artist = parts[0] || '';
-                    song = parts[1] || '';
-                    album = parts[2] || '';
-                    // Additional columns if present
-                    if (parts[3]) other.tuning = parts[3];
-                    if (parts[4]) other.bands = parts[4];
-                    if (parts[5]) other.key = parts[5];
-                } else {
-                    // Single value - assume it's the song name
-                    song = line.trim();
-                }
-
-                if (artist || song) {
-                    songs.push({
-                        artist: artist,
-                        song: song,
-                        album: album,
-                        ...other
-                    });
-                }
+        function duplicateActionSelect(itemIndex, action) {
+            if (importData[itemIndex]) {
+                importData[itemIndex].duplicateAction = action;
             }
-
-            return songs;
         }
 
-        function convertToCSV(songs) {
-            // Build CSV with all detected fields
-            const headers = ['Artist', 'Song', 'Album'];
-            const hasAdditionalFields = songs.some(s => s.tuning || s.bands || s.key);
-            if (hasAdditionalFields) {
-                if (songs.some(s => s.tuning)) headers.push('Tuning');
-                if (songs.some(s => s.bands)) headers.push('Bands');
-                if (songs.some(s => s.key)) headers.push('Key');
-            }
-
-            const csvLines = [headers.join(',')];
-            
-            songs.forEach(song => {
-                const row = [
-                    escapeCsvValue(song.artist || ''),
-                    escapeCsvValue(song.song || ''),
-                    escapeCsvValue(song.album || '')
-                ];
-                if (hasAdditionalFields) {
-                    if (headers.includes('Tuning')) row.push(escapeCsvValue(song.tuning || ''));
-                    if (headers.includes('Bands')) row.push(escapeCsvValue(song.bands || ''));
-                    if (headers.includes('Key')) row.push(escapeCsvValue(song.key || ''));
-                }
-                csvLines.push(row.join(','));
-            });
-
-            return csvLines.join('\n');
-        }
-
-        function escapeCsvValue(value) {
-            if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-                return `"${value.replace(/"/g, '""')}"`;
-            }
-            return value;
-        }
-
-        // Show import preview
         function showImportPreview() {
             const preview = document.getElementById('importPreview');
-            
-            // Sort import data by bands, album, then song
             const sortedData = [...importData].map((item, originalIndex) => ({
                 ...item,
                 originalIndex: originalIndex
             })).sort((a, b) => {
                 const getSongData = (item) => {
                     if (item.type === 'csv-duplicate') {
-                        return item.duplicates[item.selected];
+                        return item.duplicates[item.selectedDuplicate || 0];
                     }
                     return item.newSong;
                 };
-                
                 const songA = getSongData(a);
                 const songB = getSongData(b);
-                
                 const bandsA = (songA.bands || '').toLowerCase();
                 const bandsB = (songB.bands || '').toLowerCase();
                 if (bandsA !== bandsB) return bandsA.localeCompare(bandsB);
-                
                 const albumA = (songA.album || '').toLowerCase();
                 const albumB = (songB.album || '').toLowerCase();
                 if (albumA !== albumB) return albumA.localeCompare(albumB);
-                
-                const nameA = (songA.song || '').toLowerCase();
-                const nameB = (songB.song || '').toLowerCase();
-                return nameA.localeCompare(nameB);
+                return (songA.song || '').toLowerCase().localeCompare((songB.song || '').toLowerCase());
             });
-            
-            const duplicateCount = importData.filter(i => i.type === 'csv-duplicate').length;
-            
-            preview.innerHTML = `
-                <div style="margin-bottom: 15px; color: #d84315;">
-                    <strong>${importData.filter(i => i.type === 'new').length}</strong> new songs, 
-                    <strong>${importData.filter(i => i.type === 'update').length}</strong> updates
-                    ${duplicateCount > 0 ? `, <strong style="color: #f59e0b;">${duplicateCount}</strong> duplicates in CSV` : ''}
+
+            const errorsHtml = importErrors.length ? `
+                <div class="import-errors">
+                    <strong>${importErrors.length} row(s) skipped:</strong>
+                    <ul>${importErrors.slice(0, 8).map(e => `<li>${escapeHtml(e)}</li>`).join('')}${importErrors.length > 8 ? '<li>…and more</li>' : ''}</ul>
+                </div>` : '';
+
+            const actionOptions = (item, idx) => item.type === 'new' ? '-' : `
+                <select class="import-action-select" onchange="duplicateActionSelect(${idx}, this.value)">
+                    <option value="update" ${item.duplicateAction === 'update' ? 'selected' : ''}>Update from import</option>
+                    <option value="keep" ${item.duplicateAction === 'keep' ? 'selected' : ''}>Keep existing</option>
+                    <option value="skip" ${item.duplicateAction === 'skip' ? 'selected' : ''}>Skip</option>
+                </select>`;
+
+            preview.innerHTML = errorsHtml + `
+                <div style="margin-bottom: 15px; color: var(--primary-light);">
+                    <strong>${importData.filter(i => i.type === 'new').length}</strong> new,
+                    <strong>${importData.filter(i => i.type === 'update').length}</strong> updates,
+                    <strong style="color: #f59e0b;">${importData.filter(i => i.type === 'csv-duplicate').length}</strong> file duplicates
                 </div>
                 <table style="width: 100%;">
                     <thead>
                         <tr>
-                            <th style="width: 40px; text-align: center;">✓</th>
-                            <th style="width: 60px;">Status</th>
-                            <th>Band</th>
+                            <th style="width: 40px;">✓</th>
+                            <th>Status</th>
                             <th>Artist</th>
                             <th>Song</th>
                             <th>Album</th>
-                            <th>Key</th>
-                            <th>Changes</th>
+                            <th>Action</th>
+                            <th>Details</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${sortedData.map((item) => {
+                            const idx = item.originalIndex;
                             if (item.type === 'csv-duplicate') {
-                                // Special handling for CSV duplicates
-                                const statusBadge = '<span style="background: #f59e0b; padding: 4px 8px; border-radius: 4px; font-size: 12px;">⚠️ DUPLICATE</span>';
-                                const selectedDup = item.duplicates[item.selected];
-                                
-                                const duplicateOptions = `
-                                    <div style="font-size: 12px;">
-                                        <strong style="color: #f59e0b;">Found ${item.duplicates.length} entries in CSV for this song. Select which to import:</strong>
-                                        ${item.duplicates.map((dup, dupIndex) => `
-                                            <div style="margin: 8px 0; padding: 8px; background: ${dupIndex === item.selected ? 'rgba(216, 67, 21, 0.2)' : 'rgba(50, 50, 50, 0.3)'}; border-radius: 4px; border: ${dupIndex === item.selected ? '2px solid #d84315' : '1px solid #444'};">
-                                                <label style="cursor: pointer; display: block;">
-                                                    <input type="radio" name="duplicate_${item.originalIndex}" value="${dupIndex}" 
-                                                           ${dupIndex === item.selected ? 'checked' : ''} 
-                                                           onchange="selectDuplicate(${item.originalIndex}, ${dupIndex})"
-                                                           style="margin-right: 8px;">
-                                                    CSV Line ${dup.csvLineNumber}:
-                                                    <div style="margin-left: 24px; margin-top: 4px;">
-                                                        ${dup.album ? `<span style="color: #aaa;">Album: ${escapeHtml(dup.album)}</span><br>` : ''}
-                                                        ${dup.bands ? `<span style="color: #aaa;">Bands: ${escapeHtml(dup.bands)}</span><br>` : ''}
-                                                        ${dup.key ? `<span style="color: #aaa;">Key: ${escapeHtml(dup.key)}</span>` : ''}
-                                                        ${dup.tuning ? ` | Tuning: ${escapeHtml(dup.tuning)}` : ''}
-                                                        ${dup.link ? ` | <a href="${escapeHtml(dup.link)}" target="_blank" class="link-icon">🔗</a>` : ''}
-                                                    </div>
-                                                </label>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                `;
-                                
-                                return `
-                                    <tr style="border-bottom: 1px solid rgba(216, 67, 21, 0.1); background: rgba(245, 158, 11, 0.05);">
-                                        <td style="text-align: center; padding: 8px;">
-                                            <input type="checkbox" id="import_${item.originalIndex}" 
-                                                   checked
-                                                   onchange="toggleImportItem(${item.originalIndex})"
-                                                   style="width: 18px; height: 18px; cursor: pointer;">
-                                        </td>
-                                        <td style="padding: 8px;">${statusBadge}</td>
-                                        <td style="padding: 8px;">${escapeHtml(selectedDup.bands || '-')}</td>
-                                        <td style="padding: 8px;">${escapeHtml(item.artist)}</td>
-                                        <td style="padding: 8px; font-weight: 600;">${escapeHtml(item.songName)}</td>
-                                        <td style="padding: 8px;">${escapeHtml(selectedDup.album || '-')}</td>
-                                        <td style="padding: 8px;">${escapeHtml(selectedDup.key || '-')}</td>
-                                        <td style="padding: 8px;" colspan="1">${duplicateOptions}</td>
-                                    </tr>
-                                `;
+                                const selectedDup = item.duplicates[item.selectedDuplicate || 0];
+                                return `<tr>
+                                    <td style="text-align:center"><input type="checkbox" checked onchange="toggleImportItem(${idx})" id="import_${idx}"></td>
+                                    <td><span style="background:#f59e0b;padding:4px 8px;border-radius:4px;font-size:12px;">DUPLICATE</span></td>
+                                    <td>${escapeHtml(item.artist)}</td>
+                                    <td><strong>${escapeHtml(item.songName)}</strong></td>
+                                    <td>${escapeHtml(selectedDup.album || '-')}</td>
+                                    <td>${actionOptions(item, idx)}</td>
+                                    <td>${item.duplicates.map((dup, dupIndex) => `
+                                        <label style="display:block;margin:4px 0;font-size:12px;">
+                                            <input type="radio" name="duplicate_${idx}" ${dupIndex === (item.selectedDuplicate || 0) ? 'checked' : ''}
+                                                onchange="selectDuplicate(${idx}, ${dupIndex})"> Line ${dup.csvLineNumber || dupIndex + 1}
+                                        </label>`).join('')}</td>
+                                </tr>`;
                             }
-                            
-                            const isUpdate = item.type === 'update';
-                            const statusBadge = isUpdate 
-                                ? '<span style="background: #f59e0b; padding: 4px 8px; border-radius: 4px; font-size: 12px;">🔄 UPDATE</span>'
-                                : '<span style="background: #10b981; padding: 4px 8px; border-radius: 4px; font-size: 12px;">✨ NEW</span>';
-                            
-                            const changesHtml = isUpdate ? `
-                                <div style="font-size: 12px;">
-                                    ${item.changes.map(change => `
-                                        <div style="margin: 2px 0;">
-                                            <strong>${formatFieldName(change.field)}:</strong>
-                                            ${change.oldValue ? `<span class="change-old">${escapeHtml(change.oldValue)}</span> → ` : ''}
-                                            <span class="change-new">${escapeHtml(change.newValue)}</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            ` : '-';
-                            
-                            return `
-                                <tr style="border-bottom: 1px solid rgba(216, 67, 21, 0.1);">
-                                    <td style="text-align: center; padding: 8px;">
-                                        <input type="checkbox" id="import_${item.originalIndex}" 
-                                               ${item.selected ? 'checked' : ''} 
-                                               onchange="toggleImportItem(${item.originalIndex})"
-                                               style="width: 18px; height: 18px; cursor: pointer;">
-                                    </td>
-                                    <td style="padding: 8px;">${statusBadge}</td>
-                                    <td style="padding: 8px;">${escapeHtml(item.newSong.bands || '-')}</td>
-                                    <td style="padding: 8px;">${escapeHtml(item.newSong.artist)}</td>
-                                    <td style="padding: 8px; font-weight: 600;">${escapeHtml(item.newSong.song)}</td>
-                                    <td style="padding: 8px;">${escapeHtml(item.newSong.album || '-')}</td>
-                                    <td style="padding: 8px;">${escapeHtml(item.newSong.key || '-')}</td>
-                                    <td style="padding: 8px;">${changesHtml}</td>
-                                </tr>
-                            `;
+                            const badge = item.type === 'update'
+                                ? '<span style="background:#f59e0b;padding:4px 8px;border-radius:4px;font-size:12px;">UPDATE</span>'
+                                : '<span style="background:#10b981;padding:4px 8px;border-radius:4px;font-size:12px;">NEW</span>';
+                            const changesHtml = item.type === 'update' ? item.changes.map(c =>
+                                `<div style="font-size:12px"><strong>${formatFieldName(c.field)}:</strong> ${escapeHtml(c.oldValue || '—')} → ${escapeHtml(c.newValue)}</div>`
+                            ).join('') : '-';
+                            return `<tr>
+                                <td style="text-align:center"><input type="checkbox" ${item.selected !== false ? 'checked' : ''} onchange="toggleImportItem(${idx})" id="import_${idx}"></td>
+                                <td>${badge}</td>
+                                <td>${escapeHtml(item.newSong.artist)}</td>
+                                <td><strong>${escapeHtml(item.newSong.song)}</strong></td>
+                                <td>${escapeHtml(item.newSong.album || '-')}</td>
+                                <td>${actionOptions(item, idx)}</td>
+                                <td>${changesHtml}</td>
+                            </tr>`;
                         }).join('')}
                     </tbody>
-                </table>
-            `;
+                </table>`;
 
-            document.getElementById('importModal').classList.add('active');
+            document.getElementById('importPreviewModal').classList.add('active');
         }
 
-        // Toggle import item selection
         function toggleImportItem(index) {
-            importData[index].selected = document.getElementById(`import_${index}`).checked;
+            const el = document.getElementById(`import_${index}`);
+            importData[index].selected = el ? el.checked : false;
         }
 
-        // Select which duplicate to import
         function selectDuplicate(importIndex, duplicateIndex) {
-            importData[importIndex].selected = duplicateIndex;
-            // Refresh the preview to show the new selection
+            importData[importIndex].selectedDuplicate = duplicateIndex;
             showImportPreview();
         }
 
-        // Confirm import
         function confirmImport() {
-            const selectedItems = importData.filter(item => item.selected !== false && item.selected !== undefined);
+            const selectedItems = importData.filter(item => item.selected !== false);
             if (selectedItems.length === 0) {
                 showToast('No items selected for import!', 'warning');
                 return;
             }
 
-            selectedItems.forEach(item => {
-                if (item.type === 'csv-duplicate') {
-                    // Import the selected duplicate
-                    const selectedSong = item.duplicates[item.selected];
-                    const existingIndex = songs.findIndex(s => 
-                        s.artist.toLowerCase() === selectedSong.artist.toLowerCase() &&
-                        s.song.toLowerCase() === selectedSong.song.toLowerCase()
-                    );
-                    
-                    if (existingIndex >= 0) {
-                        songs[existingIndex] = selectedSong;
-                    } else {
-                        songs.push(selectedSong);
-                    }
-                } else if (item.type === 'update') {
-                    songs[item.index] = item.newSong;
-                } else if (item.type === 'new') {
-                    songs.push(item.newSong);
-                }
+            const before = JSON.parse(JSON.stringify(songs));
+            const result = SongImport.applyImport(importData, songs, function(item) {
+                return item;
             });
-
+            songs = result.songs;
             saveSongs();
             applyFilters();
             updateStats();
-            closeImportModal();
-            
-            // Save undo state for import
-            saveUndoState('import', { count: selectedItems.length });
-            showToast(`Successfully imported ${selectedItems.length} song(s)!`, 'success');
+            closeImportPreviewModal();
+            saveUndoState('import', { count: result.applied, before: before });
+            showToast(`Imported ${result.applied} song(s)${result.skipped ? ` (${result.skipped} skipped)` : ''}!`, 'success');
+            importData = [];
+            importErrors = [];
+        }
+
+        function closeImportPreviewModal() {
+            document.getElementById('importPreviewModal').classList.remove('active');
+            importData = [];
+        }
+
+        function openImportSelectionModal() {
+            document.getElementById('importSelectionModal').classList.add('active');
+        }
+
+        function closeImportSelectionModal() {
+            document.getElementById('importSelectionModal').classList.remove('active');
         }
 
         // Export to CSV
@@ -6891,17 +6603,15 @@ What would you like to do?
 
         // Import Modal Functions
         function openImportModal() {
-            document.getElementById('importModal').classList.add('active');
+            openImportSelectionModal();
         }
 
-        function closeImportModal() {
-            document.getElementById('importModal').classList.remove('active');
+        function closeImportModalLegacy() {
+            closeImportSelectionModal();
         }
 
-        // Toggle import menu dropdown (deprecated, keeping for compatibility)
         function toggleImportMenu() {
-            // This function is now replaced by openImportModal but kept for any legacy calls
-            openImportModal();
+            openImportSelectionModal();
         }
 
         // Close export menu when clicking outside
@@ -7444,7 +7154,7 @@ What would you like to do?
         
         // Open Mobile Guide wizard
         function openMobileGuide() {
-            window.open('mobile-guide-wizard.html', '_blank');
+            window.location.href = 'storage-wizard.html';
         }
         
         // Toggle mobile column visibility section
@@ -7506,6 +7216,17 @@ What would you like to do?
         // Close mobile menu when clicking outside or pressing escape
         document.addEventListener('DOMContentLoaded', () => {
             const mobileMenu = document.getElementById('mobileMenu');
+            const sidebar = document.querySelector('.left-sidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+
+            if (backdrop) {
+                backdrop.addEventListener('click', () => {
+                    if (sidebar && sidebar.classList.contains('mobile-open')) {
+                        toggleLeftSidebar();
+                    }
+                });
+            }
+
             if (mobileMenu) {
                 // Close on background click
                 mobileMenu.addEventListener('click', (e) => {
@@ -7516,8 +7237,13 @@ What would you like to do?
                 
                 // Close on escape key
                 document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
-                        toggleMobileMenu();
+                    if (e.key === 'Escape') {
+                        if (mobileMenu.classList.contains('active')) {
+                            toggleMobileMenu();
+                        }
+                        if (sidebar && sidebar.classList.contains('mobile-open')) {
+                            toggleLeftSidebar();
+                        }
                     }
                 });
             }
@@ -7577,7 +7303,11 @@ What would you like to do?
         loadTheme();
     </script>
     
-    <!-- Version Management -->
+    <!-- Version Management & shared modules (file:// compatible) -->
+    <script src="./js/song-data.js"></script>
+    <script src="./js/app-shell.js"></script>
+    <script src="./js/song-import.js"></script>
+    <script src="./js/table-helper.js"></script>
     <script src="./js/version.js"></script>
 </body>
 </html>

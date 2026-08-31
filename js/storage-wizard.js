@@ -16,6 +16,8 @@ let configManager = {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
+    if (typeof SongData !== 'undefined') SongData.cleanupLegacyKeys();
+    if (typeof AppShell !== 'undefined') AppShell.initAppShell({ activePage: 'storage' });
     loadTheme();
     detectAndDisplayDevice();
     loadConfigManager();
@@ -91,7 +93,13 @@ window.addEventListener('beforeunload', function() {
 // Load theme from localStorage (same as Song Manager)
 function loadTheme() {
     const savedTheme = localStorage.getItem('bandOrganizerTheme') || 'red';
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    if (typeof AppShell !== 'undefined') {
+        AppShell.applyTheme(savedTheme);
+    } else if (savedTheme === 'grey') {
+        document.body.removeAttribute('data-theme');
+    } else {
+        document.body.setAttribute('data-theme', savedTheme);
+    }
     
     // Sync both theme selectors
     const desktopSelector = document.getElementById('themeSelector');
@@ -174,48 +182,21 @@ function detectAndDisplayDevice() {
     currentDevice = detectDevice();
     const deviceNameEl = document.getElementById('deviceName');
     const deviceIconEl = document.getElementById('deviceIcon');
-    
-    deviceNameEl.textContent = currentDevice;
-    deviceIconEl.innerHTML = getDeviceIcon(currentDevice);
+
+    if (deviceNameEl) deviceNameEl.textContent = currentDevice;
+    if (deviceIconEl) deviceIconEl.innerHTML = getDeviceIcon(currentDevice);
 }
 
 // Get device-specific icon
 function getDeviceIcon(device) {
     const icons = {
-        'iPhone': `
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-                <line x1="12" y1="18" x2="12.01" y2="18"/>
-            </svg>
-        `,
-        'iPad': `
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                <rect x="3" y="2" width="18" height="20" rx="2" ry="2"/>
-                <line x1="12" y1="18" x2="12.01" y2="18"/>
-            </svg>
-        `,
-        'Android Phone': `
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-                <line x1="12" y1="18" x2="12.01" y2="18"/>
-                <circle cx="12" cy="5" r="0.5" fill="var(--primary-color)"/>
-            </svg>
-        `,
-        'Android Tablet': `
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                <rect x="2" y="3" width="20" height="18" rx="2" ry="2"/>
-                <line x1="12" y1="18" x2="12.01" y2="18"/>
-            </svg>
-        `,
-        'Desktop': `
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                <line x1="8" y1="21" x2="16" y2="21"/>
-                <line x1="12" y1="17" x2="12" y2="21"/>
-            </svg>
-        `
+        'iPhone': `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
+        'iPad': `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="2" width="18" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
+        'Android Phone': `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
+        'Android Tablet': `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
+        'Desktop': `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`
     };
-    
+
     return icons[device] || icons['Desktop'];
 }
 
@@ -285,8 +266,7 @@ function getIconSVG(iconName) {
 // CSV Import Wizard
 // ===========================
 function startCSVImportWizard() {
-    hideAllWizards();
-    document.getElementById('csvImportWizard').style.display = 'block';
+    showWizardFlow('csvImportWizard');
     
     const steps = getCSVImportSteps(currentDevice);
     renderSteps(steps, 'csvImportSteps');
@@ -369,8 +349,7 @@ function getCSVImportSteps(device) {
 // JSON Import Wizard
 // ===========================
 function startJSONImportWizard() {
-    hideAllWizards();
-    document.getElementById('jsonImportWizard').style.display = 'block';
+    showWizardFlow('jsonImportWizard');
     
     const steps = getJSONImportSteps(currentDevice);
     renderSteps(steps, 'jsonImportSteps');
@@ -393,8 +372,7 @@ function getJSONImportSteps(device) {
 // JSON Export Wizard
 // ===========================
 function startJSONExportWizard() {
-    hideAllWizards();
-    document.getElementById('jsonExportWizard').style.display = 'block';
+    showWizardFlow('jsonExportWizard');
     
     const steps = getJSONExportSteps(currentDevice);
     renderSteps(steps, 'jsonExportSteps');
@@ -483,8 +461,7 @@ function getJSONExportSteps(device) {
 // CSV Export Wizard
 // ===========================
 function startCSVExportWizard() {
-    hideAllWizards();
-    document.getElementById('csvExportWizard').style.display = 'block';
+    showWizardFlow('csvExportWizard');
     
     const steps = [{
         title: 'Export Songs to CSV',
@@ -502,8 +479,7 @@ function startCSVExportWizard() {
 // Clear All Wizard
 // ===========================
 function startClearAllWizard() {
-    hideAllWizards();
-    document.getElementById('clearAllWizard').style.display = 'block';
+    showWizardFlow('clearAllWizard');
     
     const currentSongs = JSON.parse(localStorage.getItem('songDatabase') || '[]');
     const currentSetlists = JSON.parse(localStorage.getItem('bandSetlists') || '[]');
@@ -531,20 +507,53 @@ function startClearAllWizard() {
 // ===========================
 // Helper Functions
 // ===========================
+function setPageBlockVisible(id, visible) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.hidden = !visible;
+}
+
+function showOverlay(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.hidden = false;
+    el.style.display = 'flex';
+}
+
+function hideOverlay(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.hidden = true;
+    el.style.display = '';
+}
+
+function setWizardChromeVisible(visible) {
+    setPageBlockVisible('taskSelection', visible);
+    const configPanel = document.getElementById('configPanel');
+    if (configPanel) configPanel.hidden = !visible;
+    const deviceBadge = document.getElementById('deviceBadge');
+    if (deviceBadge) deviceBadge.hidden = !visible;
+}
+
+function showWizardFlow(wizardId) {
+    hideAllWizards();
+    setWizardChromeVisible(false);
+    setPageBlockVisible(wizardId, true);
+}
+
 function hideAllWizards() {
-    document.getElementById('taskSelection').style.display = 'none';
-    document.getElementById('csvImportWizard').style.display = 'none';
-    document.getElementById('jsonImportWizard').style.display = 'none';
-    document.getElementById('jsonExportWizard').style.display = 'none';
-    document.getElementById('csvExportWizard').style.display = 'none';
-    document.getElementById('clearAllWizard').style.display = 'none';
-    document.getElementById('importPreviewPanel').style.display = 'none';
-    document.getElementById('successPanel').style.display = 'none';
+    ['csvImportWizard', 'jsonImportWizard', 'jsonExportWizard', 'csvExportWizard', 'clearAllWizard'].forEach(function (id) {
+        setPageBlockVisible(id, false);
+    });
+    hideOverlay('importPreviewPanel');
+    hideOverlay('successPanel');
+    hideOverlay('filenameModal');
+    hideOverlay('configNameModal');
 }
 
 function backToTaskSelection() {
     hideAllWizards();
-    document.getElementById('taskSelection').style.display = 'block';
+    setWizardChromeVisible(true);
 }
 
 // Render wizard steps
@@ -626,8 +635,24 @@ function handleCSVImport(event) {
             }
             
             // Parse CSV and show preview
-            const parsedSongs = parseCSVData(csv);
-            showImportPreview(parsedSongs, 'csv');
+            if (typeof SongImport !== 'undefined' && typeof SongData !== 'undefined') {
+                const existing = JSON.parse(localStorage.getItem('songDatabase') || localStorage.getItem('bandSongs') || '[]');
+                const parsed = SongImport.parseCSVContent(csv, existing);
+                if (parsed.errors.length && parsed.importData.length === 0) {
+                    showNotification(parsed.errors[0], 'error');
+                    return;
+                }
+                pendingImportData = {
+                    type: 'csv',
+                    importData: parsed.importData,
+                    errors: parsed.errors,
+                    stats: parsed.stats
+                };
+                showImportPreview(parsed, 'csv');
+            } else {
+                const parsedSongs = parseCSVData(csv);
+                showImportPreview(parsedSongs, 'csv');
+            }
             
         } catch (error) {
             console.error('CSV Import error:', error);
@@ -765,7 +790,7 @@ function handleJSONImport(event) {
             // Show config name modal
             const defaultName = file.name.replace('.json', '').replace(/^band-practice-manager-backup-/, '');
             document.getElementById('configNameInput').value = defaultName;
-            document.getElementById('configNameModal').style.display = 'flex';
+            showOverlay('configNameModal');
             
         } catch (error) {
             console.error('JSON Import error:', error);
@@ -808,7 +833,7 @@ function confirmConfigName() {
     }
     
     // Hide modal
-    document.getElementById('configNameModal').style.display = 'none';
+    hideOverlay('configNameModal');
     
     // Validate pending import data
     if (!pendingImportData || !pendingImportData.songs) {
@@ -854,7 +879,7 @@ function confirmConfigName() {
 
 // Cancel config name modal
 function cancelConfigNameModal() {
-    document.getElementById('configNameModal').style.display = 'none';
+    hideOverlay('configNameModal');
     pendingImportData = null;
     backToTaskSelection();
 }
@@ -864,7 +889,7 @@ function triggerJSONExport() {
     // Show filename modal first
     const defaultFilename = `band-practice-manager-backup-${new Date().toISOString().split('T')[0]}.json`;
     document.getElementById('filenameInput').value = defaultFilename;
-    document.getElementById('filenameModal').style.display = 'flex';
+    showOverlay('filenameModal');
 }
 
 // Confirm filename and proceed with export
@@ -891,7 +916,7 @@ function confirmFilenameAndExport() {
     }
     
     // Hide modal
-    document.getElementById('filenameModal').style.display = 'none';
+    hideOverlay('filenameModal');
     
     try {
         // Proceed with export
@@ -936,7 +961,7 @@ function confirmFilenameAndExport() {
 
 // Cancel filename modal
 function cancelFilenameModal() {
-    document.getElementById('filenameModal').style.display = 'none';
+    hideOverlay('filenameModal');
     backToTaskSelection();
 }
 
@@ -1042,16 +1067,45 @@ function showImportPreview(data, type) {
     hideAllWizards();
     
     if (type === 'csv') {
-        pendingImportData = { songs: data, type: 'csv' };
-        
-        const statsHTML = `
-            <div class="preview-stat">
-                <div class="preview-stat-number">${data.length}</div>
-                <div class="preview-stat-label">Songs to Import</div>
-            </div>
-        `;
-        
-        document.getElementById('previewStats').innerHTML = statsHTML;
+        if (data.importData) {
+            pendingImportData = {
+                type: 'csv',
+                importData: data.importData,
+                errors: data.errors || [],
+                stats: data.stats || {}
+            };
+            const stats = data.stats || {};
+            const statsHTML = `
+                <div class="preview-stat">
+                    <div class="preview-stat-number">${stats.new || 0}</div>
+                    <div class="preview-stat-label">New Songs</div>
+                </div>
+                <div class="preview-stat">
+                    <div class="preview-stat-number">${stats.update || 0}</div>
+                    <div class="preview-stat-label">Updates</div>
+                </div>
+                <div class="preview-stat">
+                    <div class="preview-stat-number">${stats.duplicate || 0}</div>
+                    <div class="preview-stat-label">File Duplicates</div>
+                </div>
+                <div class="preview-stat">
+                    <div class="preview-stat-number">${stats.invalid || 0}</div>
+                    <div class="preview-stat-label">Invalid Rows</div>
+                </div>
+            `;
+            document.getElementById('previewStats').innerHTML = statsHTML;
+        } else {
+            pendingImportData = { songs: data, type: 'csv' };
+            
+            const statsHTML = `
+                <div class="preview-stat">
+                    <div class="preview-stat-number">${data.length}</div>
+                    <div class="preview-stat-label">Songs to Import</div>
+                </div>
+            `;
+            
+            document.getElementById('previewStats').innerHTML = statsHTML;
+        }
     } else if (type === 'json') {
         pendingImportData = { ...data, type: 'json' };
         
@@ -1072,7 +1126,7 @@ function showImportPreview(data, type) {
         document.getElementById('previewStats').innerHTML = statsHTML;
     }
     
-    document.getElementById('importPreviewPanel').style.display = 'flex';
+    showOverlay('importPreviewPanel');
 }
 
 function confirmImportPreview() {
@@ -1080,9 +1134,19 @@ function confirmImportPreview() {
     
     try {
         if (pendingImportData.type === 'csv') {
-            // Append to existing songs
-            const existing = JSON.parse(localStorage.getItem('songDatabase') || '[]');
-            const combined = [...existing, ...pendingImportData.songs];
+            const existing = JSON.parse(localStorage.getItem('songDatabase') || localStorage.getItem('bandSongs') || '[]');
+            let combined = existing;
+            let applied = pendingImportData.songs ? pendingImportData.songs.length : 0;
+            let skipped = 0;
+
+            if (pendingImportData.importData && typeof SongImport !== 'undefined') {
+                const result = SongImport.applyImport(pendingImportData.importData, existing);
+                combined = result.songs;
+                applied = result.applied;
+                skipped = result.skipped;
+            } else if (pendingImportData.songs) {
+                combined = [...existing, ...pendingImportData.songs];
+            }
             
             localStorage.setItem('songDatabase', JSON.stringify(combined));
             localStorage.setItem('bandSongs', JSON.stringify(combined));
@@ -1095,7 +1159,7 @@ function confirmImportPreview() {
             
             showSuccessPanel(
                 '✓ CSV Import Successful!',
-                `${pendingImportData.songs.length} songs imported successfully.`
+                `${applied} song(s) imported${skipped ? ` (${skipped} skipped)` : ''}. Updates merge safely with existing chart and progress data.`
             );
         } else if (pendingImportData.type === 'json') {
             // Replace all data
@@ -1145,7 +1209,7 @@ function confirmImportPreview() {
 
 function cancelImportPreview() {
     pendingImportData = null;
-    document.getElementById('importPreviewPanel').style.display = 'none';
+    hideOverlay('importPreviewPanel');
     backToTaskSelection();
 }
 
@@ -1157,7 +1221,7 @@ function showSuccessPanel(title, message) {
     
     document.getElementById('successTitle').textContent = title;
     document.getElementById('successMessage').textContent = message;
-    document.getElementById('successPanel').style.display = 'flex';
+    showOverlay('successPanel');
 }
 
 function goToSongManager() {
@@ -1195,16 +1259,16 @@ function goBack() {
 // ===========================
 function toggleSection(sectionId) {
     const section = document.getElementById(sectionId);
+    if (!section) return;
     const header = section.previousElementSibling;
-    
-    if (section.style.display === 'none' || !section.style.display) {
-        section.style.display = 'block';
-        section.classList.add('show');
-        header.classList.add('expanded');
-    } else {
-        section.style.display = 'none';
+    const isOpen = section.classList.contains('show');
+
+    if (isOpen) {
         section.classList.remove('show');
-        header.classList.remove('expanded');
+        if (header) header.classList.remove('expanded');
+    } else {
+        section.classList.add('show');
+        if (header) header.classList.add('expanded');
     }
 }
 
@@ -1247,8 +1311,15 @@ function toggleMobileMenu() {
 // Theme Changer
 // ===========================
 function changeTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('bandOrganizerTheme', theme);
+    if (typeof AppShell !== 'undefined') {
+        AppShell.changeTheme(theme);
+    } else if (theme === 'grey') {
+        document.body.removeAttribute('data-theme');
+        localStorage.setItem('bandOrganizerTheme', theme);
+    } else {
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('bandOrganizerTheme', theme);
+    }
     
     // Sync both selectors
     const desktopSelector = document.getElementById('themeSelector');
@@ -1474,7 +1545,7 @@ function exportActiveConfig() {
     
     // Show filename modal with pre-filled name
     document.getElementById('filenameInput').value = filename;
-    document.getElementById('filenameModal').style.display = 'flex';
+    showOverlay('filenameModal');
 }
 
 // Delete configuration with safeguards

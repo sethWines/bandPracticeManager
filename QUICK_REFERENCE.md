@@ -1,6 +1,71 @@
-# Quick Reference - Performance Optimizations
+# Quick Reference — Band Practice Manager
 
-## New Module APIs
+## Shared modules (file:// compatible)
+
+These classic scripts load via `<script src>` — no build step or ES modules required.
+
+### SongData (`js/song-data.js`)
+
+```javascript
+// IDs, normalization, duplicate keys, safe merge
+SongData.generateId();
+SongData.songKey(artist, title);
+SongData.normalizeSong(raw);
+SongData.createNewSong({ artist, song, album, ... });
+SongData.mergeSongUpdate(existing, incoming);  // preserves chart/progress
+SongData.parseCSVLine(line);
+SongData.exportAllData();  // full JSON backup download
+SongData.cleanupLegacyKeys();  // removes old Spotify keys
+```
+
+### SongImport (`js/song-import.js`)
+
+```javascript
+var existing = SongData.loadSongs();
+var parsed = SongImport.parseCSVContent(csvText, existing);
+// parsed.importData — rows: new | update | csv-duplicate
+// parsed.errors, parsed.stats
+
+var result = SongImport.applyImport(parsed.importData, existing);
+// result.songs, result.applied, result.skipped
+
+SongImport.parsePastedData(tabOrCommaText);
+SongImport.songsToCSV(songs);
+```
+
+### AppShell (`js/app-shell.js`)
+
+```javascript
+AppShell.initAppShell({ activePage: 'songs' }); // songs | setlists | charts | show | storage
+AppShell.changeTheme('teal');
+AppShell.showToast('Saved', 'success');
+AppShell.toggleMobileMenu();
+```
+
+### PaginatedTable (`js/table-helper.js`)
+
+```javascript
+var table = new PaginatedTable({
+  rowsPerPage: 100,
+  containerId: 'paginationControls',
+  onPageChange: function () { renderSongs(); }
+});
+var page = table.slice(filteredSongs);
+```
+
+### PocketCards (`js/pocket-cards.js`)
+
+```javascript
+PocketCards.printPocketCards(setlist, {
+  size: 'wallet',      // or 'credit'
+  showArtist: true,
+  showContext: true
+});
+```
+
+---
+
+## Legacy module APIs (ES modules — optional server only)
 
 ### SongManager (`js/song-manager.js`)
 

@@ -3,6 +3,11 @@
  * Common layout, component, and responsive styles shared across all pages
  */
 
+html {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
 /* ========================================
    MOBILE COMMAND MENU (Hamburger)
    ======================================== */
@@ -190,7 +195,7 @@
     background: rgba(0, 0, 0, 0.15);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    padding: 10px 15px;
+    padding: 8px 12px;
     display: flex;
     align-items: center;
     border-bottom: 2px solid var(--primary-color);
@@ -200,68 +205,115 @@
     z-index: 9998;
     box-shadow: 0 2px 10px var(--primary-glow);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    overflow: visible;
-    flex-wrap: wrap;
-    gap: 4px; /* Tight spacing between all children */
-    min-width: 0; /* Allow header to shrink */
+    overflow-x: clip;
+    flex-wrap: nowrap;
+    gap: 8px;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 52px;
+    box-sizing: border-box;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    min-width: 0;
 }
 
 .header h1 {
     color: var(--primary-light);
     text-shadow: 0 0 20px var(--primary-glow);
-    font-size: 20px;
+    font-size: 18px;
     display: flex;
     align-items: center;
     gap: 8px;
     margin: 0;
-    margin-right: 10px; /* Space after title before nav links */
     flex-shrink: 0;
     white-space: nowrap;
+    line-height: 1.15;
+}
+
+.header-title-block {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    min-width: 0;
+}
+
+.header-title-text {
+    white-space: nowrap;
+    font-size: 1em;
+    line-height: 1.1;
+}
+
+.version-tag {
+    font-size: 0.55em;
+    opacity: 0.65;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    line-height: 1;
+    color: var(--text-secondary, #aaa);
 }
 
 .header h1 svg {
     width: 20px;
     height: 20px;
+    flex-shrink: 0;
 }
 
-/* Direct children nav-links and theme-selector styling */
+/* Direct children nav-links and theme-selector styling (song-manager flat layout) */
 .header > .nav-link {
     flex-shrink: 0;
 }
 
 .header > .theme-selector {
     flex-shrink: 0;
-    margin-left: 4px; /* Small space before theme selector */
 }
 
 .header > .mobile-menu-btn {
-    margin-left: auto; /* Push hamburger to right */
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
-/* Legacy support for nested structure (setlist-manager, chord-chart, show-time still use it) */
 .header-controls {
     display: flex;
-    gap: 4px;
+    gap: 8px;
     align-items: center;
     flex-shrink: 1;
     flex-wrap: wrap;
     min-width: 0;
+    max-width: 100%;
+    margin-left: auto;
+    justify-content: flex-end;
 }
 
 .header-controls .nav-links {
     display: flex;
     gap: 4px;
-    flex-shrink: 0;
+    flex-shrink: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+    justify-content: flex-end;
 }
 
 .header-controls .theme-selector {
     flex-shrink: 0;
-    margin-left: 4px;
+    margin-left: 2px;
 }
 
 .header-controls .btn {
     flex-shrink: 0;
     white-space: nowrap;
+}
+
+.header .back-button {
+    margin-right: 0;
+    flex-shrink: 0;
 }
 
 /* ========================================
@@ -411,6 +463,9 @@
     overflow: hidden;
     position: relative;
     z-index: 1;
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
 }
 
 /* Left Sidebar - Desktop: normal sidebar, Mobile: floating box */
@@ -423,7 +478,10 @@
     border-right: 2px solid var(--primary-border);
     padding: 15px 8px;
     overflow-y: auto;
+    overscroll-behavior: contain;
     flex-shrink: 0;
+    min-height: 0;
+    align-self: stretch;
     box-shadow: 2px 0 10px var(--primary-glow);
     transition: all 0.3s ease;
     position: relative; /* Normal flow on desktop */
@@ -451,8 +509,13 @@
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     padding: 20px;
+    overflow-x: auto;
     overflow-y: auto;
+    overscroll-behavior: contain;
     position: relative;
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
 }
 
 /* Right Sidebar */
@@ -464,7 +527,10 @@
     border-left: 2px solid var(--primary-border);
     padding: 15px;
     overflow-y: auto;
+    overscroll-behavior: contain;
     flex-shrink: 0;
+    min-height: 0;
+    align-self: stretch;
     transition: all 0.3s ease;
     box-shadow: -2px 0 10px var(--primary-glow);
 }
@@ -767,6 +833,108 @@ label:has(input[type="checkbox"]) {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+}
+
+/* Add/Edit song dialog: above the sticky header; only the form fields scroll */
+#editSongModal.modal,
+#songModal.modal {
+    z-index: 10050;
+}
+
+#editSongModal.modal.active,
+#songModal.modal.active {
+    overflow: hidden;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    inset: 0;
+    height: 100dvh;
+    width: 100%;
+}
+
+.modal-content.song-edit-modal {
+    max-width: 860px;
+    width: min(860px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 20px 16px;
+    box-sizing: border-box;
+    margin: 0 auto;
+}
+
+.song-edit-modal .modal-header {
+    flex-shrink: 0;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    overflow: visible;
+}
+
+.song-edit-modal .modal-header h2 {
+    overflow: visible;
+    white-space: nowrap;
+}
+
+.song-edit-form {
+    display: flex;
+    align-items: stretch;
+    gap: 20px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.song-edit-fields {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 8px;
+}
+
+.song-edit-actions {
+    flex: 0 0 168px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 2px;
+    align-self: flex-start;
+    position: sticky;
+    top: 0;
+}
+
+.song-edit-actions .btn-primary,
+.song-edit-actions .btn-secondary,
+.song-edit-actions button {
+    width: 100%;
+    margin: 0;
+    justify-content: center;
+}
+
+@media (max-width: 700px) {
+    .song-edit-form {
+        flex-direction: column;
+    }
+
+    .song-edit-fields {
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .song-edit-actions {
+        flex: none;
+        flex-direction: row;
+        width: 100%;
+        align-self: stretch;
+        position: static;
+        padding-top: 8px;
+        border-top: 1px solid var(--primary-border);
+    }
 }
 
 .visually-hidden {
@@ -1086,49 +1254,80 @@ label:has(input[type="checkbox"]) {
    RESPONSIVE BREAKPOINTS
    ======================================== */
 
+@media (max-width: 1500px) {
+    .header-brand #drumIcon {
+        display: none;
+    }
+
+    .version-tag {
+        display: none;
+    }
+}
+
+@media (max-width: 1400px) {
+    .header {
+        flex-wrap: wrap;
+        row-gap: 6px;
+        padding-bottom: 10px;
+    }
+
+    .header-brand {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .header-controls {
+        flex: 1 1 100%;
+        justify-content: flex-end;
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
 @media (max-width: 1200px) {
     .header h1 {
-        font-size: 18px;
+        font-size: 16px;
     }
-    
-    /* Allow header controls to wrap on smaller screens */
-    .header-controls {
-        flex-wrap: wrap;
-        gap: 6px;
+
+    .header-title-text {
+        font-size: 1em;
     }
-    
-    /* Make compact stats smaller */
-    .compact-stats {
-        font-size: 11px;
-        gap: 6px;
-    }
-    
-    /* Reduce button padding */
-    .header-controls .btn,
-    .header-controls .btn-secondary {
-        padding: 5px 8px;
-        font-size: 12px;
-    }
-    
-    /* Make nav links more compact */
+
     .header-controls .nav-link {
-        padding: 5px 8px;
-        font-size: 12px;
+        padding: 5px 7px;
+        font-size: 11px;
+        gap: 3px;
     }
-    
-    /* Reduce theme selector size */
+
+    .header-controls .nav-link svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .header > .nav-link {
+        padding: 5px 7px;
+        font-size: 11px;
+    }
+
     .header-controls .theme-selector {
-        font-size: 12px;
+        font-size: 11px;
         padding: 5px 6px;
-        min-width: 60px;
-        max-width: 80px;
+        min-width: 58px;
+        max-width: 76px;
     }
-    
-    /* Make search box take less space */
-    .header-controls .search-box {
-        max-width: 250px !important;
-        font-size: 12px !important;
-        padding: 5px 10px !important;
+
+    /* Icon-only nav to prevent overlap with theme selector */
+    .header-controls .nav-link {
+        font-size: 0;
+        padding: 6px 8px;
+        min-width: 34px;
+        justify-content: center;
+    }
+
+    .header-controls .nav-link svg {
+        width: 16px;
+        height: 16px;
+        margin-right: 0 !important;
     }
 }
 
@@ -1141,16 +1340,6 @@ label:has(input[type="checkbox"]) {
     .header-controls .search-box {
         max-width: 180px !important;
         font-size: 12px !important;
-    }
-    
-    /* Stack nav links if needed */
-    .header-controls .nav-links {
-        flex-shrink: 1;
-    }
-    
-    .header-controls .nav-link {
-        padding: 4px 6px;
-        font-size: 11px;
     }
     
     .header-controls .btn,
@@ -1167,47 +1356,12 @@ label:has(input[type="checkbox"]) {
     }
 }
 
+/* Tablet and narrow desktop — hamburger nav, overlay sidebars */
 @media (max-width: 1024px) {
-    .left-sidebar, .right-sidebar {
-        width: 180px;
-    }
-    
-    .header {
-        padding: 8px 12px;
-    }
-    
-    .header h1 {
-        font-size: 16px;
-    }
-    
-    .header h1 svg {
-        width: 18px;
-        height: 18px;
-    }
-    
-    .btn, .nav-link {
-        padding: 5px 10px;
-        font-size: 12px;
-    }
-}
-
-@media (max-width: 768px) {
-    /* Mobile-first adjustments */
-    body {
-        font-size: 16px; /* Prevent zoom on iOS */
-    }
-    
-    /* Remove z-index from main-layout so sidebar can escape */
-    .main-layout {
-        z-index: auto;
-    }
-    
-    /* Show mobile search bar */
     .mobile-search-bar {
         display: block;
     }
-    
-    /* Header adjustments - keep it simple and sticky */
+
     .header {
         position: sticky;
         top: 0;
@@ -1215,7 +1369,12 @@ label:has(input[type="checkbox"]) {
         padding: 10px 15px;
         gap: 10px;
     }
-    
+
+    .header-brand {
+        flex: 1;
+        min-width: 0;
+    }
+
     .header h1 {
         font-size: 18px;
         flex: 1;
@@ -1223,13 +1382,12 @@ label:has(input[type="checkbox"]) {
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    
-    /* Show hamburger menu button on mobile */
+
     .mobile-menu-btn {
         display: flex;
+        margin-left: auto;
     }
-    
-    /* Hide ALL desktop header controls on mobile */
+
     .header-controls,
     .header-controls *,
     .header .nav-links,
@@ -1241,101 +1399,106 @@ label:has(input[type="checkbox"]) {
     .header .theme-selector {
         display: none !important;
     }
-    
-    /* Song selector (for song-manager.html) */
-    .song-selector {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex: 1;
-    }
-    
-    .song-selector h1 {
-        font-size: 16px !important;
-        white-space: nowrap;
-    }
-    
-    /* Layout changes - HIDE SIDEBARS ON MOBILE by default */
+
     .main-layout {
-        flex-direction: row; /* Keep horizontal for overlay */
+        flex-direction: row;
         overflow: hidden;
         position: relative;
+        z-index: auto;
     }
-    
-    /* Left sidebar - make it a floating compact box on mobile */
+
     .left-sidebar {
         position: fixed !important;
-        left: -100%; /* Hidden by default */
-        top: 80px; /* Below header with margin */
-        width: auto !important; /* Size to content width */
-        min-width: 200px; /* Minimum width for readability */
-        max-width: 340px; /* Don't get too wide */
-        max-height: calc(100vh - 120px); /* Leave space top and bottom */
-        height: auto; /* Size to content - grows/shrinks dynamically */
-        z-index: 10001 !important; /* Above backdrop (10000) */
-        background: #1a1a1a !important; /* Solid opaque background */
-        opacity: 1 !important; /* Ensure not dimmed */
+        left: -100%;
+        top: 80px;
+        width: auto !important;
+        min-width: 200px;
+        max-width: 340px;
+        max-height: calc(100vh - 120px);
+        height: auto;
+        z-index: 10001 !important;
+        background: #1a1a1a !important;
+        opacity: 1 !important;
         border: 3px solid var(--primary-light) !important;
         border-radius: 12px !important;
         padding: 20px 15px !important;
         overflow-y: auto;
         transition: left 0.3s ease;
         box-shadow: 0 8px 40px rgba(0, 0, 0, 0.9), 0 0 20px var(--primary-glow) !important;
-        pointer-events: auto !important; /* Ensure sidebar is always interactive */
-        isolation: isolate; /* Create new stacking context */
+        pointer-events: auto !important;
+        isolation: isolate;
     }
-    
+
     .left-sidebar.mobile-open {
-        left: 15px !important; /* Slide in with margin from edge */
+        left: 15px !important;
     }
-    
-    /* Ensure sidebar content is not dimmed */
+
     .left-sidebar * {
         pointer-events: auto !important;
         opacity: 1 !important;
     }
-    
-    /* Make sidebar title more prominent in mobile box */
-    @media (max-width: 768px) {
-        .left-sidebar .sidebar-title,
-        .left-sidebar .palette-title {
-            text-align: center;
-            font-size: 16px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--primary-border);
-        }
-    }
-    
-    /* Right sidebar - hide on mobile */
+
     .right-sidebar {
         display: none !important;
     }
-    
-    /* Center pane takes full width */
+
     .center-pane {
         flex: 1;
         width: 100%;
+        min-width: 0;
         padding: 15px 10px;
+        overflow-x: auto;
         overflow-y: auto;
     }
-    
-    /* Mobile sidebar backdrop - covers entire viewport */
+
     .mobile-sidebar-backdrop {
         display: none;
         position: fixed;
         top: 0;
-        left: 0; /* Start from the left edge to cover everything */
+        left: 0;
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.7);
-        z-index: 10000; /* Above content but below sidebar (10001) */
-        pointer-events: auto; /* Make backdrop clickable */
-        cursor: pointer; /* Show it's clickable */
+        z-index: 10000;
+        pointer-events: auto;
+        cursor: pointer;
     }
-    
+
     .mobile-sidebar-backdrop.active {
         display: block;
+    }
+
+    .btn, .nav-link {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile-first adjustments */
+    body {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    .song-selector {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+    }
+
+    .song-selector h1 {
+        font-size: 16px !important;
+        white-space: nowrap;
+    }
+
+    .left-sidebar .sidebar-title,
+    .left-sidebar .palette-title {
+        text-align: center;
+        font-size: 16px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--primary-border);
     }
     
     /* Modal improvements */
@@ -1523,5 +1686,244 @@ label:has(input[type="checkbox"]) {
     .left-sidebar.mobile-open {
         left: 10px; /* Smaller margin on tiny screens */
     }
+}
+
+/* Active navigation link */
+.nav-link-active {
+    background: var(--primary-color);
+    border-color: var(--primary-lighter);
+    color: #fff;
+    box-shadow: 0 0 12px var(--primary-glow);
+}
+
+/* Import preview helpers */
+.import-action-select {
+    width: 100%;
+    max-width: 140px;
+    padding: 4px 6px;
+    font-size: 12px;
+}
+
+.import-errors {
+    background: rgba(92, 29, 10, 0.35);
+    border: 1px solid #ff6b3d;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    color: #ffb4a0;
+    font-size: 13px;
+}
+
+.import-errors ul {
+    margin: 6px 0 0 18px;
+}
+
+.hidden-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+}
+
+.pocket-card-options {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.pocket-card-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.pocket-card-options select {
+    width: 100%;
+}
+
+.pocket-card-preview-section {
+    margin-top: 4px;
+}
+
+.pocket-card-preview-section > label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--primary-light);
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.pocket-card-preview-stage {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 2px dashed var(--primary-border);
+    border-radius: 8px;
+    min-height: 180px;
+}
+
+.pocket-card-preview-note {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* Scaled on-screen preview — one card per set */
+.pocket-card-preview {
+    background: #fff;
+    color: #111;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    text-align: left;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.pocket-card-preview.size-wallet {
+    width: 245px;
+    height: 140px;
+    padding: 8px 10px;
+}
+
+.pocket-card-preview.size-credit {
+    width: 238px;
+    height: 150px;
+    padding: 8px 10px;
+}
+
+.pocket-card-preview .card-header {
+    flex-shrink: 0;
+    padding-bottom: 3px;
+    margin-bottom: 3px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.pocket-card-preview .card-header-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.pocket-card-preview .card-set-name {
+    font-size: 8px;
+    font-weight: 600;
+    color: #444;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+}
+
+.pocket-card-preview .card-continuation {
+    font-size: 7px;
+    color: #aaa;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.pocket-card-preview .card-context {
+    font-size: 6px;
+    color: #aaa;
+    margin-top: 1px;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 400;
+}
+
+.pocket-card-preview .card-song-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+.pocket-card-preview .card-song-list-cols {
+    column-count: 2;
+    column-gap: 8px;
+    column-fill: auto;
+}
+
+.pocket-card-preview .card-song-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 2px;
+    margin-bottom: 1px;
+    line-height: 1.05;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.pocket-card-preview .card-song-num {
+    font-size: 6px;
+    color: #aaa;
+    min-width: 10px;
+    flex-shrink: 0;
+}
+
+.pocket-card-preview .card-song-body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.pocket-card-preview .songs-few .card-song,
+.pocket-card-preview .songs-few .card-song {
+    font-size: 9px;
+    font-weight: 800;
+    color: #000;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+.pocket-card-preview .songs-few .card-artist {
+    font-size: 7px;
+    color: #555;
+    line-height: 1.05;
+}
+
+.pocket-card-preview .songs-medium .card-song {
+    font-size: 8px;
+    font-weight: 800;
+    color: #000;
+}
+
+.pocket-card-preview .songs-medium .card-artist {
+    font-size: 6px;
+    color: #555;
+    line-height: 1.05;
+}
+
+.pocket-card-preview .songs-many .card-song {
+    font-size: 7px;
+    font-weight: 800;
+    color: #000;
+}
+
+.pocket-card-preview .songs-many .card-artist {
+    font-size: 6px;
+    color: #555;
+    line-height: 1.05;
+}
+
+.pocket-card-preview .card-empty {
+    font-size: 9px;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 8px 0;
 }
 

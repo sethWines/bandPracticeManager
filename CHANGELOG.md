@@ -5,6 +5,30 @@ All notable changes to the Band Manager application will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - Modernization (file:// first) - 2026-08-31
+
+### Added
+- **Bulk Import Songs** workflow with CSV upload, paste-from-spreadsheet, header mapping, row validation, and per-row duplicate decisions (keep / update / skip)
+- **Pocket Cards** printing in Setlist Manager (wallet 3.5×2 in and credit card 3.375×2.125 in; optional artist subtext)
+- Shared classic-script modules: `song-data.js`, `song-import.js`, `app-shell.js`, `table-helper.js`, `pocket-cards.js`
+- Import test fixtures under `samples/import-fixtures/`
+- **`BROWSER_CHECKLIST.md`** — supported browsers, `file://` constraints, manual test matrix
+
+### Changed
+- Song Manager uses paginated table rendering and batch import apply
+- Storage Wizard CSV import merges safely with existing songs (preserves chart/progress metadata)
+- Theme/navigation/toast helpers consolidated via `app-shell.js` across all pages
+- README updated for direct-file usage, 14 themes, and pocket cards
+
+### Removed
+- **Spotify** integration (UI, credentials, network calls); legacy keys cleaned on load
+
+### Fixed
+- Stable song IDs on manual add and import; safe merge on updates
+- Duplicate `#mobileMenu` in Storage Wizard
+- `generateId()` / `exportAllData()` available globally via `song-data.js`
+- Service worker replaced with inactive stub (`sw.js`) — app does not rely on PWA cache for `file://`
+
 ## [2.3.0] - Inline Song Editing & Link Fixes - 2024-12-10
 
 ### Added - Setlist Manager

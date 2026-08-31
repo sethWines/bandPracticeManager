@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Band Manager">
+    <link rel="manifest" href="manifest.json">
     <title>Storage Wizard - Band Practice Manager</title>
     <meta name="app-version" content="v2.3.0">
     <link rel="stylesheet" href="./css/themes.css">
@@ -11,53 +16,27 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d84315' stroke-width='2'><circle cx='12' cy='17' r='4.5'/><line x1='12' y1='12.5' x2='12' y2='2'/><line x1='9' y1='5' x2='15' y2='5'/><line x1='9' y1='8' x2='15' y2='8'/></svg>">
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
-        <h1>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Storage Wizard
-        </h1>
-        
-        <div class="header-controls" style="margin-left: auto;">
-            <div class="nav-links">
-                <a href="song-manager.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                    </svg>
-                    Songs
-                </a>
-                <a href="setlist-manager.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                        <line x1="8" y1="6" x2="21" y2="6"/>
-                        <line x1="8" y1="12" x2="21" y2="12"/>
-                        <line x1="8" y1="18" x2="21" y2="18"/>
-                        <line x1="3" y1="6" x2="3.01" y2="6"/>
-                        <line x1="3" y1="12" x2="3.01" y2="12"/>
-                        <line x1="3" y1="18" x2="3.01" y2="18"/>
-                    </svg>
-                    Setlists
-                </a>
-                <a href="chord-chart-editor.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                        <path d="M9 18V5l12-2v13"/>
-                        <circle cx="6" cy="18" r="3"/>
-                        <circle cx="18" cy="16" r="3"/>
-                    </svg>
-                    Charts
-                </a>
-                <a href="show-time.html" class="nav-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                        <polygon points="5 3 19 12 5 21 5 3"/>
-                    </svg>
-                    Show Time
-                </a>
-            </div>
-            <select id="themeSelector" class="theme-selector" onchange="changeTheme(this.value)">
+        <div class="header-brand">
+            <h1>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Storage Wizard
+            </h1>
+        </div>
+
+        <div class="header-controls">
+            <nav class="nav-links">
+                <a href="song-manager.html" class="nav-link" data-page="songs">Songs</a>
+                <a href="setlist-manager.html" class="nav-link" data-page="setlists">Setlists</a>
+                <a href="chord-chart-editor.html" class="nav-link" data-page="charts">Charts</a>
+                <a href="show-time.html" class="nav-link" data-page="show">Show Time</a>
+                <a href="storage-wizard.html" class="nav-link" data-page="storage">Storage</a>
+            </nav>
+            <select id="themeSelector" class="theme-selector" onchange="changeTheme(this.value)" title="Theme">
                 <option value="grey">Grey</option>
                 <option value="red">Red</option>
                 <option value="blue">Blue</option>
@@ -70,13 +49,13 @@
                 <option value="pink">Pink</option>
                 <option value="sunrise">Sunrise</option>
                 <option value="sunset">Sunset</option>
-                <option value="synthwave">Synth Wave</option>
-                <option value="prism">Dark Prism</option>
+                <option value="synthwave">Synth</option>
+                <option value="prism">Prism</option>
             </select>
         </div>
-        
+
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -84,51 +63,20 @@
         </button>
     </div>
 
-    <!-- Mobile Command Menu (Full Screen Overlay) -->
     <div class="mobile-menu-overlay" id="mobileMenu">
         <div class="mobile-menu-header">
             <span class="mobile-menu-title">Menu</span>
             <button class="mobile-menu-close" onclick="toggleMobileMenu()" aria-label="Close menu">✕</button>
         </div>
         <div class="mobile-menu-content">
-            <!-- Navigation Section -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-section-title">Navigate</div>
-                <a href="song-manager.html" class="nav-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                    </svg>
-                    Songs
-                </a>
-                <a href="setlist-manager.html" class="nav-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="8" y1="6" x2="21" y2="6"/>
-                        <line x1="8" y1="12" x2="21" y2="12"/>
-                        <line x1="8" y1="18" x2="21" y2="18"/>
-                        <line x1="3" y1="6" x2="3.01" y2="6"/>
-                        <line x1="3" y1="12" x2="3.01" y2="12"/>
-                        <line x1="3" y1="18" x2="3.01" y2="18"/>
-                    </svg>
-                    Setlists
-                </a>
-                <a href="chord-chart-editor.html" class="nav-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 18V5l12-2v13"/>
-                        <circle cx="6" cy="18" r="3"/>
-                        <circle cx="18" cy="16" r="3"/>
-                    </svg>
-                    Charts
-                </a>
-                <a href="show-time.html" class="nav-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="5 3 19 12 5 21 5 3"/>
-                    </svg>
-                    Show Time
-                </a>
+                <a href="song-manager.html" class="nav-link" data-page="songs">Songs</a>
+                <a href="setlist-manager.html" class="nav-link" data-page="setlists">Setlists</a>
+                <a href="chord-chart-editor.html" class="nav-link" data-page="charts">Charts</a>
+                <a href="show-time.html" class="nav-link" data-page="show">Show Time</a>
+                <a href="storage-wizard.html" class="nav-link" data-page="storage">Storage</a>
             </div>
-
-            <!-- Theme Section -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-section-title">Theme</div>
                 <select id="mobileThemeSelector" class="theme-selector" onchange="changeTheme(this.value)">
@@ -144,426 +92,243 @@
                     <option value="pink">Pink</option>
                     <option value="sunrise">Sunrise</option>
                     <option value="sunset">Sunset</option>
-                    <option value="synthwave">Synth Wave</option>
-                    <option value="prism">Dark Prism</option>
+                    <option value="synthwave">Synth</option>
+                    <option value="prism">Prism</option>
                 </select>
             </div>
         </div>
     </div>
 
-    <!-- Mobile Command Menu (Full Screen Overlay) -->
-    <div class="mobile-menu-overlay" id="mobileMenu">
-        <div class="mobile-menu-header">
-            <span class="mobile-menu-title">Menu</span>
-            <button class="mobile-menu-close" onclick="toggleMobileMenu()" aria-label="Close menu">✕</button>
+    <main class="wizard-page">
+        <div class="device-badge" id="deviceBadge">
+            <span id="deviceIcon" class="device-badge-icon" aria-hidden="true"></span>
+            <span class="device-badge-text">Guidance for <strong id="deviceName">Detecting device…</strong></span>
         </div>
-        <div class="mobile-menu-content">
-            <!-- Navigation Section -->
-            <div class="mobile-menu-section">
-                <div class="mobile-menu-section-title">Navigate</div>
-                <a href="song-manager.html" class="nav-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+
+        <section class="config-panel" id="configPanel">
+            <div class="config-panel-header">
+                <h2 class="panel-title">Configuration</h2>
+                <p class="panel-desc">Switch between saved snapshots of your library and settings.</p>
+            </div>
+            <label class="field-label" for="configSelector">Active configuration</label>
+            <select id="configSelector" class="config-select" onchange="switchConfiguration(this.value)"></select>
+            <div class="config-actions">
+                <button type="button" onclick="exportActiveConfig()" class="btn-primary">Export active config</button>
+                <button type="button" onclick="deleteConfiguration()" class="btn-secondary">Delete config</button>
+            </div>
+        </section>
+
+        <div id="taskSelection" class="wizard-section">
+            <div class="section-group">
+                <div class="section-header expanded" onclick="toggleSection('importSection')" role="button" tabindex="0">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
-                    Songs
-                </a>
-                <a href="setlist-manager.html" class="nav-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="8" y1="6" x2="21" y2="6"/>
-                        <line x1="8" y1="12" x2="21" y2="12"/>
-                        <line x1="8" y1="18" x2="21" y2="18"/>
-                        <line x1="3" y1="6" x2="3.01" y2="6"/>
-                        <line x1="3" y1="12" x2="3.01" y2="12"/>
-                        <line x1="3" y1="18" x2="3.01" y2="18"/>
+                    <span>Import</span>
+                    <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"/>
                     </svg>
-                    Setlists
-                </a>
-                <a href="chord-chart-editor.html" class="nav-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 18V5l12-2v13"/>
-                        <circle cx="6" cy="18" r="3"/>
-                        <circle cx="18" cy="16" r="3"/>
-                    </svg>
-                    Charts
-                </a>
-                <a href="show-time.html" class="nav-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="5 3 19 12 5 21 5 3"/>
-                    </svg>
-                    Show Time
-                </a>
+                </div>
+                <div id="importSection" class="section-content show">
+                    <button type="button" class="task-row" onclick="startCSVImportWizard()">
+                        <span class="task-row-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="12" y1="18" x2="12" y2="12"/>
+                                <line x1="9" y1="15" x2="15" y2="15"/>
+                            </svg>
+                        </span>
+                        <span class="task-row-body">
+                            <span class="task-row-title">Import CSV</span>
+                            <span class="task-row-desc">Add songs from a spreadsheet file</span>
+                        </span>
+                    </button>
+                    <button type="button" class="task-row" onclick="startJSONImportWizard()">
+                        <span class="task-row-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <path d="M10 12h4"/>
+                                <path d="M10 16h4"/>
+                            </svg>
+                        </span>
+                        <span class="task-row-body">
+                            <span class="task-row-title">Import JSON backup</span>
+                            <span class="task-row-desc">Restore a complete backup file</span>
+                        </span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Theme Section -->
-            <div class="mobile-menu-section">
-                <div class="mobile-menu-section-title">Theme</div>
-                <select id="mobileThemeSelector" class="theme-selector" onchange="changeTheme(this.value)">
-                    <option value="grey">Grey</option>
-                    <option value="red">Red</option>
-                    <option value="blue">Blue</option>
-                    <option value="green">Green</option>
-                    <option value="purple">Purple</option>
-                    <option value="cyan">Cyan</option>
-                    <option value="teal">Teal</option>
-                    <option value="copper">Copper</option>
-                    <option value="amber">Amber</option>
-                    <option value="pink">Pink</option>
-                    <option value="sunrise">Sunrise</option>
-                    <option value="sunset">Sunset</option>
-                    <option value="synthwave">Synth Wave</option>
-                    <option value="prism">Dark Prism</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <!-- Device Detection Display -->
-    <div class="device-info">
-        <div id="detectedDevice" style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
-            <div id="deviceIcon">
-                <!-- Device icon will be inserted here -->
-            </div>
-            <div style="text-align: center;">
-                <div style="font-size: 14px; color: var(--text-tertiary); margin-bottom: 5px;">Detected Device:</div>
-                <div id="deviceName" style="font-size: 20px; font-weight: bold; color: var(--primary-light);">Detecting your device...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Configuration Manager Section -->
-    <div class="config-manager-section" style="padding: 20px; margin: 20px auto; max-width: 800px;">
-        <div class="config-manager-card" style="background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(15px); border: 2px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 20px;">
-            <h3 style="color: var(--primary-light); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                </svg>
-                Configuration Manager
-            </h3>
-            <div class="active-config-display" style="margin-bottom: 15px;">
-                <label for="configSelector" style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-weight: 600;">
-                    Active Configuration:
-                </label>
-                <select id="configSelector" onchange="switchConfiguration(this.value)" style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid var(--primary-color); border-radius: 6px; cursor: pointer;">
-                    <!-- Dynamically populated -->
-                </select>
-            </div>
-            <div class="config-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button onclick="exportActiveConfig()" class="btn-primary" style="flex: 1; min-width: 150px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+            <div class="section-group">
+                <div class="section-header" onclick="toggleSection('exportSection')" role="button" tabindex="0">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    Export Active Config
-                </button>
-                <button onclick="deleteConfiguration()" class="btn-secondary" style="flex: 1; min-width: 150px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                    <span>Export</span>
+                    <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </div>
+                <div id="exportSection" class="section-content">
+                    <button type="button" class="task-row" onclick="startJSONExportWizard()">
+                        <span class="task-row-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <path d="M10 12h4"/>
+                                <path d="M10 16h4"/>
+                            </svg>
+                        </span>
+                        <span class="task-row-body">
+                            <span class="task-row-title">Export JSON backup</span>
+                            <span class="task-row-desc">Download all songs, setlists, and settings</span>
+                        </span>
+                    </button>
+                    <button type="button" class="task-row" onclick="startCSVExportWizard()">
+                        <span class="task-row-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="12" y1="12" x2="12" y2="18"/>
+                                <line x1="9" y1="15" x2="15" y2="15"/>
+                            </svg>
+                        </span>
+                        <span class="task-row-body">
+                            <span class="task-row-title">Export CSV</span>
+                            <span class="task-row-desc">Export song metadata to a spreadsheet</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="section-group section-group-danger">
+                <button type="button" class="section-header danger" onclick="confirmClearAll()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <polyline points="3 6 5 6 21 6"/>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                     </svg>
-                    Delete Config
+                    <span>Clear all data</span>
+                    <svg class="chevron chevron-right" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
                 </button>
             </div>
         </div>
-    </div>
 
-    <!-- Task Selection -->
-    <div id="taskSelection" class="wizard-section">
-        <h2 style="text-align: center; color: var(--primary-light); margin-bottom: 30px;">Choose an Operation</h2>
-        
-        <!-- Import Section -->
-        <div class="section-group">
-            <div class="section-header" onclick="toggleSection('importSection')">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                <span>Import Data</span>
-                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9"/>
-                </svg>
+        <div id="csvImportWizard" class="wizard-flow" hidden>
+            <div class="wizard-flow-header">
+                <button type="button" onclick="backToTaskSelection()" class="btn-secondary wizard-back-btn">Back</button>
+                <h2>Import CSV</h2>
+                <p>Follow the steps below to import your file.</p>
             </div>
-            <div id="importSection" class="section-content" style="display: none;">
-                <div class="task-card" onclick="startCSVImportWizard()">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="12" y1="18" x2="12" y2="12"/>
-                        <line x1="9" y1="15" x2="15" y2="15"/>
-                    </svg>
-                    <h3>Import CSV File</h3>
-                    <p>Import songs from CSV</p>
-                </div>
-                <div class="task-card" onclick="startJSONImportWizard()">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <path d="M10 12h4"/>
-                        <path d="M10 16h4"/>
-                    </svg>
-                    <h3>Import JSON Backup</h3>
-                    <p>Restore complete backup</p>
-                </div>
+            <div id="csvImportSteps"></div>
+        </div>
+
+        <div id="jsonImportWizard" class="wizard-flow" hidden>
+            <div class="wizard-flow-header">
+                <button type="button" onclick="backToTaskSelection()" class="btn-secondary wizard-back-btn">Back</button>
+                <h2>Import JSON backup</h2>
+                <p>Restore your complete backup.</p>
             </div>
+            <div id="jsonImportSteps"></div>
         </div>
-        
-        <!-- Export Section -->
-        <div class="section-group">
-            <div class="section-header" onclick="toggleSection('exportSection')">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                <span>Export Data</span>
-                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9"/>
-                </svg>
+
+        <div id="jsonExportWizard" class="wizard-flow" hidden>
+            <div class="wizard-flow-header">
+                <button type="button" onclick="backToTaskSelection()" class="btn-secondary wizard-back-btn">Back</button>
+                <h2>Export JSON backup</h2>
+                <p>Create a complete backup of all your data.</p>
             </div>
-            <div id="exportSection" class="section-content" style="display: none;">
-                <div class="task-card" onclick="startJSONExportWizard()">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <path d="M10 12h4"/>
-                        <path d="M10 16h4"/>
-                    </svg>
-                    <h3>Export JSON Backup</h3>
-                    <p>Complete backup file</p>
-                </div>
-                <div class="task-card" onclick="startCSVExportWizard()">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="12" y1="12" x2="12" y2="18"/>
-                        <line x1="9" y1="15" x2="15" y2="15"/>
-                    </svg>
-                    <h3>Export CSV File</h3>
-                    <p>Export songs to CSV</p>
-                </div>
+            <div id="jsonExportSteps"></div>
+        </div>
+
+        <div id="csvExportWizard" class="wizard-flow" hidden>
+            <div class="wizard-flow-header">
+                <button type="button" onclick="backToTaskSelection()" class="btn-secondary wizard-back-btn">Back</button>
+                <h2>Export CSV</h2>
+                <p>Export your songs to a CSV file.</p>
             </div>
+            <div id="csvExportSteps"></div>
         </div>
-        
-        <!-- Clear Data Section -->
-        <div class="section-group">
-            <div class="section-header danger" onclick="confirmClearAll()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    <line x1="10" y1="11" x2="10" y2="17"/>
-                    <line x1="14" y1="11" x2="14" y2="17"/>
-                </svg>
-                <span style="color: #dc2626;">Clear All Data</span>
-                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
-                    <polyline points="9 18 15 12 9 6"/>
-                </svg>
+
+        <div id="clearAllWizard" class="wizard-flow" hidden>
+            <div class="wizard-flow-header">
+                <button type="button" onclick="backToTaskSelection()" class="btn-secondary wizard-back-btn">Back</button>
+                <h2 class="text-danger">Clear all data</h2>
+                <p>This will delete everything — proceed with caution.</p>
             </div>
+            <div id="clearAllSteps"></div>
         </div>
-    </div>
+    </main>
 
-    <!-- CSV Import Wizard Steps (hidden initially) -->
-    <div id="csvImportWizard" class="wizard-flow" style="display: none;">
-        <div class="wizard-flow-header">
-            <button onclick="backToTaskSelection()" class="btn-secondary" style="margin-bottom: 20px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                    <line x1="19" y1="12" x2="5" y2="12"/>
-                    <polyline points="12 19 5 12 12 5"/>
-                </svg>
-                Back to Menu
-            </button>
-            <h2 style="color: var(--primary-light); margin-bottom: 10px;">📥 Import CSV File</h2>
-            <p style="color: var(--text-tertiary); margin-bottom: 30px;">Follow these steps to import your CSV file</p>
-        </div>
-        <div id="csvImportSteps">
-            <!-- Steps will be dynamically inserted here -->
-        </div>
-    </div>
-
-    <!-- JSON Import Wizard Steps (hidden initially) -->
-    <div id="jsonImportWizard" class="wizard-flow" style="display: none;">
-        <div class="wizard-flow-header">
-            <button onclick="backToTaskSelection()" class="btn-secondary" style="margin-bottom: 20px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                    <line x1="19" y1="12" x2="5" y2="12"/>
-                    <polyline points="12 19 5 12 12 5"/>
-                </svg>
-                Back to Menu
-            </button>
-            <h2 style="color: var(--primary-light); margin-bottom: 10px;">📦 Import JSON Backup</h2>
-            <p style="color: var(--text-tertiary); margin-bottom: 30px;">Restore your complete backup</p>
-        </div>
-        <div id="jsonImportSteps">
-            <!-- Steps will be dynamically inserted here -->
-        </div>
-    </div>
-
-    <!-- JSON Export Wizard Steps (hidden initially) -->
-    <div id="jsonExportWizard" class="wizard-flow" style="display: none;">
-        <div class="wizard-flow-header">
-            <button onclick="backToTaskSelection()" class="btn-secondary" style="margin-bottom: 20px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                    <line x1="19" y1="12" x2="5" y2="12"/>
-                    <polyline points="12 19 5 12 12 5"/>
-                </svg>
-                Back to Menu
-            </button>
-            <h2 style="color: var(--primary-light); margin-bottom: 10px;">💾 Export JSON Backup</h2>
-            <p style="color: var(--text-tertiary); margin-bottom: 30px;">Create a complete backup of all your data</p>
-        </div>
-        <div id="jsonExportSteps">
-            <!-- Steps will be dynamically inserted here -->
-        </div>
-    </div>
-
-    <!-- CSV Export Wizard Steps (hidden initially) -->
-    <div id="csvExportWizard" class="wizard-flow" style="display: none;">
-        <div class="wizard-flow-header">
-            <button onclick="backToTaskSelection()" class="btn-secondary" style="margin-bottom: 20px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                    <line x1="19" y1="12" x2="5" y2="12"/>
-                    <polyline points="12 19 5 12 12 5"/>
-                </svg>
-                Back to Menu
-            </button>
-            <h2 style="color: var(--primary-light); margin-bottom: 10px;">📄 Export CSV File</h2>
-            <p style="color: var(--text-tertiary); margin-bottom: 30px;">Export your songs to a CSV file</p>
-        </div>
-        <div id="csvExportSteps">
-            <!-- Steps will be dynamically inserted here -->
-        </div>
-    </div>
-
-    <!-- Clear All Wizard Steps (hidden initially) -->
-    <div id="clearAllWizard" class="wizard-flow" style="display: none;">
-        <div class="wizard-flow-header">
-            <button onclick="backToTaskSelection()" class="btn-secondary" style="margin-bottom: 20px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                    <line x1="19" y1="12" x2="5" y2="12"/>
-                    <polyline points="12 19 5 12 12 5"/>
-                </svg>
-                Back to Menu
-            </button>
-            <h2 style="color: #dc2626; margin-bottom: 10px;">⚠️ Clear All Data</h2>
-            <p style="color: var(--text-tertiary); margin-bottom: 30px;">This will delete everything - proceed with caution!</p>
-        </div>
-        <div id="clearAllSteps">
-            <!-- Steps will be dynamically inserted here -->
-        </div>
-    </div>
-
-    <!-- Import Preview Panel -->
-    <div id="importPreviewPanel" class="import-preview-panel" style="display: none;">
+    <div id="importPreviewPanel" class="import-preview-panel" hidden>
         <div class="preview-content">
-            <h3 style="color: var(--primary-light); margin-bottom: 20px;">📋 Import Preview</h3>
-            <div id="previewStats" class="preview-stats">
-                <!-- Stats will be inserted here -->
-            </div>
+            <h3>Import preview</h3>
+            <div id="previewStats" class="preview-stats"></div>
             <div class="preview-actions">
-                <button onclick="confirmImportPreview()" class="btn-primary">
-                    ✓ Confirm Import
-                </button>
-                <button onclick="cancelImportPreview()" class="btn-secondary">
-                    ✗ Cancel
-                </button>
+                <button type="button" onclick="confirmImportPreview()" class="btn-primary">Confirm import</button>
+                <button type="button" onclick="cancelImportPreview()" class="btn-secondary">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- Filename Edit Modal -->
-    <div id="filenameModal" class="import-preview-panel" style="display: none;">
+    <div id="filenameModal" class="import-preview-panel" hidden>
         <div class="preview-content">
-            <h3 style="color: var(--primary-light); margin-bottom: 20px;">💾 Name Your Backup</h3>
-            <div style="margin-bottom: 20px;">
-                <label for="filenameInput" style="display: block; margin-bottom: 10px; color: var(--text-secondary); font-weight: 600;">
-                    Backup Filename:
-                </label>
-                <input 
-                    type="text" 
-                    id="filenameInput" 
-                    class="filename-input"
-                    placeholder="band-practice-manager-backup-YYYY-MM-DD.json"
-                    style="width: 100%; padding: 12px; font-size: 14px; border: 2px solid var(--primary-color); border-radius: 6px; background: var(--card-bg); color: var(--text-primary); font-family: monospace;"
-                />
-                <small style="display: block; margin-top: 8px; color: var(--text-tertiary);">
-                    Tip: Use descriptive names like "friday-night-gig.json" or "practice-setup-2024.json"
-                </small>
-            </div>
+            <h3>Name your backup</h3>
+            <label class="field-label" for="filenameInput">Backup filename</label>
+            <input type="text" id="filenameInput" class="filename-input" placeholder="band-practice-manager-backup-YYYY-MM-DD.json">
+            <p class="field-hint">Use a descriptive name like <code>friday-night-gig.json</code>.</p>
             <div class="preview-actions">
-                <button onclick="confirmFilenameAndExport()" class="btn-primary">
-                    ✓ Download Backup
-                </button>
-                <button onclick="cancelFilenameModal()" class="btn-secondary">
-                    ✗ Cancel
-                </button>
+                <button type="button" onclick="confirmFilenameAndExport()" class="btn-primary">Download backup</button>
+                <button type="button" onclick="cancelFilenameModal()" class="btn-secondary">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- Config Name Modal -->
-    <div id="configNameModal" class="import-preview-panel" style="display: none;">
+    <div id="configNameModal" class="import-preview-panel" hidden>
         <div class="preview-content">
-            <h3 style="color: var(--primary-light); margin-bottom: 20px;">📦 Name Your Configuration</h3>
-            <div style="margin-bottom: 20px;">
-                <label for="configNameInput" style="display: block; margin-bottom: 10px; color: var(--text-secondary); font-weight: 600;">
-                    Configuration Name:
-                </label>
-                <input 
-                    type="text" 
-                    id="configNameInput" 
-                    class="filename-input"
-                    placeholder="My Configuration"
-                    style="width: 100%; padding: 12px; font-size: 14px; border: 2px solid var(--primary-color); border-radius: 6px; background: var(--card-bg); color: var(--text-primary);"
-                />
-                <small style="display: block; margin-top: 8px; color: var(--text-tertiary);">
-                    Give this configuration a memorable name (e.g., "Tuesday Practice", "Friday Night Gig")
-                </small>
-            </div>
+            <h3>Name your configuration</h3>
+            <label class="field-label" for="configNameInput">Configuration name</label>
+            <input type="text" id="configNameInput" class="filename-input" placeholder="My Configuration">
+            <p class="field-hint">Example: Tuesday Practice, Friday Night Gig</p>
             <div class="preview-actions">
-                <button onclick="confirmConfigName()" class="btn-primary">
-                    ✓ Import Configuration
-                </button>
-                <button onclick="cancelConfigNameModal()" class="btn-secondary">
-                    ✗ Cancel
-                </button>
+                <button type="button" onclick="confirmConfigName()" class="btn-primary">Import configuration</button>
+                <button type="button" onclick="cancelConfigNameModal()" class="btn-secondary">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- Success Panel -->
-    <div id="successPanel" class="success-panel" style="display: none;">
+    <div id="successPanel" class="success-panel" hidden>
         <div class="success-content">
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2" style="margin-bottom: 20px;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2" aria-hidden="true">
                 <polyline points="20 6 9 17 4 12"/>
             </svg>
-            <h3 id="successTitle" style="color: var(--primary-light); margin-bottom: 10px;"></h3>
-            <p id="successMessage" style="color: var(--text-secondary); margin-bottom: 30px;"></p>
+            <h3 id="successTitle"></h3>
+            <p id="successMessage"></p>
             <div class="success-actions">
-                <button onclick="goToSongManager()" class="btn-primary">
-                    View Songs
-                </button>
-                <button onclick="backToTaskSelection()" class="btn-secondary">
-                    Back to Menu
-                </button>
+                <button type="button" onclick="goToSongManager()" class="btn-primary">View songs</button>
+                <button type="button" onclick="backToTaskSelection()" class="btn-secondary">Back to menu</button>
             </div>
         </div>
     </div>
 
-    <!-- Notification Toast -->
     <div id="notification" class="notification-toast">
         <span id="notificationMessage"></span>
     </div>
 
-    <!-- Hidden file inputs for standalone functionality -->
-    <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
-    <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+    <input type="file" id="csvFileInput" accept=".csv" hidden>
+    <input type="file" id="jsonFileInput" accept=".json" hidden>
 
+    <script src="./js/app-shell.js"></script>
+    <script src="./js/song-data.js"></script>
+    <script src="./js/song-import.js"></script>
     <script src="./js/storage-wizard.js"></script>
-    
-    <!-- Version Management -->
     <script src="./js/version.js"></script>
 </body>
 </html>
-

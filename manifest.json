@@ -1,7 +1,7 @@
 {
   "name": "Band Practice Manager",
   "short_name": "Band Manager",
-  "description": "Organize your band's songs, setlists, and practice sessions",
+  "description": "Organize songs and setlists — open HTML files directly in the browser. PWA manifest is optional/inactive for file:// usage.",
   "start_url": "/song-manager.html",
   "display": "standalone",
   "background_color": "#000000",
